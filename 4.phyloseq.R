@@ -15,3 +15,8 @@ ps_filtered <- subset_taxa(phyloseq_object, !is.na(Kingdom))
 #sample_data() Sample Data:       [ 61 samples by 5 sample variables ]
 #tax_table()   Taxonomy Table:    [ 4309 taxa by 7 taxonomic ranks ]
 
+#Rarefied
+ps_rarefied = rarefy_even_depth(ps_filtered)
+
+#Ordination
+plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS"), color = "enteritis") + geom_point(size = 5)+theme_classic()
