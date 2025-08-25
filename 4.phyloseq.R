@@ -20,3 +20,7 @@ ps_rarefied = rarefy_even_depth(ps_filtered)
 
 #Ordination
 plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS"), color = "enteritis") + geom_point(size = 5)+theme_bw()+scale_color_brewer(palette = "BrBG")
+
+#heatmap
+top10 <- prune_taxa(names(sort(taxa_sums(ps_rarefied),TRUE)[1:10]), ps_rarefied)
+plot_heatmap(top10, sample.label="enteritis",sample.order = "enteritis")+ylab("ASV")
