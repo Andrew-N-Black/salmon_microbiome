@@ -19,4 +19,4 @@ ps_filtered <- subset_taxa(phyloseq_object, !is.na(Kingdom))
 ps_rarefied = rarefy_even_depth(ps_filtered)
 
 #Ordination
-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS"), color = "enteritis") + geom_point(size = 5)+theme_classic()
+plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS"), color = "enteritis") + geom_point(size = 5)+theme_bw()+scale_color_brewer(palette = "BrBG")
