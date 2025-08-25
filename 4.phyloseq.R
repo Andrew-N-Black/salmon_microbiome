@@ -7,3 +7,11 @@ phyloseq_object<-qza_to_phyloseq(features = "~/SMB_n61/qiime2/input/table.qza",t
 #sample_data() Sample Data:       [ 61 samples by 5 sample variables ]
 #tax_table()   Taxonomy Table:    [ 4328 taxa by 7 taxonomic ranks ]
 
+
+#Remove NA kingdom assignments
+ps_filtered <- subset_taxa(phyloseq_object, !is.na(Kingdom))
+#phyloseq-class experiment-level object
+#otu_table()   OTU Table:         [ 4309 taxa and 61 samples ]
+#sample_data() Sample Data:       [ 61 samples by 5 sample variables ]
+#tax_table()   Taxonomy Table:    [ 4309 taxa by 7 taxonomic ranks ]
+
