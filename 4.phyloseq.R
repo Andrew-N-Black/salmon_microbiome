@@ -24,3 +24,12 @@ plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS"), color = "enteritis") 
 #heatmap
 top10 <- prune_taxa(names(sort(taxa_sums(ps_rarefied),TRUE)[1:10]), ps_rarefied)
 plot_heatmap(top10, sample.label="enteritis",sample.order = "enteritis")+ylab("ASV")
+
+#Differential
+diagdds = phyloseq_to_deseq2(ps_rarefied, ~ enteritis)
+diagdds = DESeq(diagdds, test="Wald", fitType="parametric")
+res = results(diagdds, cooksCutoff = FALSE)
+alpha = 0.01
+sigtab = res[which(res$padj < alpha), ]
+sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_filtered)[rownames(sigtab), ], "matrix"))
+head(sigtab)
