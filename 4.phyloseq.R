@@ -43,6 +43,29 @@ permutest(dispersion)
 #---
 #Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
+#View distance from centroid for each group
+p <- cbind(distance = as.numeric(dispersion$distances),enteritis = metadata$enteritis,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance)) %>% 
+    ggplot(aes(enteritis, distance)) + 
+    geom_boxplot() +
+    theme_bw()+xlab("Enteritis Score")
+
+
+
+#Permanova:
+metadata <- data.frame(sample_data(ps_rarefied))
+adonis2(dist_matrix ~ enteritis, data = metadata)
+#Permutation test for adonis under reduced model
+#Permutation: free
+#Number of permutations: 999
+
+#adonis2(formula = dist_matrix ~ enteritis, data = metadata)
+#         Df SumOfSqs      R2      F Pr(>F)    
+#Model     3   4.8964 0.20924 5.0277  0.001 ***
+#Residual 57  18.5038 0.79076                  
+#Total    60  23.4002 1.00000                  
+#---
+#Signif. codes:  
+#0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 
 #heatmap
