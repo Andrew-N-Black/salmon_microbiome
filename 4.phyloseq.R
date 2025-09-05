@@ -48,7 +48,22 @@ p <- cbind(distance = as.numeric(dispersion$distances),enteritis = metadata$ente
     ggplot(aes(enteritis, distance)) + 
     geom_boxplot() +
     theme_bw()+xlab("Enteritis Score")
+#Three E1 samples were outliers
+#ChS_WR_F23_9
+#ChS_WR_F23_7
+#ChS_WR_F23_1
 
+#Remove these samples
+samples_to_remove <- c("ChS_WR_F23_9", "ChS_WR_F23_7", "ChS_WR_F23_1")
+ps_rarefied-3 <- subset_samples(ps_rarefied, !(sample_names(ps_rarefied) %in% samples_to_remove))
+dist_matrixm3 <- phyloseq::distance(ps_rarefiedm3, method = "bray")
+dispersionm3<-betadisper(dist_matrixm3,group=ps_rarefiedm3@sam_data$enteritis)
+#Response: Distances
+#          Df  Sum Sq Mean Sq      F N.Perm Pr(>F)    
+#Groups     3 1.43444 0.47815 41.079    999  0.001 ***
+#Residuals 54 0.62854 0.01164                         
+#---
+#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 
 #Permanova:
@@ -66,6 +81,24 @@ adonis2(dist_matrix ~ enteritis, data = metadata)
 #---
 #Signif. codes:  
 #0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#anosim ranked non-parametric
+pc = ps_rarefied@otu_table
+
+pc = t(ps_rarefied@otu_table)
+m_com = as.matrix(pc)
+ano = anosim(m_com, metadata$enteritis, distance = "bray", permutations = 9999)
+
+#Call:
+#anosim(x = m_com, grouping = metadata$enteritis, permutations = 9999,      distance = "bray") 
+#Dissimilarity: bray 
+
+#ANOSIM statistic R: 0.3288 
+#      Significance: 1e-04 
+
+#Permutation: free
+#Number of permutations: 9999
+
 
 
 #heatmap
