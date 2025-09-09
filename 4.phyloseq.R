@@ -22,6 +22,45 @@ ps_rarefied = rarefy_even_depth(ps_filtered)
 #sample_data() Sample Data:       [ 61 samples by 11 sample variables ]
 #tax_table()   Taxonomy Table:    [ 1598 taxa by 7 taxonomic ranks ]
 
+#Abundance plots
+#Abundance by Phylum
+glom <- tax_glom(ps_rarefied, taxrank = 'Phylum', NArm = FALSE)
+ps.melt <- psmelt(glom)
+ps.melt$Phylum <- as.character(ps.melt$Phylum)
+
+ps.melt <- ps.melt %>%group_by(enteritis, Phylum) %>% mutate(median=median(Abundance))
+keep <- unique(ps.melt$Phylum[ps.melt$median > 1])
+ps.melt$Phylum[!(ps.melt$Phylum %in% keep)] <- "< 1%"
+ps.melt_sum <- ps.melt %>% group_by(Sample,enteritis,Phylum) %>% summarise(Abundance=sum(Abundance))
+
+ggplot(ps.melt_sum, aes(x = Sample, y = Abundance, fill = Phylum)) + 
+    geom_bar(stat = "identity", aes(fill=Phylum)) + 
+    labs(x="", y="%") +
+    facet_wrap(~enteritis, scales= "free_x", nrow=1) +
+    theme_classic(base_size = 10) + 
+    theme(strip.background = element_blank(), 
+          axis.text.x.bottom = element_text(angle = -90))
+#Abundance by genus
+
+
+glom <- tax_glom(ps_rarefied, taxrank = 'Genus', NArm = FALSE)
+ps.melt <- psmelt(glom)
+ps.melt$Genus <- as.character(ps.melt$Genus)
+
+ps.melt <- ps.melt %>%group_by(enteritis, Genus) %>% mutate(median=median(Abundance))
+keep <- unique(ps.melt$Genus[ps.melt$median > 2.5])
+ps.melt$Genus[!(ps.melt$Genus %in% keep)] <- "< 2.5%"
+ps.melt_sum <- ps.melt %>% group_by(Sample,enteritis,Genus) %>% summarise(Abundance=sum(Abundance))
+
+ggplot(ps.melt_sum, aes(x = Sample, y = Abundance, fill = Genus)) + 
+    geom_bar(stat = "identity", aes(fill=Genus)) + 
+    labs(x="", y="%") +
+    facet_wrap(~enteritis, scales= "free_x", nrow=1) +
+    theme_classic(base_size = 10) + 
+    theme(strip.background = element_blank(), 
+          axis.text.x.bottom = element_text(angle = -90))
+
+
 #Ordination
 #Enteritis score
 plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS"), color = "enteritis") + geom_point(size = 5)+theme_bw()+scale_color_brewer(palette = "BrBG")+labs(color = "Enteritis Score")
