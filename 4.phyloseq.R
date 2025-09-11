@@ -22,10 +22,14 @@ ps_rarefied = rarefy_even_depth(ps_filtered)
 #sample_data() Sample Data:       [ 61 samples by 11 sample variables ]
 #tax_table()   Taxonomy Table:    [ 1598 taxa by 7 taxonomic ranks ]
 
-#Abundance plots
-#Abundance by Phylum
+###Abundance plots
+##Abundance by Phylum
+
+#Merge species by Phylum
 glom <- tax_glom(ps_rarefied, taxrank = 'Phylum', NArm = FALSE)
+#Melt and merge dataframe to work with ggplot2
 ps.melt <- psmelt(glom)
+#Set as character
 ps.melt$Phylum <- as.character(ps.melt$Phylum)
 
 ps.melt <- ps.melt %>%group_by(enteritis, Phylum) %>% mutate(median=median(Abundance))
