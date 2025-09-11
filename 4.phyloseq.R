@@ -150,9 +150,18 @@ plot_heatmap(top10, sample.label="enteritis",sample.order = "enteritis")+ylab("A
 
 #Differential
 diagdds = phyloseq_to_deseq2(ps_rarefied, ~ enteritis)
-diagdds = DESeq(diagdds, test="Wald", fitType="parametric")
-res = results(diagdds, cooksCutoff = FALSE)
+# calculate geometric means prior to estimate size factors
+gm_mean = function(x, na.rm=TRUE){
+    exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
+}
+geoMeans = apply(counts(diagdds), 1, gm_mean)
+diagdds = estimateSizeFactors(diagdds, geoMeans = geoMeans)
+diagdds = DESeq(diagdds, fitType="local")
+
+
+res = results(diagdds)
+res = res[order(res$padj, na.last=NA), ]
 alpha = 0.01
-sigtab = res[which(res$padj < alpha), ]
-sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_filtered)[rownames(sigtab), ], "matrix"))
-head(sigtab)
+sigtab = res[(res$padj < alpha), ]
+sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
+View(sigtab)
