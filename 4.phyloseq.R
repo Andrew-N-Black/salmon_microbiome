@@ -165,3 +165,46 @@ alpha = 0.01
 sigtab = res[(res$padj < alpha), ]
 sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
 View(sigtab)
+
+
+#Pairwise assessment
+E0vE1<-results(diagdds,contrast=c("enteritis","E0","E1"))
+res = E0vE1[order(E0vE1$padj, na.last=NA), ]
+alpha = 0.01
+sigtab = res[(res$padj < alpha), ]
+sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
+#None
+
+E0vE2<-results(diagdds,contrast=c("enteritis","E0","E2"))
+res = E0vE2[order(E0vE2$padj, na.last=NA), ]
+alpha = 0.01
+sigtab = res[(res$padj < alpha), ]
+sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
+#Mesomycoplasma moatsii
+
+E0vE3<-results(diagdds,contrast=c("enteritis","E0","E3"))
+res = E0vE3[order(E0vE3$padj, na.last=NA), ]
+alpha = 0.01
+sigtab = res[(res$padj < alpha), ]
+sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
+#Mesomycoplasma moatsii
+
+E1vE3<-results(diagdds,contrast=c("enteritis","E1","E3"))
+res = E1vE3[order(E1vE3$padj, na.last=NA), ]
+alpha = 0.01
+sigtab = res[(res$padj < alpha), ]
+sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
+#Mesomycoplasma moatsii
+#Lactococcus lactis
+#Serratia marcescens
+#Malacoplasma
+
+E2vE3<-results(diagdds,contrast=c("enteritis","E2","E3"))
+res = E2vE3[order(E2vE3$padj, na.last=NA), ]
+alpha = 0.01
+sigtab = res[(res$padj < alpha), ]
+sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
+#None
+
+
+
