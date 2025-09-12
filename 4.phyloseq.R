@@ -197,7 +197,7 @@ sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigt
 #Mesomycoplasma moatsii
 #Lactococcus lactis
 #Serratia marcescens
-#Malacoplasma
+#Malacoplasma ##Important gut microbiota in atlantic salmon
 
 E2vE3<-results(diagdds,contrast=c("enteritis","E2","E3"))
 res = E2vE3[order(E2vE3$padj, na.last=NA), ]
@@ -205,6 +205,39 @@ alpha = 0.01
 sigtab = res[(res$padj < alpha), ]
 sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
 #None
+
+###PLOT single taxa from DeSeq
+target_asv<-"81a1706a3dc2fa4a573fca6c272332c2"
+ps_sig <- prune_taxa(target_asv, ps_rarefied) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = enteritis, y = Abundance, fill = enteritis)) +
+    geom_boxplot(outlier.shape = NA,aes(fill=enteritis)) +
+    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Genus:Malacoplasma")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()
+
+target_asv<-"82dece6e35540738ba450a0c3a90b5a0"
+ps_sig <- prune_taxa(target_asv, ps_rarefied) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = enteritis, y = Abundance, fill = enteritis)) +
+    geom_boxplot(outlier.shape = NA,aes(fill=enteritis)) +
+    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Serratia marcescens")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()
+
+target_asv<-"d114fb4c335125128be28401522dd41a"
+ps_sig <- prune_taxa(target_asv, ps_rarefied) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = enteritis, y = Abundance, fill = enteritis)) +
+    geom_boxplot(outlier.shape = NA,aes(fill=enteritis)) +
+    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Lactococcus lactis")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()
+
+target_asv<-"febf0b4ade55c5046e9bbc5c25bb4ef4"
+ps_sig <- prune_taxa(target_asv, ps_rarefied) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = enteritis, y = Abundance, fill = enteritis)) +
+    geom_boxplot(outlier.shape = NA,aes(fill=enteritis)) +
+    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Mesomycoplasma moatsii")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()
 
 
 
