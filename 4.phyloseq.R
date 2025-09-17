@@ -66,10 +66,13 @@ ggplot(ps.melt_sum, aes(x = Sample, y = Abundance, fill = Genus)) +
 
 
 #Ordination
-#Enteritis score
-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS"), color = "enteritis") + geom_point(size = 5)+theme_bw()+scale_color_brewer(palette = "BrBG")+labs(color = "Enteritis Score")
+#Enteritis score w hatchery
+plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"), color = "enteritis",shape="hatchery") + geom_point(size = 5)+theme_bw()+scale_color_brewer(palette = "BrBG")+labs(color = "Enteritis Score",shape="Hatchery")+scale_shape_manual(values=c("minter_creek"=15,"round_butte"=16,"sandy"=17,"south_santiam"=2,"white_river"=10,"willamette"=18))
+plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="jaccard"), color = "enteritis",shape="hatchery") + geom_point(size = 5)+theme_bw()+scale_color_brewer(palette = "BrBG")+labs(color = "Enteritis Score",shape="Hatchery")+scale_shape_manual(values=c("minter_creek"=15,"round_butte"=16,"sandy"=17,"south_santiam"=2,"white_river"=10,"willamette"=18))
+
 #Percent Epithilium
-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS"), color = "percent_epithelium") + geom_point(size = 5)+theme_bw()+labs(color = "% Epithelium")+scale_color_distiller(palette = "BrBG", direction = 1)
+plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="jaccard"), color = "percent_epithelium") + geom_point(size = 5)+theme_bw()+labs(color = "% Epithelium")+scale_color_distiller(palette = "BrBG", direction = 1)
+plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"), color = "percent_epithelium") + geom_point(size = 5)+theme_bw()+labs(color = "% Epithelium")+scale_color_distiller(palette = "BrBG", direction = 1)
 
 #Check multidimensional dispersion 
 dist_matrix <- phyloseq::distance(ps_rarefied, method = "bray")
@@ -170,28 +173,33 @@ View(sigtab)
 #Pairwise assessment
 E0vE1<-results(diagdds,contrast=c("enteritis","E0","E1"))
 res = E0vE1[order(E0vE1$padj, na.last=NA), ]
-alpha = 0.01
+alpha = 0.10
 sigtab = res[(res$padj < alpha), ]
 sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
 #None
 
 E0vE2<-results(diagdds,contrast=c("enteritis","E0","E2"))
 res = E0vE2[order(E0vE2$padj, na.last=NA), ]
-alpha = 0.01
+alpha = 0.10
 sigtab = res[(res$padj < alpha), ]
 sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
-#Mesomycoplasma moatsii
+
+#baseMean log2FoldChange    lfcSE     stat       pvalue         padj  Kingdom
+#febf0b4ade55c5046e9bbc5c25bb4ef4 120.2939       6.839088 1.165532 5.867781 4.416652e-09 6.748645e-06 Bacteria
+#Phylum   Class           Order           Family          Genus Species
+#febf0b4ade55c5046e9bbc5c25bb4ef4 Bacillota Bacilli Mycoplasmatales Mycoplasmataceae Mesomycoplasma moatsii
+
 
 E0vE3<-results(diagdds,contrast=c("enteritis","E0","E3"))
 res = E0vE3[order(E0vE3$padj, na.last=NA), ]
-alpha = 0.01
+alpha = 0.10
 sigtab = res[(res$padj < alpha), ]
 sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
 #Mesomycoplasma moatsii
 
 E1vE3<-results(diagdds,contrast=c("enteritis","E1","E3"))
 res = E1vE3[order(E1vE3$padj, na.last=NA), ]
-alpha = 0.01
+alpha = 0.10
 sigtab = res[(res$padj < alpha), ]
 sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
 #Mesomycoplasma moatsii
@@ -201,7 +209,7 @@ sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigt
 
 E2vE3<-results(diagdds,contrast=c("enteritis","E2","E3"))
 res = E2vE3[order(E2vE3$padj, na.last=NA), ]
-alpha = 0.01
+alpha = 0.10
 sigtab = res[(res$padj < alpha), ]
 sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
 #None
@@ -239,5 +247,18 @@ ggplot(df, aes(x = enteritis, y = Abundance, fill = enteritis)) +
     geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
     facet_wrap(~OTU, scales = "free_y")+ggtitle("Mesomycoplasma moatsii")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()
 
+#dbRDA
+ otu <- otu_table(ps_rarefied)
+> if (taxa_are_rows(otu)) {
++     otu <- t(otu)
++ }
+metadata <- data.frame(sample_data(ps_rarefied))
+dbRDA = capscale(df ~ percent_epithelium+hatchery, metadata, dist="bray",sqrt.dist = TRUE)
+
+
+#OR#
+
+ordcap = ordinate(ps_rarefied, "CAP", "bray", ~enteritis)
+plot_ordination(ps_rarefied, ordcap, "samples", color="enteritis")
 
 
