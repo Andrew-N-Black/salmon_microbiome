@@ -261,4 +261,12 @@ dbRDA = capscale(df ~ percent_epithelium+hatchery, metadata, dist="bray",sqrt.di
 ordcap = ordinate(ps_rarefied, "CAP", "bray", ~enteritis)
 plot_ordination(ps_rarefied, ordcap, "samples", color="enteritis")
 
+#GLMS
+otu<-phyloseqCompanion::otu.matrix(ps=ps_rarefied)
+otu = as.data.frame(otu)
+otu = as_tibble(otu, rownames = "ID")
+curMeta = phyloseqCompanion::sample.data.frame(ps=ps_rarefied)
+x<-cbind(curMeta,otu)
+
+
 
