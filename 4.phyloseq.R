@@ -266,7 +266,40 @@ otu<-phyloseqCompanion::otu.matrix(ps=ps_rarefied)
 otu = as.data.frame(otu)
 otu = as_tibble(otu, rownames = "ID")
 curMeta = phyloseqCompanion::sample.data.frame(ps=ps_rarefied)
-x<-cbind(curMeta,otu)
+x<-cbind(otu[2:1586],curMeta)
 
+
+# x: data.frame with response 'epithelium_lost' in [0,1] and OTU columns
+
+
+otu_cols <- setdiff(colnames(x)[2:1585], "epithelium_remaining")
+
+results <- data.frame(
+    Cur_Taxa = otu_cols,
+    Estimate = NA_real_,
+    P_Value  = NA_real_,
+    stringsAsFactors = FALSE
+)
+
+for (i in seq_along(otu_cols)) {
+    nm <- otu_cols[i]
+    f  <- as.formula(paste0("epithelium_remaining ~ `", nm, "`"))
+    
+    fit <- tryCatch(
+        betareg(f, data = x, link = "logit"),
+        error = function(e) NULL
+    )
+    if (is.null(fit)) next
+    
+    co <- summary(fit)$coefficients$mean
+    if (nm %in% rownames(co)) {
+        results$Estimate[i] <- co[nm, "Estimate"]
+        results$P_Value[i]  <- co[nm, "Pr(>|z|)"]
+    }
+}
+
+results$P_adj <- p.adjust(results$P_Value, method = "BH")
+results <- results[order(results$P_Value), ]
+results
 
 
