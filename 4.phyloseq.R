@@ -7,20 +7,25 @@ phyloseq_object<-qza_to_phyloseq(features = "~/SMB_n61/qiime2/input/table.qza",t
 #sample_data() Sample Data:       [ 61 samples by 11 sample variables ]
 #tax_table()   Taxonomy Table:    [ 4328 taxa by 7 taxonomic ranks ]
 
+ps_MC <- subset_taxa(phyloseq_object, !Order %in% c('Chloroplast', 'Mitochondria'))
+#otu_table()   OTU Table:         [ 4212 taxa and 61 samples ]
+#sample_data() Sample Data:       [ 61 samples by 12 sample variables ]
+#tax_table()   Taxonomy Table:    [ 4212 taxa by 7 taxonomic ranks ]
+
+
 
 #Remove NA kingdom assignments
-ps_filtered <- subset_taxa(phyloseq_object, !is.na(Kingdom))
-#phyloseq-class experiment-level object
-#otu_table()   OTU Table:         [ 4309 taxa and 61 samples ]
-#sample_data() Sample Data:       [ 61 samples by 11 sample variables ]
-#tax_table()   Taxonomy Table:    [ 4309 taxa by 7 taxonomic ranks ]
+ps_filtered <- subset_taxa(ps_MC, !is.na(Kingdom))
+#otu_table()   OTU Table:         [ 4193 taxa and 61 samples ]
+#sample_data() Sample Data:       [ 61 samples by 12 sample variables ]
+#tax_table()   Taxonomy Table:    [ 4193 taxa by 7 taxonomic ranks ]
 
 #Rarefied
 ps_rarefied = rarefy_even_depth(ps_filtered)
 #phyloseq-class experiment-level object
-#otu_table()   OTU Table:         [ 1598 taxa and 61 samples ]
-#sample_data() Sample Data:       [ 61 samples by 11 sample variables ]
-#tax_table()   Taxonomy Table:    [ 1598 taxa by 7 taxonomic ranks ]
+#otu_table()   OTU Table:         [ 1562 taxa and 61 samples ]
+#sample_data() Sample Data:       [ 61 samples by 12 sample variables ]
+#tax_table()   Taxonomy Table:    [ 1562 taxa by 7 taxonomic ranks ]
 
 ###Abundance plots
 ##Abundance by Phylum
@@ -78,16 +83,7 @@ plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"), color
 dist_matrix <- phyloseq::distance(ps_rarefied, method = "bray")
 dispersion<-betadisper(dist_matrix,group=ps_rarefied@sam_data$enteritis)
 permutest(dispersion)
-#Permutation test for homogeneity of multivariate dispersions
-#Permutation: free
-#Number of permutations: 999
 
-#Response: Distances
-#          Df  Sum Sq  Mean Sq     F N.Perm Pr(>F)    
-#Groups     3 0.71614 0.238713 7.913    999  0.001 ***
-#Residuals 57 1.71954 0.030167                        
-#---
-#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 #View distance from centroid for each group
 p <- cbind(distance = as.numeric(dispersion$distances),enteritis = metadata$enteritis,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance)) %>% 
@@ -101,13 +97,22 @@ p <- cbind(distance = as.numeric(dispersion$distances),enteritis = metadata$ente
 
 #Remove these samples
 samples_to_remove <- c("ChS_WR_F23_9", "ChS_WR_F23_7", "ChS_WR_F23_1")
-ps_rarefied-3 <- subset_samples(ps_rarefied, !(sample_names(ps_rarefied) %in% samples_to_remove))
+all_sample_names<-sample_names(ps_rarefied)
+samples_to_keep <- !(all_sample_names %in% samples_to_remove)
+ps_rarefiedm3 <- prune_samples(samples_to_keep, ps_rarefied)
+
 dist_matrixm3 <- phyloseq::distance(ps_rarefiedm3, method = "bray")
 dispersionm3<-betadisper(dist_matrixm3,group=ps_rarefiedm3@sam_data$enteritis)
+permutest(dispersionm3)
+
+#Permutation test for homogeneity of multivariate dispersions
+#Permutation: free
+#Number of permutations: 999
+
 #Response: Distances
 #          Df  Sum Sq Mean Sq      F N.Perm Pr(>F)    
-#Groups     3 1.43444 0.47815 41.079    999  0.001 ***
-#Residuals 54 0.62854 0.01164                         
+#Groups     3 1.40988 0.46996 40.964    999  0.001 ***
+#Residuals 54 0.61952 0.01147                         
 #---
 #Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
@@ -120,13 +125,12 @@ adonis2(dist_matrix ~ enteritis, data = metadata)
 #Number of permutations: 999
 
 #adonis2(formula = dist_matrix ~ enteritis, data = metadata)
-#         Df SumOfSqs      R2      F Pr(>F)    
-#Model     3   4.8964 0.20924 5.0277  0.001 ***
-#Residual 57  18.5038 0.79076                  
-#Total    60  23.4002 1.00000                  
+ #        Df SumOfSqs     R2     F Pr(>F)    
+#Model     3   4.9872 0.2153 5.213  0.001 ***
+#Residual 57  18.1774 0.7847                 
+#Total    60  23.1646 1.0000                 
 #---
-#Signif. codes:  
-#0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 #anosim ranked non-parametric
 pc = ps_rarefied@otu_table
@@ -139,8 +143,8 @@ ano = anosim(m_com, metadata$enteritis, distance = "bray", permutations = 9999)
 #anosim(x = m_com, grouping = metadata$enteritis, permutations = 9999,      distance = "bray") 
 #Dissimilarity: bray 
 
-#ANOSIM statistic R: 0.3288 
-#      Significance: 1e-04 
+#ANOSIM statistic R: 0.3396 
+ #     Significance: 1e-04 
 
 #Permutation: free
 #Number of permutations: 9999
@@ -152,7 +156,16 @@ top10 <- prune_taxa(names(sort(taxa_sums(ps_rarefied),TRUE)[1:10]), ps_rarefied)
 plot_heatmap(top10, sample.label="enteritis",sample.order = "enteritis")+ylab("ASV")
 
 #Differential
-diagdds = phyloseq_to_deseq2(ps_rarefied, ~ enteritis)
+
+#First, filter out low abundance samples (min 4/61 samples)
+library(microViz)
+ps_filtered <- microViz::tax_filter(ps_rarefied, min_prevalence = 0.05)
+#otu_table()   OTU Table:         [ 143 taxa and 61 samples ]
+#sample_data() Sample Data:       [ 61 samples by 12 sample variables ]
+#tax_table()   Taxonomy Table:    [ 143 taxa by 7 taxonomic ranks ]
+
+#DESEQ2
+diagdds = phyloseq_to_deseq2(ps_filtered, ~ enteritis)
 # calculate geometric means prior to estimate size factors
 gm_mean = function(x, na.rm=TRUE){
     exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
@@ -166,7 +179,7 @@ res = results(diagdds)
 res = res[order(res$padj, na.last=NA), ]
 alpha = 0.01
 sigtab = res[(res$padj < alpha), ]
-sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
+sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_filtered)[rownames(sigtab), ], "matrix"))
 View(sigtab)
 
 
@@ -175,99 +188,114 @@ E0vE1<-results(diagdds,contrast=c("enteritis","E0","E1"))
 res = E0vE1[order(E0vE1$padj, na.last=NA), ]
 alpha = 0.10
 sigtab = res[(res$padj < alpha), ]
-sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
+sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_filtered)[rownames(sigtab), ], "matrix"))
 #None
 
 E0vE2<-results(diagdds,contrast=c("enteritis","E0","E2"))
 res = E0vE2[order(E0vE2$padj, na.last=NA), ]
-alpha = 0.10
+alpha = 0.01
 sigtab = res[(res$padj < alpha), ]
 sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
 
-#baseMean log2FoldChange    lfcSE     stat       pvalue         padj  Kingdom
-#febf0b4ade55c5046e9bbc5c25bb4ef4 120.2939       6.839088 1.165532 5.867781 4.416652e-09 6.748645e-06 Bacteria
-#Phylum   Class           Order           Family          Genus Species
-#febf0b4ade55c5046e9bbc5c25bb4ef4 Bacillota Bacilli Mycoplasmatales Mycoplasmataceae Mesomycoplasma moatsii
+#febf0b4ade55c5046e9bbc5c25bb4ef4 Mesomycoplasma moatsii
 
 
 E0vE3<-results(diagdds,contrast=c("enteritis","E0","E3"))
 res = E0vE3[order(E0vE3$padj, na.last=NA), ]
-alpha = 0.10
+alpha = 0.01
 sigtab = res[(res$padj < alpha), ]
-sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
-#Mesomycoplasma moatsii
+sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_filtered)[rownames(sigtab), ], "matrix"))
+
+#febf0b4ade55c5046e9bbc5c25bb4ef4 Mesomycoplasma moatsii
+#81a1706a3dc2fa4a573fca6c272332c2 Genus: Malacoplasma
+#d114fb4c335125128be28401522dd41a Lactococcus lactis
+#59cad5bca75a360ccd35acf213202427 Tetragenococcus osmophilus
 
 E1vE3<-results(diagdds,contrast=c("enteritis","E1","E3"))
 res = E1vE3[order(E1vE3$padj, na.last=NA), ]
-alpha = 0.10
+alpha = 0.01
 sigtab = res[(res$padj < alpha), ]
-sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
-#Mesomycoplasma moatsii
-#Lactococcus lactis
-#Serratia marcescens
-#Malacoplasma ##Important gut microbiota in atlantic salmon
+sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_filtered)[rownames(sigtab), ], "matrix"))
+##febf0b4ade55c5046e9bbc5c25bb4ef4 Mesomycoplasma moatsii
+#d114fb4c335125128be28401522dd41a Lactococcus lactis
+#81a1706a3dc2fa4a573fca6c272332c2 Genus: Malacoplasma ##Important gut microbiota in atlantic salmon
+#82dece6e35540738ba450a0c3a90b5a0 Serratia marcescens
+#c9b6f06a64809b4085cf1c5c680fc62b Genus: Rhodoferax
+
+
 
 E2vE3<-results(diagdds,contrast=c("enteritis","E2","E3"))
 res = E2vE3[order(E2vE3$padj, na.last=NA), ]
-alpha = 0.10
+alpha = 0.01
 sigtab = res[(res$padj < alpha), ]
-sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
-#None
+sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_filtered)[rownames(sigtab), ], "matrix"))
+#d114fb4c335125128be28401522dd41a Lactococcus lactis
+#81a1706a3dc2fa4a573fca6c272332c2 Genus: Malacoplasma ##Important gut microbiota in atlantic salmon
+
 
 ###PLOT single taxa from DeSeq
 target_asv<-"81a1706a3dc2fa4a573fca6c272332c2"
-ps_sig <- prune_taxa(target_asv, ps_rarefied) 
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
 df <- psmelt(ps_sig)
 ggplot(df, aes(x = enteritis, y = Abundance, fill = enteritis)) +
     geom_boxplot(outlier.shape = NA,aes(fill=enteritis)) +
     geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
-    facet_wrap(~OTU, scales = "free_y")+ggtitle("Genus:Malacoplasma")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Genus:Malacoplasma")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()+xlab("")
 
 target_asv<-"82dece6e35540738ba450a0c3a90b5a0"
-ps_sig <- prune_taxa(target_asv, ps_rarefied) 
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
 df <- psmelt(ps_sig)
 ggplot(df, aes(x = enteritis, y = Abundance, fill = enteritis)) +
     geom_boxplot(outlier.shape = NA,aes(fill=enteritis)) +
     geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
-    facet_wrap(~OTU, scales = "free_y")+ggtitle("Serratia marcescens")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Serratia marcescens")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()+xlab("")
 
 target_asv<-"d114fb4c335125128be28401522dd41a"
-ps_sig <- prune_taxa(target_asv, ps_rarefied) 
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
 df <- psmelt(ps_sig)
 ggplot(df, aes(x = enteritis, y = Abundance, fill = enteritis)) +
     geom_boxplot(outlier.shape = NA,aes(fill=enteritis)) +
     geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
-    facet_wrap(~OTU, scales = "free_y")+ggtitle("Lactococcus lactis")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Lactococcus lactis")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()+xlab("")
 
 target_asv<-"febf0b4ade55c5046e9bbc5c25bb4ef4"
-ps_sig <- prune_taxa(target_asv, ps_rarefied) 
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
 df <- psmelt(ps_sig)
 ggplot(df, aes(x = enteritis, y = Abundance, fill = enteritis)) +
     geom_boxplot(outlier.shape = NA,aes(fill=enteritis)) +
     geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
-    facet_wrap(~OTU, scales = "free_y")+ggtitle("Mesomycoplasma moatsii")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Mesomycoplasma moatsii")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()+xlab("")
+
+
+target_asv<-"59cad5bca75a360ccd35acf213202427"
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = enteritis, y = Abundance, fill = enteritis)) +
+    geom_boxplot(outlier.shape = NA,aes(fill=enteritis)) +
+    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Tetragenococcus osmophilus")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()+xlab("")
+
+
+target_asv<-"c9b6f06a64809b4085cf1c5c680fc62b"
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = enteritis, y = Abundance, fill = enteritis)) +
+    geom_boxplot(outlier.shape = NA,aes(fill=enteritis)) +
+    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Genus: Rhodoferax")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()+xlab("")
+
+
+
+
 
 #dbRDA
- otu <- otu_table(ps_rarefied)
-> if (taxa_are_rows(otu)) {
-+     otu <- t(otu)
-+ }
-metadata <- data.frame(sample_data(ps_rarefied))
-dbRDA = capscale(df ~ percent_epithelium+hatchery, metadata, dist="bray",sqrt.dist = TRUE)
-
-
-#OR#
-
+ 
 ordcap = ordinate(ps_rarefied, "CAP", "bray", ~enteritis)
-plot_ordination(ps_rarefied, ordcap, "samples", color="enteritis")
+plot_ordination(ps_rarefied, ordcap, "samples", color="percent_epithelium",shape="hatchery")+theme_bw()+scale_color_brewer(palette = "BrBG")+geom_point(size=6)+labs(color = "% Epithelium",shape="Hatchery")+scale_color_distiller(palette = "BrBG", direction = 1)
+
 
 ###GLMS
-#First, filter out low abundance samples (min 4/61 samples)
-library(microViz)
-ps_filtered <- microViz::tax_filter(ps_rarefied, min_prevalence = 0.05)
-#otu_table()   OTU Table:         [ 143 taxa and 61 samples ]
-#sample_data() Sample Data:       [ 61 samples by 12 sample variables ]
-#tax_table()   Taxonomy Table:    [ 143 taxa by 7 taxonomic ranks ]
+
 
 
 otu<-phyloseqCompanion::otu.matrix(ps=ps_filtered)
