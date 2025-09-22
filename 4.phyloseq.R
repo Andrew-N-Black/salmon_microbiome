@@ -261,18 +261,26 @@ dbRDA = capscale(df ~ percent_epithelium+hatchery, metadata, dist="bray",sqrt.di
 ordcap = ordinate(ps_rarefied, "CAP", "bray", ~enteritis)
 plot_ordination(ps_rarefied, ordcap, "samples", color="enteritis")
 
-#GLMS
-otu<-phyloseqCompanion::otu.matrix(ps=ps_rarefied)
+###GLMS
+#First, filter out low abundance samples (min 4/61 samples)
+library(microViz)
+ps_filtered <- microViz::tax_filter(ps_rarefied, min_prevalence = 0.05)
+#otu_table()   OTU Table:         [ 143 taxa and 61 samples ]
+#sample_data() Sample Data:       [ 61 samples by 12 sample variables ]
+#tax_table()   Taxonomy Table:    [ 143 taxa by 7 taxonomic ranks ]
+
+
+otu<-phyloseqCompanion::otu.matrix(ps=ps_filtered)
 otu = as.data.frame(otu)
 otu = as_tibble(otu, rownames = "ID")
-curMeta = phyloseqCompanion::sample.data.frame(ps=ps_rarefied)
-x<-cbind(otu[2:1586],curMeta)
+curMeta = phyloseqCompanion::sample.data.frame(ps=ps_filtered)
+x<-cbind(otu[2:144],curMeta)
 
 
 # x: data.frame with response 'epithelium_lost' in [0,1] and OTU columns
 
 
-otu_cols <- setdiff(colnames(x)[2:1585], "epithelium_remaining")
+otu_cols <- setdiff(colnames(x)[1:143], "epithelium_remaining")
 
 results <- data.frame(
     Cur_Taxa = otu_cols,
@@ -301,5 +309,17 @@ for (i in seq_along(otu_cols)) {
 results$P_adj <- p.adjust(results$P_Value, method = "BH")
 results <- results[order(results$P_Value), ]
 results
+
+
+#summarize missing taxa
+sum(is.na(results$P_adj))
+#[1] 89
+length(results$P_adj)
+#[1] 143
+
+percentage_na <- (sum(is.na(results$P_adj)) / length(results$P_adj)) * 100
+print(percentage_na)
+#[1] 62.23776
+
 
 
