@@ -1,4 +1,10 @@
 #Used files from :/nfs4/BIOMED/Arnold_Lab/projects/BLACK/OUT_ALab_0006_decon/qiime2/input/
+library(phyloseq)
+library(qiime2R)
+library(microViz)
+library(ggplot2)
+library(tibble)
+library(betareg)
 
 
 phyloseq_object<-qza_to_phyloseq(features = "~/SMB_n61/qiime2/input/table.qza",taxonomy = "~/SMB_n61/qiime2/input/taxonomy.qza",metadata = "~/SMB_n61/input/metadata61_ext.txt")
@@ -158,7 +164,7 @@ plot_heatmap(top10, sample.label="enteritis",sample.order = "enteritis")+ylab("A
 #Differential
 
 #First, filter out low abundance samples (min 4/61 samples)
-library(microViz)
+
 ps_filtered <- microViz::tax_filter(ps_rarefied, min_prevalence = 0.05)
 #otu_table()   OTU Table:         [ 143 taxa and 61 samples ]
 #sample_data() Sample Data:       [ 61 samples by 12 sample variables ]
