@@ -302,13 +302,13 @@ otu<-phyloseqCompanion::otu.matrix(ps=ps_filtered)
 otu = as.data.frame(otu)
 otu = as_tibble(otu, rownames = "ID")
 curMeta = phyloseqCompanion::sample.data.frame(ps=ps_filtered)
-x<-cbind(otu[2:144],curMeta)
+x<-cbind(otu[2:146],curMeta)
 
 
 # x: data.frame with response 'epithelium_lost' in [0,1] and OTU columns
 
 
-otu_cols <- setdiff(colnames(x)[1:143], "epithelium_remaining")
+otu_cols <- setdiff(colnames(x)[1:145], "epithelium_remaining")
 
 results <- data.frame(
     Cur_Taxa = otu_cols,
