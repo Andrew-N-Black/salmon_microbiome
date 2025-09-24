@@ -306,9 +306,16 @@ plot_ordination(ps_rarefied, ordcap, "samples", color="percent_epithelium",shape
 
 otu<-phyloseqCompanion::otu.matrix(ps=ps_filtered)
 otu = as.data.frame(otu)
-otu = as_tibble(otu, rownames = "ID")
+otu = as_tibble(otu)
+#Need to add prefix to ASVs because numerical ones were causing an issue
+pattern <- "ASV_"
+
+# Append the pattern to the beginning of all column names
+colnames(otu) <- paste0(pattern, colnames(otu)[1:145])
+
 curMeta = phyloseqCompanion::sample.data.frame(ps=ps_filtered)
-x<-cbind(otu[2:146],curMeta)
+x<-cbind(otu,curMeta)
+
 
 
 # x: data.frame with response 'epithelium_lost' in [0,1] and OTU columns
@@ -340,7 +347,7 @@ for (i in seq_along(otu_cols)) {
     }
 }
 
-results$P_adj <- p.adjust(results$P_Value, method = "BH")
+results$P_adj <- p.adjust(results$P_Value, method = "fdr")
 results <- results[order(results$P_Value), ]
 results
 
