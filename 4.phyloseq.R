@@ -362,5 +362,35 @@ percentage_na <- (sum(is.na(results$P_adj)) / length(results$P_adj)) * 100
 print(percentage_na)
 #[1] 62.23776
 
+#Plot each sig ASV
+
+target_asv<-"7358e352a9dca413fa64d87d3b0df5d4"
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = epithelium_remaining, y = Abundance, color = epithelium_remaining)) +
+    geom_point(size=6,aes(color=epithelium_remaining)) +
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Mesomycoplasma moatsii")+scale_color_distiller(palette = "BrBG", direction = 1)+labs(color = "Epithelium Remaining")+theme_bw()+xlab("Epithelium Remaining")
+
+target_asv<-"febf0b4ade55c5046e9bbc5c25bb4ef4"
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = epithelium_remaining, y = Abundance, color = epithelium_remaining)) +
+    geom_point(size=6,aes(color=epithelium_remaining)) +
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Mesomycoplasma moatsii")+scale_color_distiller(palette = "BrBG", direction = 1)+labs(color = "Epithelium Remaining")+theme_bw()+xlab("Epithelium Remaining")
+
+target_asv<-"0920dcf0f62fb2b3ab9e32f1c4edec37"
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = epithelium_remaining, y = Abundance, color = epithelium_remaining)) +
+    geom_point(size=6,aes(color=epithelium_remaining)) +
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Genus: Paucibacter")+scale_color_distiller(palette = "BrBG", direction = 1)+labs(color = "Epithelium Remaining")+theme_bw()+xlab("Epithelium Remaining")
+
+
+target_asv<-"81a1706a3dc2fa4a573fca6c272332c2"
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = epithelium_remaining, y = Abundance, color = epithelium_remaining)) +
+    geom_point(size=6,aes(color=epithelium_remaining)) +
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Genus: Malacoplasma")+scale_color_distiller(palette = "BrBG", direction = 1)+labs(color = "Epithelium Remaining")+theme_bw()+xlab("Epithelium Remaining")
 
 
