@@ -105,36 +105,10 @@ p <- cbind(distance = as.numeric(dispersion$distances),enteritis = metadata$ente
     ggplot(aes(enteritis, distance)) + 
     geom_boxplot() +
     theme_bw()+xlab("Enteritis Score")
-#Three E1 samples were outliers
-#ChS_WR_F23_9
-#ChS_WR_F23_7
-#ChS_WR_F23_1
-
-#Remove these samples
-samples_to_remove <- c("ChS_WR_F23_9", "ChS_WR_F23_7", "ChS_WR_F23_1")
-all_sample_names<-sample_names(ps_rarefied)
-samples_to_keep <- !(all_sample_names %in% samples_to_remove)
-ps_rarefiedm3 <- prune_samples(samples_to_keep, ps_rarefied)
-
-dist_matrixm3 <- phyloseq::distance(ps_rarefiedm3, method = "bray")
-dispersionm3<-betadisper(dist_matrixm3,group=ps_rarefiedm3@sam_data$enteritis)
-permutest(dispersionm3)
-
-#Permutation test for homogeneity of multivariate dispersions
-#Permutation: free
-#Number of permutations: 999
-
-#Response: Distances
-#          Df  Sum Sq Mean Sq      F N.Perm Pr(>F)    
-#Groups     3 1.40988 0.46996 40.964    999  0.001 ***
-#Residuals 54 0.61952 0.01147                         
-#---
-#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
 
 #Permanova:
 metadata <- data.frame(sample_data(ps_rarefied))
-adonis2(dist_matrix ~ enteritis, data = metadata)
+adonis2(dist_matrix ~ enteritis+percent_epithelium, data = metadata)
 #Permutation test for adonis under reduced model
 #Permutation: free
 #Number of permutations: 999
@@ -147,15 +121,6 @@ pc = t(ps_rarefied@otu_table)
 m_com = as.matrix(pc)
 ano = anosim(m_com, metadata$enteritis, distance = "bray", permutations = 9999)
 
-#Call:
-#anosim(x = m_com, grouping = metadata$enteritis, permutations = 9999,      distance = "bray") 
-#Dissimilarity: bray 
-
-#ANOSIM statistic R: 0.3396 
- #     Significance: 1e-04 
-
-#Permutation: free
-#Number of permutations: 9999
 
 #Differential
 
@@ -272,9 +237,13 @@ ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
 
 #dbRDA
  
-ordcap = ordinate(ps_rarefied, "CAP", "bray", ~enteritis)
-plot_ordination(ps_rarefied, ordcap, "samples", color="percent_epithelium",shape="hatchery")+theme_bw()+scale_color_brewer(palette = "BrBG")+geom_point(size=6)+labs(color = "% Epithelium",shape="Hatchery")+scale_color_distiller(palette = "BrBG", direction = 1)
+ordcap = ordinate(ps_filtered, "CAP", "bray", ~percent_epithelium+hatchery)
+plot_ordination(ps_filtered, ordcap, "samples", color="percent_epithelium",shape="hatchery")+theme_bw()+geom_point(size=6)+labs(color = "% Epithelium",shape="Hatchery")+scale_color_distiller(palette = "BrBG", direction = 1)
 
+#Significance of model
+anova.cca(ordcap, permutations = 999)
+anova.cca(ordcap, permutations = 999,by="terms")
+anova.cca(ordcap, permutations = 999,by="axis")
 
 ###GLMS
 
@@ -287,7 +256,7 @@ otu = as_tibble(otu)
 pattern <- "ASV_"
 
 # Append the pattern to the beginning of all column names
-colnames(otu) <- paste0(pattern, colnames(otu)[1:145])
+colnames(otu) <- paste0(pattern, colnames(otu)[1:141])
 
 curMeta = phyloseqCompanion::sample.data.frame(ps=ps_filtered)
 x<-cbind(otu,curMeta)
@@ -297,7 +266,83 @@ x<-cbind(otu,curMeta)
 # x: data.frame with response 'epithelium_lost' in [0,1] and OTU columns
 
 
-otu_cols <- setdiff(colnames(x)[1:145], "epithelium_remaining")
+otu_cols <- setdiff(colnames(x)[1:141], "epithelium_remaining")
+
+
+#Testing code
+
+i = 89
+i
+#89
+Then run only one line in the interior of the for loop
+nm <- otu_cols[i]
+nm 
+[1] "ASV_9908fffab7ed4f3bec44cda2f5084d49"
+
+
+
+f  <- as.formula(paste0("ASEnum ~ ", nm, "+ epithelium_remaining + ", nm ,"*epithelium_remaining "))
+
+
+co<-glm(f, data = x, family = binomial(link="logit"))
+
+Call:  glm(formula = f, family = binomial(link = "logit"), data = x)
+
+Coefficients:
+                                              (Intercept)  
+                                                   782.85  
+                     ASV_9908fffab7ed4f3bec44cda2f5084d49  
+                                                   -13.67  
+                                     epithelium_remaining  
+                                                  -804.58  
+ASV_9908fffab7ed4f3bec44cda2f5084d49:epithelium_remaining  
+                                                    15.22  
+
+Degrees of Freedom: 60 Total (i.e. Null);  57 Residual
+Null Deviance:	    77.18 
+Residual Deviance: 3.302e-08 	AIC: 8
+
+
+summary(co)
+
+Call:
+glm(formula = f, family = binomial(link = "logit"), data = x)
+
+Coefficients:
+                                                           Estimate Std. Error z value Pr(>|z|)
+(Intercept)                                                  782.85  184410.91   0.004    0.997
+ASV_9908fffab7ed4f3bec44cda2f5084d49                         -13.67    7048.03  -0.002    0.998
+epithelium_remaining                                        -804.58  189268.00  -0.004    0.997
+ASV_9908fffab7ed4f3bec44cda2f5084d49:epithelium_remaining     15.22    7954.33   0.002    0.998
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 7.7184e+01  on 60  degrees of freedom
+Residual deviance: 3.3023e-08  on 57  degrees of freedom
+AIC: 8
+
+Number of Fisher Scoring iterations: 25
+
+
+
+
+#FULL GLMS BELOW
+
+fit <- tryCatch(glm(f, data = x, family = binomial(link = "logit"))
+        error = function(e) NULL
+    )
+# what is fit? 
+    if (is.null(fit)) next
+    
+    co <- summary(fit)$coefficients$mean
+    if (nm %in% rownames(co)) {
+        results$Estimate[i] <- co[nm, "Estimate"]
+        results$P_Value[i]  <- co[nm, "Pr(>|z|)"]
+    }
+
+
+
+
 
 results <- data.frame(
     Cur_Taxa = otu_cols,
