@@ -10,28 +10,37 @@ library(betareg)
 phyloseq_object<-qza_to_phyloseq(features = "~/SMB_n61/qiime2/input/table.qza",taxonomy = "~/SMB_n61/qiime2/input/taxonomy.qza",metadata = "~/SMB_n61/input/metadata61_ext.txt")
 #phyloseq-class experiment-level object
 #otu_table()   OTU Table:         [ 4328 taxa and 61 samples ]
-#sample_data() Sample Data:       [ 61 samples by 11 sample variables ]
+#sample_data() Sample Data:       [ 61 samples by 14 sample variables ]
 #tax_table()   Taxonomy Table:    [ 4328 taxa by 7 taxonomic ranks ]
 
 ps_MC <- subset_taxa(phyloseq_object, !Order %in% c('Chloroplast', 'Mitochondria'))
+#phyloseq-class experiment-level object
 #otu_table()   OTU Table:         [ 4212 taxa and 61 samples ]
-#sample_data() Sample Data:       [ 61 samples by 12 sample variables ]
+#sample_data() Sample Data:       [ 61 samples by 14 sample variables ]
 #tax_table()   Taxonomy Table:    [ 4212 taxa by 7 taxonomic ranks ]
 
 
 
 #Remove NA kingdom assignments
 ps_filtered <- subset_taxa(ps_MC, !is.na(Kingdom))
+#phyloseq-class experiment-level object
 #otu_table()   OTU Table:         [ 4193 taxa and 61 samples ]
-#sample_data() Sample Data:       [ 61 samples by 12 sample variables ]
+#sample_data() Sample Data:       [ 61 samples by 14 sample variables ]
 #tax_table()   Taxonomy Table:    [ 4193 taxa by 7 taxonomic ranks ]
 
 #Rarefied
 ps_rarefied = rarefy_even_depth(ps_filtered)
 #phyloseq-class experiment-level object
-#otu_table()   OTU Table:         [ 1562 taxa and 61 samples ]
-#sample_data() Sample Data:       [ 61 samples by 12 sample variables ]
-#tax_table()   Taxonomy Table:    [ 1562 taxa by 7 taxonomic ranks ]
+#otu_table()   OTU Table:         [ 1583 taxa and 61 samples ]
+#sample_data() Sample Data:       [ 61 samples by 14 sample variables ]
+#tax_table()   Taxonomy Table:    [ 1583 taxa by 7 taxonomic ranks ]
+
+
+#Alpha Diversity:
+
+p<-plot_richness(ps_rarefied, x="percent_epithelium",color="ASE" ,measures=c("Observed", "Shannon"))+theme_bw()
+ p + geom_point(size=5, alpha=0.7)+scale_color_brewer(palette = "Paired")
+
 
 ###Abundance plots
 ##Abundance by Phylum
@@ -43,15 +52,15 @@ ps.melt <- psmelt(glom)
 #Set as character
 ps.melt$Phylum <- as.character(ps.melt$Phylum)
 
-ps.melt <- ps.melt %>%group_by(enteritis, Phylum) %>% mutate(median=median(Abundance))
+ps.melt <- ps.melt %>%group_by(ASE, Phylum) %>% mutate(median=median(Abundance))
 keep <- unique(ps.melt$Phylum[ps.melt$median > 1])
 ps.melt$Phylum[!(ps.melt$Phylum %in% keep)] <- "< 1%"
-ps.melt_sum <- ps.melt %>% group_by(Sample,enteritis,Phylum) %>% summarise(Abundance=sum(Abundance))
+ps.melt_sum <- ps.melt %>% group_by(Sample,ASE,Phylum) %>% summarise(Abundance=sum(Abundance))
 
 ggplot(ps.melt_sum, aes(x = Sample, y = Abundance, fill = Phylum)) + 
     geom_bar(stat = "identity", aes(fill=Phylum)) + 
     labs(x="", y="%") +
-    facet_wrap(~enteritis, scales= "free_x", nrow=1) +
+    facet_wrap(~ASE, scales= "free_x", nrow=1) +
     theme_classic(base_size = 10) + 
     theme(strip.background = element_blank(), 
           axis.text.x.bottom = element_text(angle = -90))
@@ -62,25 +71,24 @@ glom <- tax_glom(ps_rarefied, taxrank = 'Genus', NArm = FALSE)
 ps.melt <- psmelt(glom)
 ps.melt$Genus <- as.character(ps.melt$Genus)
 
-ps.melt <- ps.melt %>%group_by(enteritis, Genus) %>% mutate(median=median(Abundance))
+ps.melt <- ps.melt %>%group_by(ASE, Genus) %>% mutate(median=median(Abundance))
 keep <- unique(ps.melt$Genus[ps.melt$median > 2.5])
 ps.melt$Genus[!(ps.melt$Genus %in% keep)] <- "< 2.5%"
-ps.melt_sum <- ps.melt %>% group_by(Sample,enteritis,Genus) %>% summarise(Abundance=sum(Abundance))
+ps.melt_sum <- ps.melt %>% group_by(Sample,ASE,Genus) %>% summarise(Abundance=sum(Abundance))
 
 ggplot(ps.melt_sum, aes(x = Sample, y = Abundance, fill = Genus)) + 
     geom_bar(stat = "identity", aes(fill=Genus)) + 
     labs(x="", y="%") +
-    facet_wrap(~enteritis, scales= "free_x", nrow=1) +
+    facet_wrap(~ASE, scales= "free_x", nrow=1) +
     theme_classic(base_size = 10) + 
     theme(strip.background = element_blank(), 
           axis.text.x.bottom = element_text(angle = -90))
 
 
 #Ordination
-#Enteritis score w hatchery
-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"), color = "enteritis",shape="hatchery") + geom_point(size = 5)+theme_bw()+scale_color_brewer(palette = "BrBG")+labs(color = "Enteritis Score",shape="Hatchery")+scale_shape_manual(values=c("minter_creek"=15,"round_butte"=16,"sandy"=17,"south_santiam"=2,"white_river"=10,"willamette"=18))
-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="jaccard"), color = "enteritis",shape="hatchery") + geom_point(size = 5)+theme_bw()+scale_color_brewer(palette = "BrBG")+labs(color = "Enteritis Score",shape="Hatchery")+scale_shape_manual(values=c("minter_creek"=15,"round_butte"=16,"sandy"=17,"south_santiam"=2,"white_river"=10,"willamette"=18))
-
+#ASE w hatchery
+plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"), color = "hatchery",shape="ASE") + geom_point(size = 5)+theme_bw()+scale_color_brewer(palette = "Paired")+labs(shape = "ASE",color="Hatchery")+scale_shape_manual(values=c("positive"=15,"negative"=16))
+plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="jaccard"), color = "hatchery",shape="ASE") + geom_point(size = 5)+theme_bw()+scale_color_brewer(palette = "Paired")+labs(shape = "ASE",color="Hatchery")+scale_shape_manual(values=c("positive"=15,"negative"=16))
 #Percent Epithilium
 plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="jaccard"), color = "percent_epithelium") + geom_point(size = 5)+theme_bw()+labs(color = "% Epithelium")+scale_color_distiller(palette = "BrBG", direction = 1)
 plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"), color = "percent_epithelium") + geom_point(size = 5)+theme_bw()+labs(color = "% Epithelium")+scale_color_distiller(palette = "BrBG", direction = 1)
@@ -92,6 +100,7 @@ permutest(dispersion)
 
 
 #View distance from centroid for each group
+metadata <- data.frame(sample_data(ps_rarefied))
 p <- cbind(distance = as.numeric(dispersion$distances),enteritis = metadata$enteritis,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance)) %>% 
     ggplot(aes(enteritis, distance)) + 
     geom_boxplot() +
@@ -130,13 +139,6 @@ adonis2(dist_matrix ~ enteritis, data = metadata)
 #Permutation: free
 #Number of permutations: 999
 
-#adonis2(formula = dist_matrix ~ enteritis, data = metadata)
- #        Df SumOfSqs     R2     F Pr(>F)    
-#Model     3   4.9872 0.2153 5.213  0.001 ***
-#Residual 57  18.1774 0.7847                 
-#Total    60  23.1646 1.0000                 
-#---
-#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 #anosim ranked non-parametric
 pc = ps_rarefied@otu_table
@@ -155,23 +157,18 @@ ano = anosim(m_com, metadata$enteritis, distance = "bray", permutations = 9999)
 #Permutation: free
 #Number of permutations: 9999
 
-
-
-#heatmap
-top10 <- prune_taxa(names(sort(taxa_sums(ps_rarefied),TRUE)[1:10]), ps_rarefied)
-plot_heatmap(top10, sample.label="enteritis",sample.order = "enteritis")+ylab("ASV")
-
 #Differential
 
 #First, filter out low abundance samples (min 4/61 samples)
 
 ps_filtered <- microViz::tax_filter(ps_rarefied, min_prevalence = 0.05)
-#otu_table()   OTU Table:         [ 143 taxa and 61 samples ]
-#sample_data() Sample Data:       [ 61 samples by 12 sample variables ]
-#tax_table()   Taxonomy Table:    [ 143 taxa by 7 taxonomic ranks ]
+#phyloseq-class experiment-level object
+#otu_table()   OTU Table:         [ 146 taxa and 61 samples ]
+#sample_data() Sample Data:       [ 61 samples by 14 sample variables ]
+#tax_table()   Taxonomy Table:    [ 146 taxa by 7 taxonomic ranks ]
 
 #DESEQ2
-diagdds = phyloseq_to_deseq2(ps_filtered, ~ enteritis)
+diagdds = phyloseq_to_deseq2(ps_filtered, ~ ASE)
 # calculate geometric means prior to estimate size factors
 gm_mean = function(x, na.rm=TRUE){
     exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
@@ -188,109 +185,88 @@ sigtab = res[(res$padj < alpha), ]
 sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_filtered)[rownames(sigtab), ], "matrix"))
 View(sigtab)
 
-
-#Pairwise assessment
-E0vE1<-results(diagdds,contrast=c("enteritis","E0","E1"))
-res = E0vE1[order(E0vE1$padj, na.last=NA), ]
-alpha = 0.10
-sigtab = res[(res$padj < alpha), ]
-sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_filtered)[rownames(sigtab), ], "matrix"))
-#None
-
-E0vE2<-results(diagdds,contrast=c("enteritis","E0","E2"))
-res = E0vE2[order(E0vE2$padj, na.last=NA), ]
-alpha = 0.01
-sigtab = res[(res$padj < alpha), ]
-sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_rarefied)[rownames(sigtab), ], "matrix"))
-
-#febf0b4ade55c5046e9bbc5c25bb4ef4 Mesomycoplasma moatsii
-
-
-E0vE3<-results(diagdds,contrast=c("enteritis","E0","E3"))
-res = E0vE3[order(E0vE3$padj, na.last=NA), ]
-alpha = 0.01
-sigtab = res[(res$padj < alpha), ]
-sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_filtered)[rownames(sigtab), ], "matrix"))
-
-#febf0b4ade55c5046e9bbc5c25bb4ef4 Mesomycoplasma moatsii
-#81a1706a3dc2fa4a573fca6c272332c2 Genus: Malacoplasma
-#d114fb4c335125128be28401522dd41a Lactococcus lactis
-#59cad5bca75a360ccd35acf213202427 Tetragenococcus osmophilus
-
-E1vE3<-results(diagdds,contrast=c("enteritis","E1","E3"))
-res = E1vE3[order(E1vE3$padj, na.last=NA), ]
-alpha = 0.01
-sigtab = res[(res$padj < alpha), ]
-sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_filtered)[rownames(sigtab), ], "matrix"))
-##febf0b4ade55c5046e9bbc5c25bb4ef4 Mesomycoplasma moatsii
-#d114fb4c335125128be28401522dd41a Lactococcus lactis
-#81a1706a3dc2fa4a573fca6c272332c2 Genus: Malacoplasma ##Important gut microbiota in atlantic salmon
-#82dece6e35540738ba450a0c3a90b5a0 Serratia marcescens
-#c9b6f06a64809b4085cf1c5c680fc62b Genus: Rhodoferax
-
-
-
-E2vE3<-results(diagdds,contrast=c("enteritis","E2","E3"))
-res = E2vE3[order(E2vE3$padj, na.last=NA), ]
-alpha = 0.01
-sigtab = res[(res$padj < alpha), ]
-sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(ps_filtered)[rownames(sigtab), ], "matrix"))
-#d114fb4c335125128be28401522dd41a Lactococcus lactis
-#81a1706a3dc2fa4a573fca6c272332c2 Genus: Malacoplasma ##Important gut microbiota in atlantic salmon
-
-
 ###PLOT single taxa from DeSeq
-target_asv<-"81a1706a3dc2fa4a573fca6c272332c2"
-ps_sig <- prune_taxa(target_asv, ps_filtered) 
-df <- psmelt(ps_sig)
-ggplot(df, aes(x = enteritis, y = Abundance, fill = enteritis)) +
-    geom_boxplot(outlier.shape = NA,aes(fill=enteritis)) +
-    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
-    facet_wrap(~OTU, scales = "free_y")+ggtitle("Genus:Malacoplasma")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()+xlab("")
-
-target_asv<-"82dece6e35540738ba450a0c3a90b5a0"
-ps_sig <- prune_taxa(target_asv, ps_filtered) 
-df <- psmelt(ps_sig)
-ggplot(df, aes(x = enteritis, y = Abundance, fill = enteritis)) +
-    geom_boxplot(outlier.shape = NA,aes(fill=enteritis)) +
-    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
-    facet_wrap(~OTU, scales = "free_y")+ggtitle("Serratia marcescens")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()+xlab("")
-
-target_asv<-"d114fb4c335125128be28401522dd41a"
-ps_sig <- prune_taxa(target_asv, ps_filtered) 
-df <- psmelt(ps_sig)
-ggplot(df, aes(x = enteritis, y = Abundance, fill = enteritis)) +
-    geom_boxplot(outlier.shape = NA,aes(fill=enteritis)) +
-    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
-    facet_wrap(~OTU, scales = "free_y")+ggtitle("Lactococcus lactis")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()+xlab("")
-
 target_asv<-"febf0b4ade55c5046e9bbc5c25bb4ef4"
 ps_sig <- prune_taxa(target_asv, ps_filtered) 
 df <- psmelt(ps_sig)
-ggplot(df, aes(x = enteritis, y = Abundance, fill = enteritis)) +
-    geom_boxplot(outlier.shape = NA,aes(fill=enteritis)) +
+ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
+    geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
     geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
-    facet_wrap(~OTU, scales = "free_y")+ggtitle("Mesomycoplasma moatsii")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()+xlab("")
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Mesomycoplasma moatsii")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
 
 
-target_asv<-"59cad5bca75a360ccd35acf213202427"
+target_asv<-"81a1706a3dc2fa4a573fca6c272332c2"
 ps_sig <- prune_taxa(target_asv, ps_filtered) 
 df <- psmelt(ps_sig)
-ggplot(df, aes(x = enteritis, y = Abundance, fill = enteritis)) +
-    geom_boxplot(outlier.shape = NA,aes(fill=enteritis)) +
+ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
+    geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
     geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
-    facet_wrap(~OTU, scales = "free_y")+ggtitle("Tetragenococcus osmophilus")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()+xlab("")
-
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Genus: Malacoplasma")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
 
 target_asv<-"c9b6f06a64809b4085cf1c5c680fc62b"
 ps_sig <- prune_taxa(target_asv, ps_filtered) 
 df <- psmelt(ps_sig)
-ggplot(df, aes(x = enteritis, y = Abundance, fill = enteritis)) +
-    geom_boxplot(outlier.shape = NA,aes(fill=enteritis)) +
+ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
+    geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
     geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
-    facet_wrap(~OTU, scales = "free_y")+ggtitle("Genus: Rhodoferax")+scale_fill_brewer(palette = "BrBG")+labs(fill = "Enteritis Score")+theme_bw()+xlab("")
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Genus: Rhodoferax")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
 
 
+target_asv<-"ce945369a663473cd641d04ae72b4418"
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
+    geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
+    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Kingdom: Bacteria")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
+
+ target_asv<-"82dece6e35540738ba450a0c3a90b5a0"
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
+geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
+geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
+facet_wrap(~OTU, scales = "free_y")+ggtitle("Serratia marcescens")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
+
+target_asv<-"ce945369a663473cd641d04ae72b4418"
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
+    geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
+    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Kingdom: Bacteria")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
+
+target_asv<-"d114fb4c335125128be28401522dd41a"
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
+    geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
+    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Lactococcus lactis")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
+
+target_asv<-"bc56a7361c9a3b49f1f1c51874321e12"
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
+    geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
+    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Kocuria rhizophila")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
+
+target_asv<-"2500422919f98bed627f3fd491e508a8"
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
+    geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
+    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Aeromonas sobria")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
+
+target_asv<-"82819e0b6b0a7ba359661678cb034a42"
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
+    geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
+    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Carnobacterium inhibens")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
 
 
 
