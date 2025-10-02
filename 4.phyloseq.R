@@ -38,8 +38,10 @@ ps_rarefied = rarefy_even_depth(ps_filtered)
 
 #Alpha Diversity:
 
-p<-plot_richness(ps_rarefied, x="percent_epithelium",color="ASE" ,measures=c("Observed", "Shannon"))+theme_bw()
- p + geom_point(size=5, alpha=0.7)+scale_color_brewer(palette = "Paired")
+p<-plot_richness(ps_rarefied, x="percent_epithelium",color="ASE" ,measures=c("Observed", "Shannon"))+ theme_q2r() 
+p + geom_point(size=5, alpha=0.7)+scale_color_brewer(palette = "Dark2")
+
+ ggsave("~/Figure_1.svg")
 
 
 ###Abundance plots
@@ -61,9 +63,8 @@ ggplot(ps.melt_sum, aes(x = Sample, y = Abundance, fill = Phylum)) +
     geom_bar(stat = "identity", aes(fill=Phylum)) + 
     labs(x="", y="%") +
     facet_wrap(~ASE, scales= "free_x", nrow=1) +
-    theme_classic(base_size = 10) + 
-    theme(strip.background = element_blank(), 
-          axis.text.x.bottom = element_text(angle = -90))
+    theme_q2r()+scale_fill_brewer(palette = "Dark2",name = "Phylum")+theme(axis.ticks.x = element_blank(),axis.text.x = element_blank())
+ggsave("~/Figure_2A.svg")
 #Abundance by genus
 
 
@@ -80,31 +81,57 @@ ggplot(ps.melt_sum, aes(x = Sample, y = Abundance, fill = Genus)) +
     geom_bar(stat = "identity", aes(fill=Genus)) + 
     labs(x="", y="%") +
     facet_wrap(~ASE, scales= "free_x", nrow=1) +
-    theme_classic(base_size = 10) + 
-    theme(strip.background = element_blank(), 
-          axis.text.x.bottom = element_text(angle = -90))
+    theme_q2r()+scale_fill_brewer(palette = "Dark2",name = "Genus")+theme(axis.ticks.x = element_blank(),axis.text.x = element_blank())
+ggsave("~/Figure_2B.svg")
 
 
 #Ordination
-#ASE w hatchery
-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"), color = "hatchery",shape="ASE") + geom_point(size = 5)+theme_bw()+scale_color_brewer(palette = "Paired")+labs(shape = "ASE",color="Hatchery")+scale_shape_manual(values=c("positive"=15,"negative"=16))
-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="jaccard"), color = "hatchery",shape="ASE") + geom_point(size = 5)+theme_bw()+scale_color_brewer(palette = "Paired")+labs(shape = "ASE",color="Hatchery")+scale_shape_manual(values=c("positive"=15,"negative"=16))
-#Percent Epithilium
-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="jaccard"), color = "percent_epithelium") + geom_point(size = 5)+theme_bw()+labs(color = "% Epithelium")+scale_color_distiller(palette = "BrBG", direction = 1)
-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"), color = "percent_epithelium") + geom_point(size = 5)+theme_bw()+labs(color = "% Epithelium")+scale_color_distiller(palette = "BrBG", direction = 1)
+
+#hatchery
+plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"), color = "hatchery")  +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 5)+theme_q2r()+scale_color_brewer(palette = "Dark2")+labs(color="Hatchery") 
+#Note, didn't see any qualitative difference between bray vs jaccard so just retained bray distance matrix for illustration
+ggsave("~/Figure_S2.svg")
+
+#Occurance of ASE rank among the hatcheries
+ggplot(metadata, aes(x = hatchery, fill = ASE)) +
+    geom_bar(position = "stack") +
+    labs(x = "Hatchery",
+         y = "# Samples",
+         fill = "ASE") +
+    theme_q2r()+scale_fill_brewer(palette = "Dark2",name = "ASE")
+
+ggsave("~/Figure_S3.svg")
+
+#ASE
+plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"), color = "ASE")  +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 5)+theme_q2r()+scale_color_brewer(palette = "Dark2")+labs(color="ASE") 
+ggsave("~/Figure_3.svg")
+
 
 #Check multidimensional dispersion 
 dist_matrix <- phyloseq::distance(ps_rarefied, method = "bray")
-dispersion<-betadisper(dist_matrix,group=ps_rarefied@sam_data$enteritis)
+dispersion<-betadisper(dist_matrix,group=ps_rarefied@sam_data$ASE)
 permutest(dispersion)
+
+Permutation test for homogeneity of multivariate dispersions
+Permutation: free
+Number of permutations: 999
+
+Response: Distances
+          Df  Sum Sq Mean Sq      F N.Perm Pr(>F)    
+Groups     1 0.45084 0.45084 15.907    999  0.001 ***
+Residuals 59 1.67216 0.02834                         
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 
 #View distance from centroid for each group
 metadata <- data.frame(sample_data(ps_rarefied))
-p <- cbind(distance = as.numeric(dispersion$distances),enteritis = metadata$enteritis,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance)) %>% 
-    ggplot(aes(enteritis, distance)) + 
+p <- cbind(distance = as.numeric(dispersion$distances),ASE = metadata$ASE,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance)) %>% 
+    ggplot(aes(ASE, distance)) + 
     geom_boxplot() +
-    theme_bw()+xlab("Enteritis Score")
+    theme_q2r()+xlab("ASE")
+ggsave("~/Figure_S4.svg")
+
 
 #Permanova:
 metadata <- data.frame(sample_data(ps_rarefied))
@@ -256,7 +283,7 @@ otu = as_tibble(otu)
 pattern <- "ASV_"
 
 # Append the pattern to the beginning of all column names
-colnames(otu) <- paste0(pattern, colnames(otu)[1:141])
+colnames(otu) <- paste0(pattern, colnames(otu))
 
 curMeta = phyloseqCompanion::sample.data.frame(ps=ps_filtered)
 x<-cbind(otu,curMeta)
