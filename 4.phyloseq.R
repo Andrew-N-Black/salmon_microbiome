@@ -43,6 +43,14 @@ p + geom_point(size=5, alpha=0.7)+scale_color_brewer(palette = "Dark2")
 
  ggsave("~/Figure_1.svg")
 
+#Significance test for ASE
+observed<-p$data[1:61,]
+kruskal.test(value ~ ASE, data = observed)
+
+shannon<-p$data[62:122,]
+kruskal.test(value ~ ASE, data = shannon)
+
+
 
 ###Abundance plots
 ##Abundance by Phylum
