@@ -38,8 +38,8 @@ ps_rarefied = rarefy_even_depth(ps_filtered)
 
 #Alpha Diversity:
 
-p<-plot_richness(ps_rarefied, x="percent_epithelium",color="ASE" ,measures=c("Observed", "Shannon"))+ theme_q2r() 
-p + geom_point(size=5, alpha=0.7)+scale_color_brewer(palette = "Dark2")
+p<-plot_richness(ps_rarefied, x="ASE",color="ASE" ,measures=c("Observed", "Shannon"))+ theme_q2r() 
+p + geom_boxplot(size=1)+scale_color_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())
 
  ggsave("~/Figure_1.svg")
 
