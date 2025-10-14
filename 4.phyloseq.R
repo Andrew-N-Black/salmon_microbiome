@@ -117,7 +117,9 @@ ggplot(ps.melt_sum, aes(x = Sample, y = Abundance, fill = Genus)) +
 
 
 #Ordination
-
+#ASE only
+plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"))  +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 5,shape=21,color="black",aes(fill=ASE))+theme_q2r()+scale_fill_brewer(palette = "Dark2") 
+ggsave("~/Figure_3.svg")
 #hatchery
 plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"), color = "hatchery")  +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 5)+theme_q2r()+scale_color_brewer(palette = "Dark2")+labs(color="Hatchery") 
 #Note, didn't see any qualitative difference between bray vs jaccard so just retained bray distance matrix for illustration
