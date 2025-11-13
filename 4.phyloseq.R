@@ -160,18 +160,28 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 #View distance from centroid for each group
 metadata <- data.frame(sample_data(ps_rarefied))
 p <- cbind(distance = as.numeric(dispersion$distances),ASE = metadata$ASE,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance)) %>% 
-    ggplot(aes(ASE, distance)) + 
+    ggplot(aes(ASE, distance,color=ASE)) + 
     geom_boxplot() +
-    theme_q2r()+xlab("ASE")
+    theme_q2r()+xlab("ASE")+ylab("Distance from centroid")+scale_color_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
 ggsave("~/Figure_S4.svg")
 
 
 #Permanova:
 metadata <- data.frame(sample_data(ps_rarefied))
-adonis2(dist_matrix ~ enteritis+percent_epithelium, data = metadata)
+adonis2(dist_matrix ~ ASE, data = metadata)
 #Permutation test for adonis under reduced model
 #Permutation: free
 #Number of permutations: 999
+
+#adonis2(formula = dist_matrix ~ ASE, data = metadata)
+#         Df SumOfSqs      R2     F Pr(>F)    
+#Model     1   4.0489 0.17552 12.56  0.001 ***
+#Residual 59  19.0189 0.82448                 
+#Total    60  23.0679 1.00000                 
+#---
+#Signif. codes:  
+#0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 
 #anosim ranked non-parametric
