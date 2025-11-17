@@ -141,9 +141,17 @@ ggsave("~/Figure_3.svg")
 
 
 #Check multidimensional dispersion 
-dist_matrix <- phyloseq::distance(ps_rarefied, method = "bray")
-dispersion<-betadisper(dist_matrix,group=ps_rarefied@sam_data$ASE)
-permutest(dispersion)
+dist_matrixB <- phyloseq::distance(ps_rarefied, method = "bray")
+dist_matrixJ <- phyloseq::distance(ps_rarefied, method = "jaccard")
+dispersionB<-betadisper(dist_matrixJ,group=ps_rarefied@sam_data$ASE)
+permutest(dispersionB)
+          Df  Sum Sq  Mean Sq      F N.Perm Pr(>F)
+Groups     1 0.29898 0.298982 16.221    999  0.001
+Residuals 59 1.08748 0.018432      
+
+
+dispersionJ<-betadisper(dist_matrixJ,group=ps_rarefied@sam_data$ASE)
+permutest(dispersionJ)
 
 Permutation test for homogeneity of multivariate dispersions
 Permutation: free
@@ -169,7 +177,7 @@ ggsave("~/Figure_S4.svg")
 
 #Permanova:
 metadata <- data.frame(sample_data(ps_rarefied))
-adonis2(dist_matrix ~ ASE, data = metadata)
+adonis2(dist_matrixB ~ ASE, data = metadata)
 #Permutation test for adonis under reduced model
 #Permutation: free
 #Number of permutations: 999
@@ -182,6 +190,17 @@ adonis2(dist_matrix ~ ASE, data = metadata)
 #---
 #Signif. codes:  
 #0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+adonis2(dist_matrixJ ~ ASE, data = metadata)
+adonis2(formula = dist_matrixJ ~ ASE, data = metadata)
+         Df SumOfSqs      R2      F Pr(>F)    
+Model     1   3.3677 0.13187 8.9625  0.001 ***
+Residual 59  22.1696 0.86813                  
+Total    60  25.5373 1.00000                  
+---
+Signif. codes:  
+0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
 
 
 #anosim ranked non-parametric
