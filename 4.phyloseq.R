@@ -208,8 +208,28 @@ pc = ps_rarefied@otu_table
 
 pc = t(ps_rarefied@otu_table)
 m_com = as.matrix(pc)
-ano = anosim(m_com, metadata$enteritis, distance = "bray", permutations = 9999)
+ano = anosim(m_com, metadata$ASE, distance = "bray", permutations = 9999)
 
+anosim(x = m_com, grouping = metadata$ASE, permutations = 9999,      distance = "bray") 
+Dissimilarity: bray 
+
+ANOSIM statistic R: 0.5346 
+      Significance: 1e-04 
+
+Permutation: free
+Number of permutations: 9999
+
+
+ano = anosim(m_com, metadata$ASE, distance = "jaccard", permutations = 9999)
+
+anosim(x = m_com, grouping = metadata$ASE, permutations = 9999,      distance = "bray") 
+Dissimilarity: bray 
+
+ANOSIM statistic R: 0.5346 
+      Significance: 1e-04 
+
+Permutation: free
+Number of permutations: 9999
 
 #Differential
 
@@ -246,7 +266,7 @@ df <- psmelt(ps_sig)
 ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
     geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
     geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
-    facet_wrap(~OTU, scales = "free_y")+ggtitle("Mesomycoplasma moatsii")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Mesomycoplasma moatsii")+scale_fill_brewer(palette = "Dark2")+labs(fill = "ASE")+theme_bw()+xlab("")
 
 
 target_asv<-"81a1706a3dc2fa4a573fca6c272332c2"
@@ -255,7 +275,15 @@ df <- psmelt(ps_sig)
 ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
     geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
     geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
-    facet_wrap(~OTU, scales = "free_y")+ggtitle("Genus: Malacoplasma")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Genus: Malacoplasma")+scale_fill_brewer(palette = "Dark2")+labs(fill = "ASE")+theme_bw()+xlab("")
+
+target_asv<-"ce945369a663473cd641d04ae72b4418"
+ps_sig <- prune_taxa(target_asv, ps_filtered) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
+    geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
+    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Kingdom: Bacteria")+scale_fill_brewer(palette = "Dark2")+labs(fill = "ASE")+theme_bw()+xlab("")
 
 target_asv<-"c9b6f06a64809b4085cf1c5c680fc62b"
 ps_sig <- prune_taxa(target_asv, ps_filtered) 
@@ -263,16 +291,9 @@ df <- psmelt(ps_sig)
 ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
     geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
     geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
-    facet_wrap(~OTU, scales = "free_y")+ggtitle("Genus: Rhodoferax")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Genus: Rhodoferax")+scale_fill_brewer(palette = "Dark2")+labs(fill = "ASE")+theme_bw()+xlab("")
 
 
-target_asv<-"ce945369a663473cd641d04ae72b4418"
-ps_sig <- prune_taxa(target_asv, ps_filtered) 
-df <- psmelt(ps_sig)
-ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
-    geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
-    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
-    facet_wrap(~OTU, scales = "free_y")+ggtitle("Kingdom: Bacteria")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
 
  target_asv<-"82dece6e35540738ba450a0c3a90b5a0"
 ps_sig <- prune_taxa(target_asv, ps_filtered) 
@@ -280,15 +301,8 @@ df <- psmelt(ps_sig)
 ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
 geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
 geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
-facet_wrap(~OTU, scales = "free_y")+ggtitle("Serratia marcescens")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
+facet_wrap(~OTU, scales = "free_y")+ggtitle("Serratia marcescens")+scale_fill_brewer(palette = "Dark2")+labs(fill = "ASE")+theme_bw()+xlab("")
 
-target_asv<-"ce945369a663473cd641d04ae72b4418"
-ps_sig <- prune_taxa(target_asv, ps_filtered) 
-df <- psmelt(ps_sig)
-ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
-    geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
-    geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
-    facet_wrap(~OTU, scales = "free_y")+ggtitle("Kingdom: Bacteria")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
 
 target_asv<-"d114fb4c335125128be28401522dd41a"
 ps_sig <- prune_taxa(target_asv, ps_filtered) 
@@ -296,7 +310,7 @@ df <- psmelt(ps_sig)
 ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
     geom_boxplot(outlier.shape = NA,aes(fill=ASE)) +
     geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
-    facet_wrap(~OTU, scales = "free_y")+ggtitle("Lactococcus lactis")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
+    facet_wrap(~OTU, scales = "free_y")+ggtitle("Lactococcus lactis")+scale_fill_brewer(palette = "Dark2")+labs(fill = "ASE")+theme_bw()+xlab("")
 
 target_asv<-"bc56a7361c9a3b49f1f1c51874321e12"
 ps_sig <- prune_taxa(target_asv, ps_filtered) 
