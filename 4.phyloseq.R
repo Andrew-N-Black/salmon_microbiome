@@ -285,6 +285,9 @@ ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
     geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
     facet_wrap(~OTU, scales = "free_y")+ggtitle("Kingdom: Bacteria")+scale_fill_brewer(palette = "Dark2")+labs(fill = "ASE")+theme_bw()+xlab("")
 
+>ce945369a663473cd641d04ae72b4418
+TACGGAGGGTGCAAGCGTTAATCGGAATTACTGGGCGTAAAGCGCGCGTAGGCGGTAATGTAAGTTAGAGGTGTAAGCCCATAGCTCAACTATGGAATTGCCTTTAAGACTGCGTTACTAGAATATAGGAGAGGATAGTGGAATTTCTAGTGTAGGAGTGGAATCTGTAGATACTAGAAGGAACACCAGAGGCGAAGGCGACTATCTGGACTATTATTGACGCTGAGGTGCGAAAGCGTGGGGAGCAAACAGG
+
 target_asv<-"c9b6f06a64809b4085cf1c5c680fc62b"
 ps_sig <- prune_taxa(target_asv, ps_filtered) 
 df <- psmelt(ps_sig)
