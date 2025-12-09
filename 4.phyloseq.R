@@ -521,3 +521,14 @@ ggplot(df, aes(x = epithelium_remaining, y = Abundance, color = epithelium_remai
     facet_wrap(~OTU, scales = "free_y")+ggtitle("Genus: Malacoplasma")+scale_color_distiller(palette = "BrBG", direction = 1)+labs(color = "Epithelium Remaining")+theme_bw()+xlab("Epithelium Remaining")
 
 
+#ANCOMbc https://www.bioconductor.org/packages/release/bioc/vignettes/ANCOMBC/inst/doc/ANCOMBC2.html
+set.seed(123)
+pseq_perm = ps_filtered
+meta_data_perm = microbiome::meta(pseq_perm)
+meta_data_perm$ASE = sample(meta_data_perm$ASE)
+phyloseq::sample_data(pseq_perm) = meta_data_perm
+output = ancombc2(data = pseq_perm, tax_level = "Genus",
++                   fix_formula = "ASE", rand_formula = NULL,
++                   p_adj_method = "holm", pseudo_sens = TRUE,
++                   prv_cut = 0, lib_cut = 1000, s0_perc = 0.05,
++                   group = "ASE", struc_zero = TRUE, neg_lb = TRUE)
