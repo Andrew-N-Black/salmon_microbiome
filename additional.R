@@ -40,6 +40,7 @@ ps_add_rarefied = rarefy_even_depth(ps_add_filtered,rngseed = T)
 
 #Alpha Diversity:
 
+p<-plot_richness(ps_add_rarefied, x="treatment",color="treatment" ,measures=c("Observed", "Shannon"))+ theme_q2r() 
 p + geom_boxplot(size=1)+scale_color_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())
 
  ggsave("~/Figure_add_1.svg")
@@ -65,7 +66,7 @@ Kruskal-Wallis chi-squared = 34.45, df = 6, p-value = 5.508e-06
 
 #C. shasta
 p + geom_boxplot(size=1)+scale_color_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())
-
+ggsave("~/Figure_add_1b.svg")
 
 ###Abundance plots
 #Increase size of color palette
@@ -92,12 +93,38 @@ ggplot(ps.melt_sum, aes(x = Sample, y = Abundance, fill = Class)) +
 
 ggsave("~/Figure_2_add.svg")
 
+#Glom for C. shasta
+num_colors <- 11
+my_expanded_palette <- colorRampPalette(brewer.pal(8, "Dark2"))(num_colors)
+
+
+glom <- tax_glom(ps_add_rarefied, taxrank = 'Class', NArm = FALSE)
+#Melt and merge dataframe to work with ggplot2
+ps.melt <- psmelt(glom)
+#Set as character
+ps.melt$Class <- as.character(ps.melt$Class)
+
+ps.melt <- ps.melt %>%group_by(Xcshasta, Class) %>% mutate(median=median(Abundance))
+keep <- unique(ps.melt$Class[ps.melt$median > 2.5])
+ps.melt$Class[!(ps.melt$Class %in% keep)] <- "< 2.5%"
+ps.melt_sum <- ps.melt %>% group_by(Sample,Xcshasta,Class) %>% summarise(Abundance=sum(Abundance))
+
+ggplot(ps.melt_sum, aes(x = Sample, y = Abundance, fill = Class)) + 
+    geom_bar(stat = "identity", aes(fill=Class)) + 
+    labs(x="", y="%") +
+    facet_wrap(~Xcshasta, scales= "free_x", nrow=1) +
+    theme_q2r()+ scale_fill_manual(values = my_expanded_palette, name="Class")+theme(axis.ticks.x = element_blank(),axis.text.x = element_blank())
+ggsave("~/Figure_2b_add.svg")
 
 
 #Ordination
-#Bray
+#Bray (treatment)
 plot_ordination(ps_add_rarefied, ordinate(ps_add_rarefied, "MDS",distance="bray"))  +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 5,shape=21,color="black",aes(fill=treatment))+theme_q2r()+scale_fill_brewer(palette = "Dark2") 
 ggsave("~/Figure_3_add.svg")
+#Bray (Xcshasta)
+plot_ordination(ps_add_rarefied, ordinate(ps_add_rarefied, "MDS",distance="bray"))  +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 5,shape=21,color="black",aes(fill=Xcshasta))+theme_q2r()+scale_fill_brewer(palette = "Dark2") 
+
+
 #Jaccard
 plot_ordination(ps_add_rarefied, ordinate(ps_add_rarefied, "MDS",distance="jaccard"))  +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 5,shape=21,color="black",aes(fill=treatment))+theme_q2r()+scale_fill_brewer(palette = "Dark2") 
 ggsave("~/Figure_3b_add.svg")
