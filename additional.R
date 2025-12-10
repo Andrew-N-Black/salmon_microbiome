@@ -63,6 +63,10 @@ data:  value by treatment
 Kruskal-Wallis chi-squared = 34.45, df = 6, p-value = 5.508e-06
 
 
+#C. shasta
+p + geom_boxplot(size=1)+scale_color_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
 ###Abundance plots
 #Increase size of color palette
 num_colors <- 11
