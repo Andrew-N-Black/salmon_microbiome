@@ -45,111 +45,80 @@ p + geom_boxplot(size=1)+scale_color_brewer(palette = "Dark2")+theme(axis.title.
  ggsave("~/Figure_add_1.svg")
 
 #Significance test for ASE
-observed<-p$data[1:61,]
-kruskal.test(value ~ ASE, data = observed)
+observed<-p$data[1:69,]
+kruskal.test(value ~ treatment, data = observed)
 
-shannon<-p$data[62:122,]
-kruskal.test(value ~ ASE, data = shannon)
+	Kruskal-Wallis rank sum test
 
+data:  value by treatment
+Kruskal-Wallis chi-squared = 23.339, df = 6, p-value = 0.0006906
+
+
+shannon<-p$data[70:138,]
+kruskal.test(value ~ treatment, data = shannon)
+
+	Kruskal-Wallis rank sum test
+
+data:  value by treatment
+Kruskal-Wallis chi-squared = 34.45, df = 6, p-value = 5.508e-06
 
 
 ###Abundance plots
-##Abundance by Phylum
+#Increase size of color palette
+num_colors <- 11
+my_expanded_palette <- colorRampPalette(brewer.pal(8, "Dark2"))(num_colors)
 
-#Merge species by Phylum
-glom <- tax_glom(ps_rarefied, taxrank = 'Phylum', NArm = FALSE)
-#Melt and merge dataframe to work with ggplot2
-ps.melt <- psmelt(glom)
-#Set as character
-ps.melt$Phylum <- as.character(ps.melt$Phylum)
 
-ps.melt <- ps.melt %>%group_by(ASE, Phylum) %>% mutate(median=median(Abundance))
-keep <- unique(ps.melt$Phylum[ps.melt$median > 1])
-ps.melt$Phylum[!(ps.melt$Phylum %in% keep)] <- "< 1%"
-ps.melt_sum <- ps.melt %>% group_by(Sample,ASE,Phylum) %>% summarise(Abundance=sum(Abundance))
-
-ggplot(ps.melt_sum, aes(x = Sample, y = Abundance, fill = Phylum)) + 
-    geom_bar(stat = "identity", aes(fill=Phylum)) + 
-    labs(x="", y="%") +
-    facet_wrap(~ASE, scales= "free_x", nrow=1) +
-    theme_q2r()+scale_fill_brewer(palette = "Dark2",name = "Phylum")+theme(axis.ticks.x = element_blank(),axis.text.x = element_blank())
-
-#Abundance by Class
-glom <- tax_glom(ps_rarefied, taxrank = 'Class', NArm = FALSE)
+glom <- tax_glom(ps_add_rarefied, taxrank = 'Class', NArm = FALSE)
 #Melt and merge dataframe to work with ggplot2
 ps.melt <- psmelt(glom)
 #Set as character
 ps.melt$Class <- as.character(ps.melt$Class)
 
-ps.melt <- ps.melt %>%group_by(ASE, Class) %>% mutate(median=median(Abundance))
+ps.melt <- ps.melt %>%group_by(treatment, Class) %>% mutate(median=median(Abundance))
 keep <- unique(ps.melt$Class[ps.melt$median > 2.5])
 ps.melt$Class[!(ps.melt$Class %in% keep)] <- "< 2.5%"
-ps.melt_sum <- ps.melt %>% group_by(Sample,ASE,Class) %>% summarise(Abundance=sum(Abundance))
+ps.melt_sum <- ps.melt %>% group_by(Sample,treatment,Class) %>% summarise(Abundance=sum(Abundance))
 
 ggplot(ps.melt_sum, aes(x = Sample, y = Abundance, fill = Class)) + 
     geom_bar(stat = "identity", aes(fill=Class)) + 
     labs(x="", y="%") +
-    facet_wrap(~ASE, scales= "free_x", nrow=1) +
-    theme_q2r()+scale_fill_brewer(palette = "Dark2",name = "Class")+theme(axis.ticks.x = element_blank(),axis.text.x = element_blank())
-ggsave("~/Figure_2.svg")
+    facet_wrap(~treatment, scales= "free_x", nrow=1) +
+    theme_q2r()+ scale_fill_manual(values = my_expanded_palette, name="Class")+theme(axis.ticks.x = element_blank(),axis.text.x = element_blank())
 
+ggsave("~/Figure_2_add.svg")
 
-
-
-#Abundance by genus
-
-
-glom <- tax_glom(ps_rarefied, taxrank = 'Genus', NArm = FALSE)
-ps.melt <- psmelt(glom)
-ps.melt$Genus <- as.character(ps.melt$Genus)
-
-ps.melt <- ps.melt %>%group_by(ASE, Genus) %>% mutate(median=median(Abundance))
-keep <- unique(ps.melt$Genus[ps.melt$median > 2.5])
-ps.melt$Genus[!(ps.melt$Genus %in% keep)] <- "< 2.5%"
-ps.melt_sum <- ps.melt %>% group_by(Sample,ASE,Genus) %>% summarise(Abundance=sum(Abundance))
-
-ggplot(ps.melt_sum, aes(x = Sample, y = Abundance, fill = Genus)) + 
-    geom_bar(stat = "identity", aes(fill=Genus)) + 
-    labs(x="", y="%") +
-    facet_wrap(~ASE, scales= "free_x", nrow=1) +
-    theme_q2r()+scale_fill_brewer(palette = "Dark2",name = "Genus")+theme(axis.ticks.x = element_blank(),axis.text.x = element_blank())
 
 
 #Ordination
-#ASE only
-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"))  +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 5,shape=21,color="black",aes(fill=ASE))+theme_q2r()+scale_fill_brewer(palette = "Dark2") 
-ggsave("~/Figure_3.svg")
-#hatchery
-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"), color = "hatchery")  +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 5)+theme_q2r()+scale_color_brewer(palette = "Dark2")+labs(color="Hatchery") 
-#Note, didn't see any qualitative difference between bray vs jaccard so just retained bray distance matrix for illustration
-ggsave("~/Figure_S2.svg")
+#Bray
+plot_ordination(ps_add_rarefied, ordinate(ps_add_rarefied, "MDS",distance="bray"))  +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 5,shape=21,color="black",aes(fill=treatment))+theme_q2r()+scale_fill_brewer(palette = "Dark2") 
+ggsave("~/Figure_3_add.svg")
+#Jaccard
+plot_ordination(ps_add_rarefied, ordinate(ps_add_rarefied, "MDS",distance="jaccard"))  +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 5,shape=21,color="black",aes(fill=treatment))+theme_q2r()+scale_fill_brewer(palette = "Dark2") 
+ggsave("~/Figure_3b_add.svg")
 
-#Occurance of ASE rank among the hatcheries
-ggplot(metadata, aes(x = hatchery, fill = ASE)) +
-    geom_bar(position = "stack") +
-    labs(x = "Hatchery",
-         y = "# Samples",
-         fill = "ASE") +
-    theme_q2r()+scale_fill_brewer(palette = "Dark2",name = "ASE")
 
-ggsave("~/Figure_S3.svg")
-
-#ASE
-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"), color = "ASE")  +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 5)+theme_q2r()+scale_color_brewer(palette = "Dark2")+labs(color="ASE") 
-ggsave("~/Figure_3.svg")
 
 
 #Check multidimensional dispersion 
-dist_matrixB <- phyloseq::distance(ps_rarefied, method = "bray")
-dist_matrixJ <- phyloseq::distance(ps_rarefied, method = "jaccard")
-dispersionB<-betadisper(dist_matrixJ,group=ps_rarefied@sam_data$ASE)
+dist_matrixB <- phyloseq::distance(ps_add_rarefied, method = "bray")
+dist_matrixJ <- phyloseq::distance(ps_add_rarefied, method = "jaccard")
+dispersionB<-betadisper(dist_matrixJ,group=ps_add_rarefied@sam_data$treatment)
 permutest(dispersionB)
-          Df  Sum Sq  Mean Sq      F N.Perm Pr(>F)
-Groups     1 0.29898 0.298982 16.221    999  0.001
-Residuals 59 1.08748 0.018432      
 
+Permutation test for homogeneity of multivariate dispersions
+Permutation: free
+Number of permutations: 999
 
-dispersionJ<-betadisper(dist_matrixJ,group=ps_rarefied@sam_data$ASE)
+Response: Distances
+          Df  Sum Sq  Mean Sq      F N.Perm Pr(>F)    
+Groups     6 0.87522 0.145869 8.5107    999  0.001 ***
+Residuals 62 1.06265 0.017139                         
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+dispersionJ<-betadisper(dist_matrixJ,group=ps_add_rarefied@sam_data$treatment)
 permutest(dispersionJ)
 
 Permutation test for homogeneity of multivariate dispersions
@@ -157,74 +126,52 @@ Permutation: free
 Number of permutations: 999
 
 Response: Distances
-          Df  Sum Sq Mean Sq      F N.Perm Pr(>F)    
-Groups     1 0.45084 0.45084 15.907    999  0.001 ***
-Residuals 59 1.67216 0.02834                         
+          Df  Sum Sq  Mean Sq      F N.Perm Pr(>F)   
+Groups     6 0.87522 0.145869 8.5107    999  0.002 **
+Residuals 62 1.06265 0.017139                        
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 
 #View distance from centroid for each group
-metadata <- data.frame(sample_data(ps_rarefied))
-p <- cbind(distance = as.numeric(dispersion$distances),ASE = metadata$ASE,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance)) %>% 
-    ggplot(aes(ASE, distance,color=ASE)) + 
+metadata <- data.frame(sample_data(ps_add_rarefied))
+p <- cbind(distance = as.numeric(dispersionB$distances),treatment = metadata$treatment,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance)) %>% 
+    ggplot(aes(treatment, distance,color=treatment)) + 
     geom_boxplot() +
-    theme_q2r()+xlab("ASE")+ylab("Distance from centroid")+scale_color_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())
+    theme_q2r()+xlab("Treatment")+ylab("Distance from centroid")+scale_color_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())
 
-ggsave("~/Figure_S4.svg")
+
+ggsave("~/Figure_4_add.svg")
 
 
 #Permanova:
-metadata <- data.frame(sample_data(ps_rarefied))
-adonis2(dist_matrixB ~ ASE, data = metadata)
-#Permutation test for adonis under reduced model
-#Permutation: free
-#Number of permutations: 999
+Permutation test for adonis under reduced model
+Permutation: free
+Number of permutations: 999
 
-#adonis2(formula = dist_matrix ~ ASE, data = metadata)
-#         Df SumOfSqs      R2     F Pr(>F)    
-#Model     1   4.0489 0.17552 12.56  0.001 ***
-#Residual 59  19.0189 0.82448                 
-#Total    60  23.0679 1.00000                 
-#---
-#Signif. codes:  
-#0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-adonis2(dist_matrixJ ~ ASE, data = metadata)
-adonis2(formula = dist_matrixJ ~ ASE, data = metadata)
+adonis2(formula = dist_matrixB ~ treatment, data = metadata)
          Df SumOfSqs      R2      F Pr(>F)    
-Model     1   3.3677 0.13187 8.9625  0.001 ***
-Residual 59  22.1696 0.86813                  
-Total    60  25.5373 1.00000                  
+Model     6   7.3698 0.27262 3.8729  0.001 ***
+Residual 62  19.6635 0.72738                  
+Total    68  27.0333 1.00000                  
 ---
-Signif. codes:  
-0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 
 
 #anosim ranked non-parametric
-pc = ps_rarefied@otu_table
+pc = ps_add_rarefied@otu_table
 
-pc = t(ps_rarefied@otu_table)
+pc = t(ps_add_rarefied@otu_table)
 m_com = as.matrix(pc)
-ano = anosim(m_com, metadata$ASE, distance = "bray", permutations = 9999)
+ano = anosim(m_com, metadata$treatment, distance = "bray", permutations = 9999)
 
-anosim(x = m_com, grouping = metadata$ASE, permutations = 9999,      distance = "bray") 
+
+Call:
+anosim(x = m_com, grouping = metadata$treatment, permutations = 9999,      distance = "bray") 
 Dissimilarity: bray 
 
-ANOSIM statistic R: 0.5346 
-      Significance: 1e-04 
-
-Permutation: free
-Number of permutations: 9999
-
-
-ano = anosim(m_com, metadata$ASE, distance = "jaccard", permutations = 9999)
-
-anosim(x = m_com, grouping = metadata$ASE, permutations = 9999,      distance = "bray") 
-Dissimilarity: bray 
-
-ANOSIM statistic R: 0.5346 
+ANOSIM statistic R: 0.4178 
       Significance: 1e-04 
 
 Permutation: free
