@@ -8,6 +8,21 @@ library(betareg)
 library(dplyr)
 library(reshape2)
 
+#Descriptive stats. Plot percent epithelium by ASE
+ggplot(x, aes(x = percent_epithelium, fill = ASE)) +
+    geom_histogram(alpha = 0.9, position = 'identity', binwidth = 10) + labs(x = "Epithelium (%)",
+         y = "Frequency",
+         fill = "ASE") +
+    theme_minimal()+scale_fill_brewer(palette = "Dark2")
+ggsave("~/Figure_SX.svg")
+
+#Descriptive Stats. Plot percent epithelium by enteritis score.
+ggplot(x, aes(x = percent_epithelium, fill = enteritis)) +
+    geom_histogram(position = 'identity', binwidth = 10) + labs(x = "Enteritis Score",
+         y = "Frequency",
+         fill = "Enteritis Score") +
+    theme_minimal()+scale_fill_brewer(palette = "Dark2")+facet_wrap(~enteritis)
+ggsave("~/Figure_SY.svg")
 
 phyloseq_object<-qza_to_phyloseq(features = "~/SMB_n61/qiime2/input/table.qza",taxonomy = "~/SMB_n61/qiime2/input/taxonomy.qza",metadata = "~/SMB_n61/input/metadata61_ext.txt")
 #phyloseq-class experiment-level object
@@ -527,8 +542,43 @@ pseq_perm = ps_filtered
 meta_data_perm = microbiome::meta(pseq_perm)
 meta_data_perm$ASE = sample(meta_data_perm$ASE)
 phyloseq::sample_data(pseq_perm) = meta_data_perm
-output = ancombc2(data = pseq_perm, tax_level = "Genus",
-+                   fix_formula = "ASE", rand_formula = NULL,
-+                   p_adj_method = "holm", pseudo_sens = TRUE,
-+                   prv_cut = 0, lib_cut = 1000, s0_perc = 0.05,
-+                   group = "ASE", struc_zero = TRUE, neg_lb = TRUE)
+output = ancombc2(data = pseq_perm, fix_formula = "ASE", rand_formula = NULL, p_adj_method = "fdr", pseudo_sens = TRUE, prv_cut = 0, lib_cut = 0, s0_perc = 0.05, group = "ASE", struc_zero = FALSE, neg_lb = FALSE)
+ 
+#Quick and dirty of result significance:
+ output$res |>
+    dplyr::select(taxon, lfc_ASEpositive, q_ASEpositive) |>
+    filter(q_ASEpositive < 0.05) |>
+    arrange(q_ASEpositive) |>
+    head(n = 100) |>
+    kable()
+
+ 
+res_prim = output$res
+df_ase = res_prim %>%
+rownames_to_column("tax_id") %>%
+dplyr::select(tax_id, ends_with("ASEpositive"))  
+
+df_fig_ase = df_ase %>%
+    filter(diff_ASEpositive == 1) %>% 
+    arrange(desc(lfc_ASEpositive)) %>%
+    mutate(direct = ifelse(lfc_ASEpositive > 0, "Positive LFC", "Negative LFC"))
+
+df_fig_ase$tax_id = factor(df_fig_ase$tax_id, levels = df_fig_ase$tax_id)
+df_fig_ase$direct = factor(df_fig_ase$direct,levels = c("Positive LFC", "Negative LFC"))
+
+ fig_ase = df_fig_ase %>%
+    ggplot(aes(x = tax_id, y = lfc_ASEpositive, fill = direct)) + 
+    geom_bar(stat = "identity", width = 0.7, color = "black", 
+             position = position_dodge(width = 0.4)) +
+    geom_errorbar(aes(ymin = lfc_ASEpositive - se_ASEpositive, ymax = lfc_ASEpositive + se_ASEpositive), 
+                  width = 0.2, position = position_dodge(0.05), color = "black") + 
+    labs(x = NULL, y = "Log fold change", 
+         title = "Log fold changes as ASE status") + 
+    scale_fill_discrete(name = NULL) +
+    scale_color_discrete(name = NULL) +
+    theme_bw() + 
+    theme(plot.title = element_text(hjust = 0.5),
+          panel.grid.minor.y = element_blank(),
+          axis.text.x = element_text(angle = 60, hjust = 1))
+
+
