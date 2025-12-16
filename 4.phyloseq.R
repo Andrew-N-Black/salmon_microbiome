@@ -292,7 +292,7 @@ ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
     geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
     facet_wrap(~OTU, scales = "free_y")+ggtitle("Genus: Malacoplasma")+scale_fill_brewer(palette = "Dark2")+labs(fill = "ASE")+theme_bw()+xlab("")
 
-target_asv<-"ce945369a663473cd641d04ae72b4418"
+target_asv<-"ce945369a663473cd641d04ae72b4418"#CONFIRMED
 ps_sig <- prune_taxa(target_asv, ps_filtered) 
 df <- psmelt(ps_sig)
 ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
@@ -313,7 +313,7 @@ ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
 
 
 
- target_asv<-"82dece6e35540738ba450a0c3a90b5a0"
+ target_asv<-"82dece6e35540738ba450a0c3a90b5a0"#CONFIRMED
 ps_sig <- prune_taxa(target_asv, ps_filtered) 
 df <- psmelt(ps_sig)
 ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
@@ -330,7 +330,7 @@ ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
     geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
     facet_wrap(~OTU, scales = "free_y")+ggtitle("Lactococcus lactis")+scale_fill_brewer(palette = "Dark2")+labs(fill = "ASE")+theme_bw()+xlab("")
 
-target_asv<-"bc56a7361c9a3b49f1f1c51874321e12"
+target_asv<-"bc56a7361c9a3b49f1f1c51874321e12"#CONFIRMED
 ps_sig <- prune_taxa(target_asv, ps_filtered) 
 df <- psmelt(ps_sig)
 ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
@@ -338,7 +338,7 @@ ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
     geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
     facet_wrap(~OTU, scales = "free_y")+ggtitle("Kocuria rhizophila")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
 
-target_asv<-"2500422919f98bed627f3fd491e508a8"
+target_asv<-"2500422919f98bed627f3fd491e508a8"#CONFIRMED
 ps_sig <- prune_taxa(target_asv, ps_filtered) 
 df <- psmelt(ps_sig)
 ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
@@ -346,7 +346,7 @@ ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
     geom_jitter(width = 0.2, size = 1, alpha = 0.6) +
     facet_wrap(~OTU, scales = "free_y")+ggtitle("Aeromonas sobria")+scale_fill_brewer(palette = "Paired")+labs(fill = "ASE")+theme_bw()+xlab("")
 
-target_asv<-"82819e0b6b0a7ba359661678cb034a42"
+target_asv<-"82819e0b6b0a7ba359661678cb034a42"#CONFIRMED
 ps_sig <- prune_taxa(target_asv, ps_filtered) 
 df <- psmelt(ps_sig)
 ggplot(df, aes(x = ASE, y = Abundance, fill = ASE)) +
