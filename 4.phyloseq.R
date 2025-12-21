@@ -596,4 +596,165 @@ df_fig_ase$direct = factor(df_fig_ase$direct,levels = c("Positive LFC", "Negativ
           panel.grid.minor.y = element_blank(),
           axis.text.x = element_text(angle = 60, hjust = 1))
 
+ #subset samples to remove ASE negative samples
+ps_subset_filtered <- subset_samples(ps_filtered, hatchery != "minter_creek" & hatchery != "white_river")
 
+ordcap = ordinate(ps_subset_filtered, "CAP", "bray", ~percent_epithelium+hatchery)
+plot_ordination(ps_subset_filtered, ordcap, "samples", color="percent_epithelium",shape="hatchery")+theme_bw()+geom_point(size=6)+labs(color = "% Epithelium",shape="hatchery")+scale_color_distiller(palette = "BrBG", direction = 1)
+
+ 
+#Significance of model
+anova.cca(ordcap, permutations = 999)
+#Model: capscale(formula = OTU ~ percent_epithelium + hatchery, data = data, distance = distance)
+#         Df SumOfSqs      F Pr(>F)    
+#Model     4   4.5031 4.4778  0.001 ***
+#Residual 36   9.0508                  
+#---
+#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+anova.cca(ordcap, permutations = 999,by="terms")
+
+#Model: capscale(formula = OTU ~ percent_epithelium + hatchery, data = data, distance = distance)
+#                   Df SumOfSqs      F Pr(>F)    
+#percent_epithelium  1   0.5425 2.1580  0.015 *  
+#hatchery            3   3.9606 5.2511  0.001 ***
+#Residual           36   9.0508                  
+#---
+#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+anova.cca(ordcap, permutations = 999,by="axis")
+# Model: capscale(formula = OTU ~ percent_epithelium + hatchery, data = data, distance = distance)
+#         Df SumOfSqs      F Pr(>F)    
+#CAP1      1   2.3436 9.3216  0.001 ***
+#CAP2      1   1.4403 5.8881  0.001 ***
+#CAP3      1   0.5065 2.1265  0.004 ** 
+#CAP4      1   0.2127 0.9167  0.590    
+#Residual 36   9.0508                  
+#---
+#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+ 
+
+#Hatchery by enteritis score
+ ordcap = ordinate(ps_subset_filtered, "CAP", "bray", ~hatchery+enteritis)
+plot_ordination(ps_subset_filtered, ordcap, "samples", color="enteritis",shape="hatchery")+theme_bw()+geom_point(size=6)+labs(color = "Enteritis Score",shape="Hatchery")+scale_color_brewer(palette = "Dark2")
+ 
+#Testing code
+
+i = 89
+i
+#89
+Then run only one line in the interior of the for loop
+nm <- otu_cols[i]
+nm 
+[1] "ASV_9908fffab7ed4f3bec44cda2f5084d49"
+
+
+
+f  <- as.formula(paste0("epithelium_remaining ~ ", nm, "+ hatchery + "))
+
+
+co<-glm(f, data = x, family = binomial(link="logit"))
+
+Call:  glm(formula = f, family = binomial(link = "logit"), data = x)
+
+Coefficients:
+                                              (Intercept)  
+                                                   782.85  
+                     ASV_9908fffab7ed4f3bec44cda2f5084d49  
+                                                   -13.67  
+                                     epithelium_remaining  
+                                                  -804.58  
+ASV_9908fffab7ed4f3bec44cda2f5084d49:epithelium_remaining  
+                                                    15.22  
+
+Degrees of Freedom: 60 Total (i.e. Null);  57 Residual
+Null Deviance:	    77.18 
+Residual Deviance: 3.302e-08 	AIC: 8
+
+
+summary(co)
+
+Call:
+glm(formula = f, family = binomial(link = "logit"), data = x)
+
+Coefficients:
+                                                           Estimate Std. Error z value Pr(>|z|)
+(Intercept)                                                  782.85  184410.91   0.004    0.997
+ASV_9908fffab7ed4f3bec44cda2f5084d49                         -13.67    7048.03  -0.002    0.998
+epithelium_remaining                                        -804.58  189268.00  -0.004    0.997
+ASV_9908fffab7ed4f3bec44cda2f5084d49:epithelium_remaining     15.22    7954.33   0.002    0.998
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 7.7184e+01  on 60  degrees of freedom
+Residual deviance: 3.3023e-08  on 57  degrees of freedom
+AIC: 8
+
+Number of Fisher Scoring iterations: 25
+
+
+
+
+#FULL GLMS BELOW
+
+otu<-phyloseqCompanion::otu.matrix(ps=ps_filtered)
+otu = as.data.frame(otu)
+otu = as_tibble(otu)
+#Need to add prefix to ASVs because numerical ones were causing an issue
+pattern <- "ASV_"
+
+# Append the pattern to the beginning of all column names
+colnames(otu) <- paste0(pattern, colnames(otu))
+
+curMeta = phyloseqCompanion::sample.data.frame(ps=ps_filtered)
+x<-cbind(otu,curMeta)
+
+
+
+# x: data.frame with response 'epithelium_lost' in [0,1] and OTU columns
+
+
+otu_cols <- setdiff(colnames(x)[1:141], "epithelium_remaining")
+fit <- tryCatch(glm(f, data = x, family = binomial(link = "logit"))
+        error = function(e) NULL
+    )
+# what is fit? 
+    if (is.null(fit)) next
+    
+    co <- summary(fit)$coefficients$mean
+    if (nm %in% rownames(co)) {
+        results$Estimate[i] <- co[nm, "Estimate"]
+        results$P_Value[i]  <- co[nm, "Pr(>|z|)"]
+    }
+
+
+
+
+
+results <- data.frame(
+    Cur_Taxa = otu_cols,
+    Estimate = NA_real_,
+    P_Value  = NA_real_,
+    stringsAsFactors = FALSE
+)
+
+for (i in seq_along(otu_cols)) {
+    nm <- otu_cols[i]
+    f  <- as.formula(paste0("epithelium_remaining ~ `", nm, "`"))
+    
+    fit <- tryCatch(
+        betareg(f, data = x, link = "logit"),
+        error = function(e) NULL
+    )
+    if (is.null(fit)) next
+    
+    co <- summary(fit)$coefficients$mean
+    if (nm %in% rownames(co)) {
+        results$Estimate[i] <- co[nm, "Estimate"]
+        results$P_Value[i]  <- co[nm, "Pr(>|z|)"]
+    }
+}
+
+results$P_adj <- p.adjust(results$P_Value, method = "fdr")
+results <- results[order(results$P_Value), ]
+results
