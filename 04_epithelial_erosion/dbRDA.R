@@ -1,36 +1,35 @@
-ordcap = ordinate(ps_filtered, "CAP", "bray", ~ASE+percent_epithelium)
-plot_ordination(ps_filtered, ordcap, "samples", color="percent_epithelium",shape="ASE")+theme_bw()+geom_point(size=6)+labs(color = "% Epithelium",shape="ASE")+scale_color_distiller(palette = "BrBG", direction = 1)
+ps_subset_filtered <- subset_samples(ps_filtered, hatchery != "minter_creek" & hatchery != "white_river")
 
+ordcap = ordinate(ps_subset_filtered, "CAP", "bray", ~percent_epithelium+hatchery)
+plot_ordination(ps_subset_filtered, ordcap, "samples", color="percent_epithelium",shape="hatchery")+theme_bw()+geom_point(size=6)+labs(color = "% Epithelium",shape="hatchery")+scale_color_distiller(palette = "BrBG", direction = 1)
+
+ 
 #Significance of model
 anova.cca(ordcap, permutations = 999)
-#Permutation test for capscale under reduced model
-#Permutation: free
-#Number of permutations: 999
-
-#Model: capscale(formula = OTU ~ ASE + percent_epithelium, data = data, distance = distance)
+#Model: capscale(formula = OTU ~ percent_epithelium + hatchery, data = data, distance = distance)
 #         Df SumOfSqs      F Pr(>F)    
-#Model     2   4.9342 8.1069  0.001 ***
-#Residual 58  17.6505                  
+#Model     4   4.5031 4.4778  0.001 ***
+#Residual 36   9.0508                  
 #---
 #Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 anova.cca(ordcap, permutations = 999,by="terms")
-#Terms added sequentially (first to last)
-#Permutation: free
-#Number of permutations: 999
 
-#Model: capscale(formula = OTU ~ ASE + percent_epithelium, data = data, distance = distance)
-#                   Df SumOfSqs       F Pr(>F)    
-#ASE                 1   4.3895 14.4241  0.001 ***
-#percent_epithelium  1   0.5446  1.7897  0.063 .  
-#Residual           58  17.6505                   
+#Model: capscale(formula = OTU ~ percent_epithelium + hatchery, data = data, distance = distance)
+#                   Df SumOfSqs      F Pr(>F)    
+#percent_epithelium  1   0.5425 2.1580  0.015 *  
+#hatchery            3   3.9606 5.2511  0.001 ***
+#Residual           36   9.0508                  
 #---
 #Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-
 anova.cca(ordcap, permutations = 999,by="axis")
-
-#Permutation test for capscale under reduced model
-#Forward tests for axes
-#Permutation: free
-#Number of permutations: 999
+# Model: capscale(formula = OTU ~ percent_epithelium + hatchery, data = data, distance = distance)
+#         Df SumOfSqs      F Pr(>F)    
+#CAP1      1   2.3436 9.3216  0.001 ***
+#CAP2      1   1.4403 5.8881  0.001 ***
+#CAP3      1   0.5065 2.1265  0.004 ** 
+#CAP4      1   0.2127 0.9167  0.590    
+#Residual 36   9.0508                  
+#---
+#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
