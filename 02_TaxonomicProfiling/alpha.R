@@ -4,7 +4,7 @@ library(microViz)
 library(ggplot2)
 library(tibble)
 library(dplyr)
-library(reshape2)
+library(reshape2) 
 library(vegan)
 
 hyloseq_object<-qza_to_phyloseq(features = "~/SMB_n61/qiime2/input/table.qza",taxonomy = "~/SMB_n61/qiime2/input/taxonomy.qza",metadata = "~/SMB_n61/input/metadata61_ext.txt")
