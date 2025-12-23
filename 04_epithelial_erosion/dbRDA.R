@@ -1,3 +1,12 @@
+library(phyloseq)
+library(qiime2R)
+library(microViz)
+library(ggplot2)
+library(tibble)
+library(betareg)
+library(dplyr)
+library(reshape2)
+
 ps_subset_filtered <- subset_samples(ps_filtered, hatchery != "minter_creek" & hatchery != "white_river")
 
 ordcap = ordinate(ps_subset_filtered, "CAP", "bray", ~percent_epithelium+hatchery)
