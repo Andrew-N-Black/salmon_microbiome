@@ -22,3 +22,9 @@ ggplot(metadata, aes(x=hatchery,fill=enteritis)) +geom_bar(position = "stack")+l
 
 #Figure 1d.Epithelium vs entiritus score scatter, hatchery shape
 ggplot(metadata, aes(x=enteritis,y=epithelium_remaining,color=ASE,shape=hatchery)) +geom_point(size=5,position = "jitter",aes(color=ASE))+labs(x = "Enteritis Score", y = "Epithilium Remaining",color = "ASE",shape="Hatchery") +theme_q2r()+scale_color_brewer(palette = "Dark2",name = "ASE")
+
+#Figure 1e. Es parasite by hatchery
+ggplot(metadata, aes(x=hatchery,fill=as.factor(es))) +geom_bar(position = "stack")+labs(x = "Hatchery", y = "Count",fill = "es") +theme_q2r()+scale_fill_brewer(palette = "Dark2",name = "E. sherekii Score")
+
+#Figure 1f. Cshasta by hatchery
+ggplot(metadata, aes(x=hatchery,fill=as.factor(cshasta))) +geom_bar(position = "stack")+labs(x = "Hatchery", y = "Count",fill = "es") +theme_q2r()+scale_fill_brewer(palette = "Dark2",name = "C. shasta Score")
