@@ -7,7 +7,7 @@ library(dplyr)
 library(reshape2)
 library(vegan)
 
-hyloseq_object<-qza_to_phyloseq(features = "~/SMB_n61/qiime2/input/table.qza",taxonomy = "~/SMB_n61/qiime2/input/taxonomy.qza",metadata = "~/SMB_n61/input/metadata61_ext.txt")
+phyloseq_object<-qza_to_phyloseq(features = "~/SMB_n61/qiime2/input/table.qza",taxonomy = "~/SMB_n61/qiime2/input/taxonomy.qza",metadata = "~/SMB_n61/input/metadata61_ext.txt")
 #phyloseq-class experiment-level object
 #otu_table()   OTU Table:         [ 4328 taxa and 61 samples ]
 #sample_data() Sample Data:       [ 61 samples by 14 sample variables ]
