@@ -19,5 +19,5 @@ ps.melt_sum <- ps.melt %>% group_by(Sample,Class) %>% summarise(Abundance=sum(Ab
 ggplot(ps.melt_sum, aes(x = Sample, y = Abundance, fill = Class)) + 
     geom_bar(stat = "identity", aes(fill=Class)) + 
     labs(x="", y="%") +
-    theme_q2r()+scale_fill_brewer(palette = "Dark2",name = "Class")+theme(axis.ticks.x = element_blank(),axis.text.x = element_blank())
-ggsave("~/Figure_2.svg")
+    theme_q2r()+
+    scale_fill_manual(values = my_palette,name="Class")
