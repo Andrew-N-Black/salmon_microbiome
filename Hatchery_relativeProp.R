@@ -4,7 +4,9 @@ ps_merged <- merge_samples(ps_rarefied, "hatchery")
 #OLD ps_avg_prop <- transform_sample_counts(ps_merged, function(x) x / sum(x))
 
 # OLD plot_bar(ps_avg_prop, fill = "Phylum") + ylab("Average Relative Abundance")
-
+#glomRel <- tax_glom(ps_merged, taxrank = 'Genus', NArm = FALSE) %>%tax_glom(taxrank = "Genus") %>%                        # Set to smallest taxonomic level you are interested in
+    #transform_sample_counts(function(x) {x/sum(x)} ) %>%   # Transform to rel. abundance
+    #psmelt()                                               # Melt to long format
 glom <- tax_glom(ps_merged, taxrank = 'Class', NArm = FALSE)
 #Melt and merge dataframe to work with ggplot2
 ps.melt <- psmelt(glom)
