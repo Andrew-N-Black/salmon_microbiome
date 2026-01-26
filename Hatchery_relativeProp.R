@@ -1,11 +1,24 @@
 library(microviz)
 new<-tax_fix(ps_filtered)
-myPal <- tax_palette(data = new, rank = "Genus", n = 10, pal = "greenArmytage",add = c(Other = "white"))
-new %>%
-    #ps_select(ASE, hatchery) %>% # avoids lots of phyloseq::merge_samples warnings
-    phyloseq::merge_samples(group = "hatchery") %>% 
-    comp_barplot(tax_level = "Genus", n_taxa = 10, bar_width = 0.8,palette = myPal,merge_other=FALSE) +
-    coord_flip() 
+ps_merged <-new %>%ps_select(ASE, hatchery) %>% # avoids lots of phyloseq::merge_samples warnings
+    phyloseq::merge_samples(group = "hatchery")
+
+sample_info <- data.frame(ASE = c("negative", "negative", "positive","positive","positive","positive"), hatchery=c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte"),
++     row.names = c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")) # Rownames must match sample names in other data
+
+phyloseq_sample_data <- sample_data(sample_info)
+sample_data(ps_merged) <- phyloseq_sample_data
+
+myPal <- tax_palette(data = ps_merged, rank = "Genus", n = 10, pal = "greenArmytage",add = c(Other = "white"))
+
+
+comp_barplot(ps=ps_merged,tax_level = "Genus", n_taxa = 10, bar_width = 0.8,palette = myPal,merge_other=FALSE,sample_order = c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")) +labs(x = "", y = "Relative Abundance")+theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+
+#OR
+comp_barplot(ps=ps_merged,tax_level = "Genus", n_taxa = 10, bar_width = 0.8,palette = myPal,merge_other=FALSE,facet_by = "ASE") 
+
+
+
 
 
 
