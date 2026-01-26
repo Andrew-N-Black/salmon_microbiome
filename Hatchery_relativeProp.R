@@ -1,3 +1,22 @@
+library(microviz)
+
+ps_merged <- merge_samples(ps_rarefied, "hatchery")
+ps_avg_prop <- transform_sample_counts(ps_merged, function(x) x / sum(x))
+y1 <- tax_glom(ps_avg_prop, taxrank = "Genus", NArm = TRUE)
+y1  %>%comp_barplot(tax_level = "Genus",n_taxa = 10,merge_other=FALSE,facet_by = "ASE") + coord_flip()
+
+
+
+
+
+
+
+
+
+
+
+
+
 ps_merged <- merge_samples(ps_rarefied, "hatchery")
 #Note, multiple NAs introduced by corcion warnings (n=6)
 
