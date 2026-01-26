@@ -1,9 +1,30 @@
 library(microviz)
+new<-tax_fix(ps_filtered)
+myPal <- tax_palette(data = new, rank = "Genus", n = 10, pal = "greenArmytage",add = c(Other = "white"))
+new %>%
+    #ps_select(ASE, hatchery) %>% # avoids lots of phyloseq::merge_samples warnings
+    phyloseq::merge_samples(group = "hatchery") %>% 
+    comp_barplot(tax_level = "Genus", n_taxa = 10, bar_width = 0.8,palette = myPal,merge_other=FALSE) +
+    coord_flip() 
 
+
+
+
+
+
+#OLD BELOW
 ps_merged <- merge_samples(ps_rarefied, "hatchery")
 ps_avg_prop <- transform_sample_counts(ps_merged, function(x) x / sum(x))
-y1 <- tax_glom(ps_avg_prop, taxrank = "Genus", NArm = TRUE)
-y1  %>%comp_barplot(tax_level = "Genus",n_taxa = 10,merge_other=FALSE,facet_by = "ASE") + coord_flip()
+#y1 <- tax_glom(ps_avg_prop, taxrank = "Genus", NArm = TRUE)
+#y1  %>%comp_barplot(tax_level = "Genus",n_taxa = 10,merge_other=FALSE,facet_by = "ASE") + coord_flip()
+myPal <- tax_palette(data = y1, rank = "Genus", n = 11, pal = "greenArmytage",add = c(Other = "white"))
+ps_filtered %>%
+    #ps_select(ASE, hatchery) %>% # avoids lots of phyloseq::merge_samples warnings
+    phyloseq::merge_samples(group = "hatchery") %>% tax_fix() %>% 
+    comp_barplot(tax_level = "Genus", n_taxa = 5, bar_width = 0.8,palette = myPal,merge_other=FALSE) +
+    coord_flip() 
+                                       
+
 
 
 
