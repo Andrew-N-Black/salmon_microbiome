@@ -1,12 +1,11 @@
-library(microviz)
+library(microViz)
 new<-tax_fix(ps_filtered)
 ps_merged <-new %>%ps_select(ASE, hatchery) %>% # avoids lots of phyloseq::merge_samples warnings
     phyloseq::merge_samples(group = "hatchery")
 
-sample_info <- data.frame(ASE = c("negative", "negative", "positive","positive","positive","positive"), hatchery=c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte"),
-+     row.names = c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")) # Rownames must match sample names in other data
+#sample_info <- data.frame(ASE = c("negative", "negative", "positive","positive","positive","positive"), hatchery=c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte"),  row.names = c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")) # Rownames must match sample names in other data
 
-phyloseq_sample_data <- sample_data(sample_info)
+#phyloseq_sample_data <- sample_data(sample_info)
 sample_data(ps_merged) <- phyloseq_sample_data
 
 myPal <- tax_palette(data = ps_merged, rank = "Genus", n = 10, pal = "greenArmytage",add = c(Other = "white"))
