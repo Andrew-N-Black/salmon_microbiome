@@ -10,8 +10,11 @@ sample_data(ps_merged) <- phyloseq_sample_data
 
 myPal <- tax_palette(data = ps_merged, rank = "Genus", n = 10, pal = "greenArmytage",add = c(Other = "white"))
 
-
+#Genus level
 comp_barplot(ps=ps_merged,tax_level = "Genus", n_taxa = 10, bar_width = 0.8,palette = myPal,merge_other=FALSE,sample_order = c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")) +labs(x = "", y = "Relative Abundance")+theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+
+#Phylum Level
+comp_barplot(ps=ps_merged,tax_level = "Phylum", n_taxa = 10, bar_width = 0.8,palette = myPal,merge_other=FALSE,sample_order = c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")) +labs(x = "", y = "Relative Abundance")+theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
 
 #OR
 comp_barplot(ps=ps_merged,tax_level = "Genus", n_taxa = 10, bar_width = 0.8,palette = myPal,merge_other=FALSE,facet_by = "ASE") 
