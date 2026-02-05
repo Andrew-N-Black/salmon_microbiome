@@ -13,19 +13,22 @@ phyloseq_object<-qza_to_phyloseq(features = "~/SMB_n61/qiime2/input/table.qza",t
 #sample_data() Sample Data:       [ 61 samples by 14 sample variables ]
 #tax_table()   Taxonomy Table:    [ 4328 taxa by 7 taxonomic ranks ]
 
-ps_MC <- subset_taxa(phyloseq_object, !Order %in% c('Chloroplast', 'Mitochondria'))
+ps_MC <- subset_taxa(phyloseq_object, Kingdom != "Eukaryota" & 
+                                Family != "Mitochondria" & 
+                                Class != "Chloroplast")
 #phyloseq-class experiment-level object
-#otu_table()   OTU Table:         [ 4212 taxa and 61 samples ]
-#sample_data() Sample Data:       [ 61 samples by 14 sample variables ]
-#tax_table()   Taxonomy Table:    [ 4212 taxa by 7 taxonomic ranks ]
+#otu_table()   OTU Table:         [ 3726 taxa and 61 samples ]
+#sample_data() Sample Data:       [ 61 samples by 18 sample variables ]
+#tax_table()   Taxonomy Table:    [ 3726 taxa by 7 taxonomic ranks ]
 
 #Remove NA kingdom assignments
 ps_filtered <- subset_taxa(ps_MC, !is.na(Kingdom))
-#phyloseq-class experiment-level object
-#otu_table()   OTU Table:         [ 4193 taxa and 61 samples ]
-#sample_data() Sample Data:       [ 61 samples by 14 sample variables ]
-#tax_table()   Taxonomy Table:    [ 4193 taxa by 7 taxonomic ranks ]
+#otu_table()   OTU Table:         [ 3726 taxa and 61 samples ]
+sample_data() Sample Data:       [ 61 samples by 17 sample variables ]
+tax_table()   Taxonomy Table:    [ 3726 taxa by 7 taxonomic ranks ]
 
+
+#NEED TO PICK BACK UP HERE!!!!!!2/5/26
 #Rarefied
 ps_rarefied = rarefy_even_depth(ps_filtered)
 #phyloseq-class experiment-level object
