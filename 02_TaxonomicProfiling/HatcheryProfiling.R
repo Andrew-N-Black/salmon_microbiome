@@ -1,16 +1,15 @@
 library(microViz)
-new<-tax_fix(ps_filtered)
-ps_merged <-new %>%ps_select(ASE, hatchery) %>% phyloseq::merge_samples(group = "hatchery")
+ps_new <-ps_filtered  %>% phyloseq::merge_samples(group = "hatchery") %>% tax_fix()
 
-#sample_info <- data.frame(ASE = c("negative", "negative", "positive","positive","positive","positive"), hatchery=c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte"),  row.names = c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")) # Rownames must match sample names in other data
+sample_info <- data.frame(ASE = c("negative", "negative", "positive","positive","positive","positive"), hatchery=c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte"),  row.names = c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")) # Rownames must match sample names in other data
 
-#phyloseq_sample_data <- sample_data(sample_info)
-sample_data(ps_merged) <- phyloseq_sample_data
+phyloseq_sample_data <- sample_data(sample_info)
+sample_data(ps_new) <- phyloseq_sample_data
 
-myPal <- tax_palette(data = ps_merged, rank = "Genus", n = 10, pal = "greenArmytage",add = c(Other = "white"))
+myPal <- tax_palette(data = ps_new, rank = "Genus", n = 10, pal = "greenArmytage",add = c(Other = "white"))
 
 #Genus level
-comp_barplot(ps=ps_merged,tax_level = "Genus", n_taxa = 10, bar_width = 0.8,palette = myPal,merge_other=FALSE,sample_order = c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")) +labs(x = "", y = "Relative Abundance")+theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+comp_barplot(ps=ps_new,tax_level = "Genus", n_taxa = 10, bar_width = 0.8,palette = myPal,merge_other=FALSE,sample_order = c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")) +labs(x = "", y = "Relative Abundance")+theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
 
 #Phylum Level
 comp_barplot(ps=ps_merged,tax_level = "Phylum", n_taxa = 10, bar_width = 0.8,palette = myPal,merge_other=FALSE,sample_order = c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")) +labs(x = "", y = "Relative Abundance")+theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
