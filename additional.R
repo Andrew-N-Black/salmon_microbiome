@@ -8,6 +8,20 @@ library(dplyr)
 library(reshape2)
 
 
+#Plot presence absence for one ASV that had high read counts (and was removed)
+ ps_pa <- tax_transform(phyloseq_object, trans = "binary")
+target_asv<-"fe91fb06076baf6987e7fbe218563707"#ASV with high read counts for two samples, microsporidium salmona
+ps_sig <- prune_taxa(target_asv, ps_pa) 
+df <- psmelt(ps_sig)
+ggplot(df, aes(x = Sample, y = Abundance, color = ASE)) +
+    geom_point(size=5,aes(color=ASE))+scale_fill_brewer(palette = "Dark2")+labs(color = "ASE")+theme_bw()+xlab("")+ggtitle("Nucleospora salmonis ASV")+ylab("Presence (1) / Absence (0)")+scale_color_brewer(palette = "Dark2")+xlab("")+theme_bw()+theme(
+        axis.title.x = element_blank(), # Removes the x-axis title
+        axis.text.x = element_blank(),  # Removes the x-axis labels (tick labels)
+        axis.ticks.x = element_blank(), # Removes the x-axis tick marks
+        axis.line.x = element_blank()   # Optional: Removes the axis line itself
+    )
+
+
 phyloseq_add<-qza_to_phyloseq(features = "~/SMB_n70/qiime2/input/table.qza",taxonomy = "~/SMB_n70/qiime2/input/taxonomy.qza",metadata = "~/SMB_n70/input/metadata70_ext.txt")
 #phyloseq-class experiment-level object
 #otu_table()   OTU Table:         [ 4620 taxa and 69 samples ]
