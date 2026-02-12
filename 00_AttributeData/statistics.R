@@ -2,49 +2,55 @@ library(rstatix)
 library(dplyr)
 
 
-#Kruskal test for epithelium remaining by hatchery
-my_data <- read.table("~/SMB_n61/input/metadata61_ext.txt",header=TRUE)
-my_data %>% kruskal_test(epithelium_remaining ~ hatchery)
+##Kruskal test for epithelium remaining by hatchery
+meta %>% kruskal_test(epithelium_remaining ~ hatchery)
 
-# A tibble: 1 × 6
 #  .y.                      n statistic    df             p method        
 #* <chr>                <int>     <dbl> <int>         <dbl> <chr>         
-#1 epithelium_remaining    61      49.5     5      0.00000000177 Kruskal-Wallis
+#1 epithelium_remaining    60      49.0     5 0.00000000225 Kruskal-Wallis
 
 
 
-#Kruskal test for Enteritis Score by hatchery
-my_data %>% kruskal_test(enteritis ~ hatchery)
-# A tibble: 1 × 6
-  .y.           n statistic    df      p method        
-* <chr>     <int>     <dbl> <int>  <dbl> <chr>         
-1 enteritis    61      15.2     2 0.0005 Kruskal-Wallis
+##Kruskal test for Enteritis Score by hatchery
+meta %>% kruskal_test(enteritis ~ hatchery)
+# .y.           n statistic    df             p method        
+#* <chr>     <int>     <dbl> <int>         <dbl> <chr>         
+#1 enteritis    60      46.9     5 0.00000000594 Kruskal-Wallis
 
-# Epithelium integrity vs Enteritis score
-cor.test(my_data$epithelium_remaining, my_data$enteritis, method = "spearman",exact=FALSE)
+## Epithelium integrity vs Enteritis score
+#First change enteritis score to numeric
+ meta$enteritis <- gsub("E", "", meta$enteritis)
+meta$enteritis <- as.numeric(meta$enteritis)
+#Then run correlation
+cor.test(meta$epithelium_remaining, meta$enteritis, method = "spearman",exact=FALSE)
 
 	#Spearman's rank correlation rho
 
-#data:  my_data$epithelium_remaining and my_data$enteritis
-#S = 23904, p-value = 0.00353
+#data:  meta$epithelium_remaining and meta$enteritis
+#S = 65035, p-value = 6.905e-15
 #alternative hypothesis: true rho is not equal to 0
 #sample estimates:
-#      rho 
-#0.3679424 
+#       rho 
+#-0.8070252 
 
 
- my_data %>% kruskal_test(es ~ hatchery)
-# A tibble: 1 × 6
-  .y.       n statistic    df       p method        
-* <chr> <int>     <dbl> <int>   <dbl> <chr>         
-1 es       61      10.1     2 0.00644 Kruskal-Wallis
+meta %>% kruskal_test(es ~ hatchery)
+#  .y.       n statistic    df       p method        
+#* <chr> <int>     <dbl> <int>   <dbl> <chr>         
+#1 es       60      21.6     5 0.00062 Kruskal-Wallis
 
 # Cshasta
- my_data %>% kruskal_test(cshasta ~ hatchery)
-# A tibble: 1 × 6
-  .y.         n statistic    df        p method        
-* <chr>   <int>     <dbl> <int>    <dbl> <chr>         
-1 cshasta    61      14.5     2 0.000714 Kruskal-Wallis
+meta %>% kruskal_test(cshasta ~ hatchery)
+#  .y.         n statistic    df           p method        
+#* <chr>   <int>     <dbl> <int>       <dbl> <chr>         
+#1 cshasta    60      38.0     5 0.000000369 Kruskal-Wallis
+
+
+
+
+
+
+
 
 library(dplyr)
 library(betareg)
