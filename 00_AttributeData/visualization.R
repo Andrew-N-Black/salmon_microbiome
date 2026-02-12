@@ -1,8 +1,12 @@
 library(ggplot2)
 library(dplyr)
+library(phyloseqCompanion)
+
+#Load in metadata from filtered phyloseq object (See 02_TaxonomicProfiling/01_phyloseq.R)
+meta = phyloseqCompanion::sample.data.frame(ps)
 
 #Figure 1b. Epithelium remaining
-ggplot(metadata, aes(y =epithelium_remaining, x=hatchery, fill = ASE,color=ASE)) +
+ggplot(meta, aes(y =epithelium_remaining, x=hatchery, fill = ASE,color=ASE)) +
     geom_violin(alpha=0.2) +
     labs(x = "",
          y = "Epithelial Integrity",
