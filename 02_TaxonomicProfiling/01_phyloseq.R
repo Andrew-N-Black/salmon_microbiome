@@ -6,6 +6,7 @@ library(tibble)
 library(dplyr)
 library(reshape2)
 library(vegan)
+library(Biostrings)
 
 phyloseq_object<-qza_to_phyloseq(features = "~/SMB_n61/qiime2/input/table.qza",taxonomy = "~/SMB_n61/qiime2/input/taxonomy.qza",metadata = "~/SMB_n61/input/metadata61_ext.txt")
 #phyloseq-class experiment-level object
@@ -17,8 +18,8 @@ ps_MC <- subset_taxa(phyloseq_object, Kingdom != "Eukaryota" &
                          Family != "Mitochondria" & 
                          Class != "Chloroplast" & !is.na(Kingdom))
 #otu_table()   OTU Table:         [ 3726 taxa and 61 samples ]
-sample_data() Sample Data:       [ 61 samples by 17 sample variables ]
-tax_table()   Taxonomy Table:    [ 3726 taxa by 7 taxonomic ranks ]
+#sample_data() Sample Data:       [ 61 samples by 17 sample variables ]
+#tax_table()   Taxonomy Table:    [ 3726 taxa by 7 taxonomic ranks ]
 
 #Remove a single sample that now has a total read count below 10,000 (after removing Euk reads)
 sample_to_remove <- "WH21_10"
@@ -67,6 +68,16 @@ KEY$seq = (paste0("ASV", seq_len(N)))
 tax$address = rownames(tax)
 KEY$address = tax$address
 head(KEY) # This is the map off address to seqs
+
+tax = as_tibble(tax) %>%
+  left_join(KEY, by = "address") %>%
+  print(Inf)
+
+new_tax = as.data.frame(tax)
+rownames(new_tax) = tax$seq
+new_tax = new_tax[,which(!colnames(new_tax) %in% c("seq", "address"))]
+colnames(new_tax)[which(colnames(new_tax) == "Kingdom")] = "Domain"
+head(new_tax)
 
 
 
