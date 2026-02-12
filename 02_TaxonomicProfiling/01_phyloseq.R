@@ -69,6 +69,7 @@ tax$address = rownames(tax)
 KEY$address = tax$address
 head(KEY) # This is the map off address to seqs
 
+## Now rename tax labels and make a new phyloseq object
 tax = as_tibble(tax) %>%
   left_join(KEY, by = "address") %>%
   print(Inf)
@@ -78,6 +79,24 @@ rownames(new_tax) = tax$seq
 new_tax = new_tax[,which(!colnames(new_tax) %in% c("seq", "address"))]
 colnames(new_tax)[which(colnames(new_tax) == "Kingdom")] = "Domain"
 head(new_tax)
+KEY=as_tibble(KEY)
+# Rename the OTU table with the matching key name.
+new_otu = otu
+for(i in 1:N){ #Rename each colname. Inefficient, but thats ok.
+  cur_address = colnames(new_otu)[i] # get current address
+  cur_seq = KEY[which(KEY[,"address"]==cur_address),"seq"]$seq # get the matching sequence to cur_address
+  colnames(new_otu)[which(colnames(new_otu) == cur_address)] = cur_seq # rename the column with sequence
+}
+
+# Old
+otu[1:10, 1:10]
+# New
+new_otu[1:10, 1:10]
+
+# Make new phyloseq with human readable names
+hr_phyloseq = phyloseq(otu_table(new_otu, taxa_are_rows = FALSE), tax_table(as.matrix(new_tax)), sample_data(meta))
+hr_phyloseq
+taxa_names(hr_phyloseq)
 
 
 
