@@ -1,4 +1,16 @@
 library(microViz)
+ps_rel = microbiome::transform(hr_phyloseq, "compositional")
+ps_min.10 <- microViz::tax_filter(ps_rel, min_prevalence = 0.10)
+
+myPal <- tax_palette(data = ps_min.10, rank = "Genus", n = 10, pal = "greenArmytage",add = c(Other = "white"))
+
+#Genus level
+comp_barplot(ps=ps_new,tax_level = "Genus", n_taxa = 10, bar_width = 0.8,palette = myPal,merge_other=FALSE,sample_order = c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")) +labs(x = "", y = "Relative Abundance")+theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+
+
+
+
+
 ps_new <-ps_filtered  %>% phyloseq::merge_samples(group = "hatchery") %>% tax_fix()
 
 sample_info <- data.frame(ASE = c("negative", "negative", "positive","positive","positive","positive"), hatchery=c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte"),  row.names = c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")) # Rownames must match sample names in other data
