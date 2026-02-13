@@ -44,21 +44,6 @@ table(tax$Class)
 table(tax$Order)
 table(tax$Family)
 
-#Add in ASV sequences from FASTA file
-dna <- readDNAStringSet("~/ASV_seqs.fasta")
-dna <- dna[taxa_names(ps)]
-ps <- merge_phyloseq(ps, dna)
-
-
-#Rarefied
-ps_rarefied = rarefy_even_depth(ps,rngseed = 123)
-#phyloseq-class experiment-level object
-#otu_table()   OTU Table:         [ 1583 taxa and 61 samples ]
-#sample_data() Sample Data:       [ 61 samples by 14 sample variables ]
-#tax_table()   Taxonomy Table:    [ 1583 taxa by 7 taxonomic ranks ]
-
-
-
 #Rename ASVs to make more human readable but preserve original name (KEY)
 # Assign each address a human readable sequence ID
 N = ntaxa(ps)
@@ -97,6 +82,19 @@ new_otu[1:10, 1:10]
 hr_phyloseq = phyloseq(otu_table(new_otu, taxa_are_rows = FALSE), tax_table(as.matrix(new_tax)), sample_data(meta))
 hr_phyloseq
 taxa_names(hr_phyloseq)
+
+#Add in ASV sequences from FASTA file for completed phyloseq object. %%%%%Not working!!!!%%%%%%%
+dna <- readDNAStringSet("~/ASV_seqs.fasta")
+dna <- dna[taxa_names(hr_phyloseq)]
+ps_final <- merge_phyloseq(hr_phyloseq, dna)
+
+
+#Rarefied
+ps_rarefied = rarefy_even_depth(ps_final,rngseed = 123)
+#phyloseq-class experiment-level object
+#otu_table()   OTU Table:         [ 1583 taxa and 61 samples ]
+#sample_data() Sample Data:       [ 61 samples by 14 sample variables ]
+#tax_table()   Taxonomy Table:    [ 1583 taxa by 7 taxonomic ranks ]
 
 
 
