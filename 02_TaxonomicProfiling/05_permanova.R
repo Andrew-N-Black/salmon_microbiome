@@ -34,6 +34,12 @@ adonis2(aitchison_dist ~ hatchery, data = metadata)
 
 
 
+p <- cbind(distance = as.numeric(dispersionB$distances),Hatchery = metadata$hatchery,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance)) %>% 
+    ggplot(aes(Hatchery, distance,color=Hatchery)) + 
+    geom_boxplot() +
+    theme_q2r()+xlab("Hatchery")+ylab("Distance from centroid")+scale_color_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+ggsave("~/Figure_4_add.svg")
 
 
 
