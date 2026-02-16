@@ -40,10 +40,15 @@ p <- cbind(distance = as.numeric(dispersionB$distances),hatchery = metadata$hatc
 desired_facet_order <- c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")
 p$hatchery <- factor(p$hatchery, levels = desired_facet_order)
 
-ggplot(p,aes(hatchery, distance,color=hatchery)) + 
+ggplot(p,aes(hatchery, distance,fill=hatchery)) + 
     geom_boxplot() +
-    theme_q2r()+xlab("Hatchery")+ylab("Distance from centroid")+scale_color_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())
+    theme_classic(base_size = 12)+xlab("Hatchery")+ylab("Distance from centroid")+scale_fill_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())+geom_jitter(aes(x=hatchery, y=distance), width=0.1)
 
-ggsave("~/Figure_4_add.svg")
+ggsave("~/Figure_3B.svg")
 
-    
+#Plot betadisp distances by ASE
+p <- cbind(distance = as.numeric(dispersionB$distances),ASE = metadata$ASE,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance)) 
+ggplot(p,aes(ASE, distance,fill=ASE)) + 
+    geom_boxplot() +
+    theme_classic(base_size = 12)+xlab("")+ylab("Distance from centroid")+scale_fill_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())+geom_jitter(aes(x=ASE, y=distance), width=0.1)
+ggsave("~/Figure_3D.svg")
