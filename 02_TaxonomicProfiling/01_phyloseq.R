@@ -90,7 +90,7 @@ ps_final <- merge_phyloseq(hr_phyloseq, dna)
 
 
 #Rarefied
-ps_rarefied = rarefy_even_depth(ps_final,rngseed = 123)
+ps_rarefied = rarefy_even_depth(hr_phyloseq,rngseed = 123)
 #phyloseq-class experiment-level object
 #otu_table()   OTU Table:         [ 1583 taxa and 61 samples ]
 #sample_data() Sample Data:       [ 61 samples by 14 sample variables ]
