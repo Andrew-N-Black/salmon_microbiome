@@ -23,4 +23,9 @@ kruskal.test(value ~ ASE, data = shannon)
 
 
 p<-plot_richness(ps_rarefied, x="hatchery",color="hatchery" ,measures=c("Observed", "Shannon"))+ theme_classic(base_size = 14) 
+desired_facet_order <- c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")
+p$data$hatchery <- factor(p$data$hatchery, levels = desired_facet_order)
+
+p<-plot_richness(ps_rarefied, x="hatchery",color="hatchery" ,measures=c("Observed", "Shannon"))+ theme_classic(base_size = 14) 
 p + geom_boxplot(size=.5)+scale_color_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())+geom_jitter(width=0.1)+scale_fill_brewer(palette = "Dark2")
+ ggsave("~/Figure_3F.svg")
