@@ -46,8 +46,12 @@ meta %>% kruskal_test(cshasta ~ hatchery)
 #1 cshasta    60      38.0     5 0.000000369 Kruskal-Wallis
 
 
-
-
+#Read depth by Hatchery (Figure2a)
+meta %>% kruskal_test(TotalReads~hatchery)
+# A tibble: 1 × 6
+  .y.            n statistic    df       p method        
+* <chr>      <int>     <dbl> <int>   <dbl> <chr>         
+1 TotalReads    60      16.5     5 0.00559 Kruskal-Wallis
 
 
 
