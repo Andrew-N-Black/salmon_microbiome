@@ -29,6 +29,10 @@ ps <- prune_samples(!(sample_names(ps_MC) %in% sample_to_remove), ps_MC)
 #sample_data() Sample Data:       [ 60 samples by 17 sample variables ]
 #tax_table()   Taxonomy Table:    [ 3726 taxa by 7 taxonomic ranks ]
 
+#Add read counts / sample for downstream assessment
+read_counts <- sample_sums(hr_phyloseq)
+sample_data(hr_phyloseq)$TotalReads <- sample_sums(hr_phyloseq)
+
 #Parse phyloseq object for downstream analyses
 tax = as.data.frame(phyloseqCompanion::taxa.matrix(tax_table(ps)))
 otu = as.data.frame(phyloseqCompanion::otu.matrix(otu_table(ps)))
