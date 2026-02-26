@@ -25,6 +25,9 @@ pcoa_df <- as_tibble(pcoa$vectors[, 1:2], rownames = "sample") %>%
     by = "sample"
   )
 
+#Set hatchery order
+pcoa_df$hatchery <- factor(pcoa_df$hatchery, levels = desired_facet_order)
+
 #Plot by colored hatchery and ASE shape
 ggplot(pcoa_df, aes(Axis.1, Axis.2, color = hatchery)) +geom_point(size = 4,aes(fill=hatchery,shape=ASE)) +
     stat_ellipse(aes(group = hatchery,color=hatchery), type = "norm", level = 0.95, linewidth = 0.8) +
@@ -36,6 +39,16 @@ ggplot(pcoa_df, aes(Axis.1, Axis.2, color = hatchery)) +geom_point(size = 4,aes(
     theme_classic()+scale_fill_brewer(palette = "Dark2")+scale_color_brewer(palette = "Dark2")
 ggsave("~/atchison_m.10_pcoa.svg")
 
+# Color by ASE and hatchery shape
+ggplot(pcoa_df, aes(Axis.1, Axis.2, color = ASE)) +geom_point(size = 4,aes(fill=ASE,shape=hatchery)) +
+    stat_ellipse(aes(group = ASE,color=ASE), type = "norm", level = 0.95, linewidth = 0.8) +
+    labs(
+        x = paste0("PCoA-1 (", round(var_expl[1], 1), "%)"),
+        y = paste0("PCoA-2 (", round(var_expl[2], 1), "%)"),
+        color = "ASE",title="Aitchison"
+    ) +
+    theme_classic()+scale_fill_brewer(palette = "Dark2")+scale_color_brewer(palette = "Dark2")+scale_shape_manual(values = c(20,2,3,4,8,6))
+ggsave("~/atchison_ASE_pcoa.svg")
 
 ##Ordination, using both bray and jaccard##
 #Hatchery by ASE Bray-BRAY
@@ -54,8 +67,12 @@ p+geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(y
 ggsave("~/Figure_3c.svg")
 
 #Hatchery and ASE Bray-JACCARD
-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="jaccard"))  +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 4,aes(shape=ASE,color=hatchery,fill=hatchery)) +stat_ellipse(aes(group = hatchery,color=hatchery), type = "norm", level = 0.95, linewidth = 0.8) +labs(title="jaccard") +
-    theme_classic()+scale_fill_brewer(palette = "Dark2")+scale_color_brewer(palette = "Dark2")
+p<-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="jaccard"))  
+
+p$data$hatchery <- factor(p$data$hatchery, levels = desired_facet_order)
+p+geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 4,aes(shape=hatchery,color=ASE,fill=ASE)) +stat_ellipse(aes(group = ASE,color=ASE), type = "norm", level = 0.95, linewidth = 0.8) +labs(title="Jaccard") +
+    theme_classic()+scale_fill_brewer(palette = "Dark2")+scale_color_brewer(palette = "Dark2")+scale_shape_manual(values = c(20,2,3,4,8,6))
+
 ggsave("~/rarefied_jaccard.svg")
 
 
