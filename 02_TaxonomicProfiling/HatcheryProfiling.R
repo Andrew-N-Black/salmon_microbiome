@@ -1,6 +1,6 @@
 library(microViz)
 ps_min.10 <- microViz::tax_filter(hr_phyloseq, min_prevalence = 0.10)
-Proportional min_prevalence given: 0.1 --> min 6/60 samples.
+#Proportional min_prevalence given: 0.1 --> min 6/60 samples.
 ps_rel = microbiome::transform(ps_min.10, "compositional")
 
 #Fix taxa names
