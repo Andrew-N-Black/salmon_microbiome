@@ -53,6 +53,7 @@ adonis2(aitchison_dist ~ hatchery, data = metadata)
 
 
 #Plot betadisp distances by sorted hatchery
+dist_matrixB <- phyloseq::distance(ps_rarefied, method = "bray")
 p <- cbind(distance = as.numeric(dispersionB$distances),hatchery = metadata$hatchery,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance)) 
 desired_facet_order <- c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")
 p$hatchery <- factor(p$hatchery, levels = desired_facet_order)
