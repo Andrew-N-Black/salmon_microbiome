@@ -50,14 +50,14 @@ ggplot(pcoa_df, aes(Axis.1, Axis.2, color = ASE)) +geom_point(size = 4,aes(fill=
     theme_classic()+scale_fill_brewer(palette = "Dark2")+scale_color_brewer(palette = "Dark2")+scale_shape_manual(values = c(20,2,3,4,8,6))
 ggsave("~/atchison_ASE_pcoa.svg")
 
-##Ordination, using both bray and jaccard##
-#Hatchery by ASE Bray-BRAY
+##Ordination, bray ##
+#Hatchery by ASE Bray
 p<-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray")) 
 p$data$hatchery <- factor(p$data$hatchery, levels = desired_facet_order)
 p +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 4,aes(shape=ASE,color=hatchery,fill=hatchery)) +stat_ellipse(aes(group = hatchery,color=hatchery), type = "norm", level = 0.95, linewidth = 0.8) +labs(title="Bray Curtis") +
-+     theme_classic()+scale_fill_brewer(palette = "Dark2")+scale_color_brewer(palette = "Dark2")
+theme_classic()+scale_fill_brewer(palette = "Dark2")+scale_color_brewer(palette = "Dark2")
 
-ggsave("~/Figure_3a.svg")
+ggsave("~/Bray-ASE.svg")
 
 #ASE by Hatchery Bray-BRAY
 p<-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"))  
@@ -67,11 +67,11 @@ p+geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(y
 ggsave("~/Figure_3c.svg")
 
 #Hatchery and ASE Bray-JACCARD
-p<-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="jaccard"))  
-
+#Color By
+p<-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="jaccard")) 
 p$data$hatchery <- factor(p$data$hatchery, levels = desired_facet_order)
-p+geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 4,aes(shape=hatchery,color=ASE,fill=ASE)) +stat_ellipse(aes(group = ASE,color=ASE), type = "norm", level = 0.95, linewidth = 0.8) +labs(title="Jaccard") +
-    theme_classic()+scale_fill_brewer(palette = "Dark2")+scale_color_brewer(palette = "Dark2")+scale_shape_manual(values = c(20,2,3,4,8,6))
+p +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 4,aes(shape=ASE,color=hatchery,fill=hatchery)) +stat_ellipse(aes(group = hatchery,color=hatchery), type = "norm", level = 0.95, linewidth = 0.8) +labs(title="Jaccard") +
+    theme_classic()+scale_fill_brewer(palette = "Dark2")+scale_color_brewer(palette = "Dark2")
 
 ggsave("~/rarefied_jaccard.svg")
 
@@ -139,9 +139,20 @@ ggplot(pcoa_df, aes(Axis.1, Axis.2, color = hatchery)) +
 ggsave("~/atchison_m.10_pcoa_hatchery.svg")
 
 
-##Ordination, using both bray and jaccard##
+##Ordination, using  bray 
 #ASE only
 plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"))  +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 5,shape=21,color="black",aes(fill=ASE))+theme_q2r()+scale_fill_brewer(palette = "Dark2")+stat_ellipse(aes(group = ASE,color=ASE), type = "norm", level = 0.95, linewidth = 0.8)+scale_color_brewer(palette = "Dark2")
 ggsave("~/Figure_3a.svg")
+#Hatchery
 plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="bray"))  +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 5,shape=21,color="black",aes(fill=hatchery))+theme_q2r()+scale_fill_brewer(palette = "Dark2")+stat_ellipse(aes(group = hatchery,color=hatchery), type = "norm", level = 0.95, linewidth = 0.8)+scale_color_brewer(palette = "Dark2")
+ggsave("~/Figure_4b.svg")
+
+
+
+##Ordination, using both jaccard 
+#ASE only
+plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="jaccard"))  +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 5,shape=21,color="black",aes(fill=ASE))+theme_q2r()+scale_fill_brewer(palette = "Dark2")+stat_ellipse(aes(group = ASE,color=ASE), type = "norm", level = 0.95, linewidth = 0.8)+scale_color_brewer(palette = "Dark2")
+ggsave("~/Figure_3a.svg")
+#Hatchery
+plot_ordination(ps_rarefied, ordinate(ps_rarefied, "MDS",distance="jaccard"))  +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 5,shape=21,color="black",aes(fill=hatchery))+theme_q2r()+scale_fill_brewer(palette = "Dark2")+stat_ellipse(aes(group = hatchery,color=hatchery), type = "norm", level = 0.95, linewidth = 0.8)+scale_color_brewer(palette = "Dark2")
 ggsave("~/Figure_4b.svg")
