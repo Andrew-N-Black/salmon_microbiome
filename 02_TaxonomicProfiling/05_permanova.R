@@ -1,16 +1,23 @@
+library(vegan)
+library(tibble)
+library(ggplot2)
+
 #Check multidimensional dispersion for both distance matrices
 
 #permanova using aitchison distance
-metadata <- data.frame(sample_data(ps_rarefied))
+metadata <- data.frame(sample_data(ps_phyloseq))
 desired_facet_order <- c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")
 metadata$hatchery <- factor(metadata$hatchery, levels = desired_facet_order)
 
 #Center log transformed
+X <- as(otu_table(hr_phyloseq), "matrix")
+if (taxa_are_rows(hr_phyloseq)) X <- t(X)  # samples x taxa
+
 X_clr <- scale(log(X + 1), center = TRUE, scale = FALSE)
-aitchison_dist <- vegdist(X_clr, method = "euclidean")
+D_aitch <- dist(X_clr, method = "euclidean")
 
 #betadispersion of aitchison distance ~ hatchery
-dispersionA<-betadisper(aitchison_dist,group=ps_rarefied@sam_data$hatchery)
+dispersionA<-betadisper(aitchison_dist,group=hr_phyloseq@sam_data$hatchery)
 permutest(dispersionA)
 #Permutation test for homogeneity of multivariate dispersions
 #Permutation: free
@@ -22,6 +29,16 @@ permutest(dispersionA)
 #Residuals 54 3276.4   60.67                         
 #---
 #Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#Plot betadisp distances by sorted hatchery
+p <- cbind(distance = as.numeric(dispersionA$distances),hatchery = metadata$hatchery,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance)) 
+desired_facet_order <- c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")
+p$hatchery <- factor(p$hatchery, levels = desired_facet_order)
+
+ggplot(p,aes(hatchery, distance,fill=hatchery)) + 
+    geom_boxplot() +
+    theme_classic(base_size = 12)+xlab("Hatchery")+ylab("Distance from centroid")+scale_fill_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())+geom_jitter(aes(x=hatchery, y=distance), width=0.1)
+
 
 #Even though betadisp was significant, run permanova:
 adonis2(aitchison_dist ~ hatchery, data = metadata)
