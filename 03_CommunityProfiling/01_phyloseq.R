@@ -8,12 +8,14 @@ library(reshape2)
 library(vegan)
 library(Biostrings)
 
+##Read in qiime input files produced from nf-core/ampliseq
 phyloseq_object<-qza_to_phyloseq(features = "~/SMB_n61/qiime2/input/table.qza",taxonomy = "~/SMB_n61/qiime2/input/taxonomy.qza",metadata = "~/SMB_n61/input/metadata61_ext.txt")
 #phyloseq-class experiment-level object
 #otu_table()   OTU Table:         [ 4328 taxa and 61 samples ]
 #sample_data() Sample Data:       [ 61 samples by 14 sample variables ]
 #tax_table()   Taxonomy Table:    [ 4328 taxa by 7 taxonomic ranks ]
 
+#Remove any residual ASVs assigned to euks,mito,chloro, and na kingdom
 ps_MC <- subset_taxa(phyloseq_object, Kingdom != "Eukaryota" & 
                          Family != "Mitochondria" & 
                          Class != "Chloroplast" & !is.na(Kingdom))
@@ -87,13 +89,8 @@ hr_phyloseq = phyloseq(otu_table(new_otu, taxa_are_rows = FALSE), tax_table(as.m
 hr_phyloseq
 taxa_names(hr_phyloseq)
 
-#Add in ASV sequences from FASTA file for completed phyloseq object. %%%%%Not working!!!!%%%%%%%
-dna <- readDNAStringSet("~/ASV_seqs.fasta")
-dna <- dna[taxa_names(hr_phyloseq)]
-ps_final <- merge_phyloseq(hr_phyloseq, dna)
 
-
-#Rarefied
+#Make a second phyloseq containing rarefied counts
 ps_rarefied = rarefy_even_depth(hr_phyloseq,rngseed = 123)#Add replace=FALSE AND recheck collectors curve
 #phyloseq-class experiment-level object
 #otu_table()   OTU Table:         [ 1583 taxa and 61 samples ]
