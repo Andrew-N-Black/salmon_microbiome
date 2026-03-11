@@ -87,9 +87,10 @@ adonis2(dist_matrixJ ~ ASE, data = metadata)
 pc = ps_rarefied@otu_table
 metadata = phyloseqCompanion::sample.data.frame(ps_rarefied)
 m_com = as.matrix(pc)
+
+#Anosim by ASE
 anosim(m_com, metadata$ASE, distance = "jaccard", permutations = 9999)
 
-#Dissimilarity: jaccard 
 #ANOSIM statistic R: 0.577 
 #      Significance: 1e-04 
 
@@ -98,8 +99,7 @@ anosim(x = m_com, grouping = metadata$hatchery, permutations = 9999, distance = 
 #ANOSIM statistic R: 0.6641 
 #      Significance: 1e-04 
 
-#ANOSIM statistic R: 0.6641 
-#      Significance: 1e-04 
+
 
 #################################
 ################ BRAY ###########
