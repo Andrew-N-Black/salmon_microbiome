@@ -19,10 +19,11 @@ ggplot(metadata, aes(y =TotalReads, x=hatchery)) +
 ggsave("~/Figure_3a.svg", width = 8, height = 5)
 
 #Statistical test for differences in read depth
+meta = phyloseqCompanion::sample.data.frame(ps.tax.filtered)
 kruskal.test(TotalReads ~ hatchery, data = metadata)
 
 #Kruskal-Wallis rank sum test
 
 #data:  TotalReads by hatchery
-#Kruskal-Wallis chi-squared = 16.483, df = 5,
-#p-value = 0.005593
+#Kruskal-Wallis chi-squared = 15.995, df = 5,
+#p-value = 0.006859
