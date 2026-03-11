@@ -31,15 +31,4 @@ p1 <- plot_core(ps_rel.f,
 p1 <- p1 + theme_bw() + ylab("ASVs")
 p1
 
-p <- plot_core(ps_rel.f, plot.type = "heatmap",
-               prevalences = prevalences,
-               detections = detections,
-               colours = rev(brewer.pal(5, "PiYG")),
-               min.prevalence = .2, horizontal = TRUE) +
-  theme(axis.text.x= element_text(size=12, face="italic", hjust=1),
-        axis.text.y= element_text(size=12),
-        axis.title = element_text(size=12),
-        legend.text = element_text(size=10),
-        legend.title = element_text(size=10)) +theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
-
-print(p)
+ggsave("~/Figure_2b.svg", width = 8, height = 5)
