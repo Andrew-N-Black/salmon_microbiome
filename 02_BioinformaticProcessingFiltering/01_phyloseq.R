@@ -79,27 +79,23 @@ for(i in 1:N){ #Rename each colname. Inefficient, but thats ok.
   colnames(new_otu)[which(colnames(new_otu) == cur_address)] = cur_seq # rename the column with sequence
 }
 
-# Old
-otu[1:10, 1:10]
-# New
-new_otu[1:10, 1:10]
-&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-# =========================================================
-# 4.1. Set filtering thresholds
-# =========================================================
+# Make new phyloseq with human readable names
+hr_phyloseq = phyloseq(otu_table(new_otu, taxa_are_rows = FALSE), tax_table(as.matrix(new_tax)), sample_data(meta))
+hr_phyloseq
+taxa_names(hr_phyloseq)
+
+# Set filtering thresholds
 max_relab_threshold  <- 0.001   # 0.1% in at least one sample (Bokulich et al. 2013)
 min_prevalence_n     <- 6       # present in at least 6 samples
 detection_threshold  <- 2       # minimum count to call a taxon present
 
 cat("Max relative abundance threshold:", max_relab_threshold, "\n")
 cat("Min prevalence (n samples):", min_prevalence_n, "\n")
-cat("Min prevalence (%):", min_prevalence_n / nsamples(ps.tax.unfiltered) * 100, "%\n")
+cat("Min prevalence (%):", min_prevalence_n / nsamples(hr_phyloseq) * 100, "%\n")
 
-# =========================================================
-# 4.2. Compute filtering stats on unfiltered object
-# =========================================================
-X <- as(otu_table(ps.tax.unfiltered), "matrix")
-if (!taxa_are_rows(ps.tax.unfiltered)) X <- t(X)   # taxa x samples
+# Compute filtering stats on partially filtered object
+X <- as(otu_table(hr_phyloseq), "matrix")
+if (!taxa_are_rows(hr_phyloseq)) X <- t(X)   # taxa x samples
 
 sample_depths <- colSums(X)
 rel_abund     <- sweep(X, 2, sample_depths, "/")
@@ -113,42 +109,40 @@ tax_stats_before <- data.frame(
   total_abundance = rowSums(X)
 )
 
-tax_table_df        <- as.data.frame(tax_table(ps.tax.unfiltered))
+tax_table_df        <- as.data.frame(tax_table(hr_phyloseq))
 tax_table_df$taxon  <- rownames(tax_table_df)
 tax_stats_before    <- left_join(tax_stats_before, tax_table_df, by = "taxon")
 
-# =========================================================
-# 4.3. Determine which taxa to keep vs remove
-# =========================================================
+# Determine which taxa to keep vs remove
 keep_taxa    <- tax_stats_before %>%
   filter(max_relab >= max_relab_threshold, prevalence_n >= min_prevalence_n) %>%
   pull(taxon)
 
-removed_taxa <- setdiff(taxa_names(ps.tax.unfiltered), keep_taxa)
+removed_taxa <- setdiff(taxa_names(hr_phyloseq), keep_taxa)
 
-cat("Original taxa:", ntaxa(ps.tax.unfiltered), "\n")
+cat("Original taxa:", ntaxa(hr_phyloseq), "\n")
+#Original taxa: 3726
 cat("Taxa kept:",     length(keep_taxa), "\n")
+#Taxa kept: 324 
 cat("Taxa removed:",  length(removed_taxa), "\n")
+#Taxa removed: 3402 
 
-# =========================================================
-# 4.4. Create filtered object
-# =========================================================
-ps.tax.filtered <- prune_taxa(keep_taxa, ps.tax.unfiltered)
-cat("Filtered taxa:", ntaxa(ps.tax.filtered), "\n")
-&&&&&&&&&&&&&&&&&&&&&&&
 
-# Make new phyloseq with human readable names
-hr_phyloseq = phyloseq(otu_table(new_otu, taxa_are_rows = FALSE), tax_table(as.matrix(new_tax)), sample_data(meta))
-hr_phyloseq
-taxa_names(hr_phyloseq)
+#Create filtered object
+
+ps.tax.filtered <- prune_taxa(keep_taxa, hr_phyloseq)
+
+#otu_table()   OTU Table:         [ 324 taxa and 60 samples ]
+#sample_data() Sample Data:       [ 60 samples by 17 sample variables ]
+#tax_table()   Taxonomy Table:    [ 324 taxa by 7 taxonomic ranks ]
 
 
 #Make a second phyloseq containing rarefied counts
-ps_rarefied = rarefy_even_depth(hr_phyloseq,rngseed = 123)#Add replace=FALSE AND recheck collectors curve
-#phyloseq-class experiment-level object
-#otu_table()   OTU Table:         [ 1583 taxa and 61 samples ]
-#sample_data() Sample Data:       [ 61 samples by 14 sample variables ]
-#tax_table()   Taxonomy Table:    [ 1583 taxa by 7 taxonomic ranks ]
+ps_rarefied = rarefy_even_depth(ps.tax.filtered,rngseed = 123,replace=FALSE)#Add replace=FALSE AND recheck collectors curve
+
+#otu_table()   OTU Table:         [ 324 taxa and 60 samples ]
+#sample_data() Sample Data:       [ 60 samples by 17 sample variables ]
+#tax_table()   Taxonomy Table:    [ 324 taxa by 7 taxonomic ranks ]
 
 
 
