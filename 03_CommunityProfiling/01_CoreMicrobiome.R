@@ -1,3 +1,5 @@
+library(microbiome)
+
 # Make a relative abundance phyloseq
 ps_rel = microbiome::transform(ps.tax.filtered, "compositional")
 hist(sample_sums(ps_rel)) # should all be 1
