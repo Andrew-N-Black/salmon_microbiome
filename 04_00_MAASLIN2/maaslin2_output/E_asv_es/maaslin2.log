@@ -1,0 +1,258 @@
+2026-06-01 11:41:09.620622 INFO::Writing function arguments to log file
+2026-06-01 11:41:09.621125 DEBUG::Function arguments
+2026-06-01 11:41:09.621304 DEBUG::Output folder: /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/E_asv_es
+2026-06-01 11:41:09.621456 DEBUG::Min Abundance: 0.000000
+2026-06-01 11:41:09.621601 DEBUG::Min Prevalence: 0.100000
+2026-06-01 11:41:09.621743 DEBUG::Normalization: NONE
+2026-06-01 11:41:09.621878 DEBUG::Transform: NONE
+2026-06-01 11:41:09.622015 DEBUG::Analysis method: LM
+2026-06-01 11:41:09.622152 DEBUG::Max significance: 0.250000
+2026-06-01 11:41:09.622286 DEBUG::Random effects:
+2026-06-01 11:41:09.622421 DEBUG::Fixed effects: es
+2026-06-01 11:41:09.622553 DEBUG::Correction method: BH
+2026-06-01 11:41:09.622684 DEBUG::Standardize: TRUE
+2026-06-01 11:41:09.622813 DEBUG::Cores: 1
+2026-06-01 11:41:09.622938 INFO::Verifying options selected are valid
+2026-06-01 11:41:09.623333 INFO::Determining format of input files
+2026-06-01 11:41:09.623664 INFO::Input format is data samples as rows and metadata samples as rows
+2026-06-01 11:41:09.624372 DEBUG::A total of 40 samples were found in both the data and metadata
+2026-06-01 11:41:09.624513 DEBUG::Reordering data/metadata to use same sample ordering
+2026-06-01 11:41:09.625983 INFO::Formula for fixed effects: expr ~  es
+2026-06-01 11:41:09.626598 INFO::Filter data based on min abundance and min prevalence
+2026-06-01 11:41:09.626934 INFO::Total samples in data: 40
+2026-06-01 11:41:09.627258 INFO::Min samples required with min abundance for a feature not to be filtered: 4.000000
+2026-06-01 11:41:09.629114 INFO::Total filtered features: 106
+2026-06-01 11:41:09.629708 INFO::Filtered feature names from abundance and prevalence filtering: ASV141, ASV158, ASV185, ASV222, ASV310, ASV311, ASV339, ASV373, ASV394, ASV466, ASV471, ASV499, ASV508, ASV704, ASV731, ASV771, ASV785, ASV791, ASV803, ASV928, ASV944, ASV945, ASV1007, ASV1010, ASV1077, ASV1085, ASV1201, ASV1232, ASV1254, ASV1256, ASV1374, ASV1378, ASV1403, ASV1433, ASV1464, ASV1480, ASV1514, ASV1554, ASV1577, ASV1578, ASV1611, ASV1617, ASV1623, ASV1672, ASV1690, ASV1745, ASV1771, ASV1865, ASV1984, ASV2040, ASV2093, ASV2098, ASV2106, ASV2107, ASV2128, ASV2199, ASV2200, ASV2218, ASV2225, ASV2280, ASV2282, ASV2290, ASV2303, ASV2369, ASV2480, ASV2487, ASV2491, ASV2525, ASV2587, ASV2589, ASV2621, ASV2624, ASV2666, ASV2681, ASV2765, ASV2773, ASV2819, ASV2821, ASV2842, ASV2907, ASV2913, ASV2931, ASV2994, ASV3021, ASV3065, ASV3127, ASV3227, ASV3235, ASV3237, ASV3290, ASV3294, ASV3296, ASV3348, ASV3378, ASV3458, ASV3472, ASV3482, ASV3492, ASV3538, ASV3547, ASV3588, ASV3606, ASV3617, ASV3665, ASV3703, ASV3708
+2026-06-01 11:41:09.63226 INFO::Total filtered features with variance filtering: 0
+2026-06-01 11:41:09.633011 INFO::Filtered feature names from variance filtering:
+2026-06-01 11:41:09.633346 INFO::Running selected normalization method: NONE
+2026-06-01 11:41:09.63364 INFO::Applying z-score to standardize continuous metadata
+2026-06-01 11:41:09.635107 INFO::Running selected transform method: NONE
+2026-06-01 11:41:09.635499 INFO::Running selected analysis method: LM
+2026-06-01 11:41:09.635846 INFO::Fitting model to feature number 1, ASV31
+2026-06-01 11:41:09.637052 INFO::Fitting model to feature number 2, ASV39
+2026-06-01 11:41:09.638102 INFO::Fitting model to feature number 3, ASV82
+2026-06-01 11:41:09.63915 INFO::Fitting model to feature number 4, ASV85
+2026-06-01 11:41:09.640193 INFO::Fitting model to feature number 5, ASV107
+2026-06-01 11:41:09.641284 INFO::Fitting model to feature number 6, ASV118
+2026-06-01 11:41:09.642484 INFO::Fitting model to feature number 7, ASV121
+2026-06-01 11:41:09.644201 INFO::Fitting model to feature number 8, ASV140
+2026-06-01 11:41:09.645802 INFO::Fitting model to feature number 9, ASV146
+2026-06-01 11:41:09.647203 INFO::Fitting model to feature number 10, ASV154
+2026-06-01 11:41:09.648724 INFO::Fitting model to feature number 11, ASV164
+2026-06-01 11:41:09.649987 INFO::Fitting model to feature number 12, ASV170
+2026-06-01 11:41:09.650979 INFO::Fitting model to feature number 13, ASV173
+2026-06-01 11:41:09.651982 INFO::Fitting model to feature number 14, ASV191
+2026-06-01 11:41:09.652946 INFO::Fitting model to feature number 15, ASV193
+2026-06-01 11:41:09.653917 INFO::Fitting model to feature number 16, ASV214
+2026-06-01 11:41:09.654899 INFO::Fitting model to feature number 17, ASV219
+2026-06-01 11:41:09.656076 INFO::Fitting model to feature number 18, ASV230
+2026-06-01 11:41:09.657132 INFO::Fitting model to feature number 19, ASV247
+2026-06-01 11:41:09.658421 INFO::Fitting model to feature number 20, ASV255
+2026-06-01 11:41:09.659902 INFO::Fitting model to feature number 21, ASV260
+2026-06-01 11:41:09.661092 INFO::Fitting model to feature number 22, ASV261
+2026-06-01 11:41:09.662581 INFO::Fitting model to feature number 23, ASV286
+2026-06-01 11:41:09.66432 INFO::Fitting model to feature number 24, ASV300
+2026-06-01 11:41:09.666061 INFO::Fitting model to feature number 25, ASV329
+2026-06-01 11:41:09.667191 INFO::Fitting model to feature number 26, ASV369
+2026-06-01 11:41:09.668198 INFO::Fitting model to feature number 27, ASV370
+2026-06-01 11:41:09.669168 INFO::Fitting model to feature number 28, ASV395
+2026-06-01 11:41:09.670133 INFO::Fitting model to feature number 29, ASV407
+2026-06-01 11:41:09.671232 INFO::Fitting model to feature number 30, ASV412
+2026-06-01 11:41:09.672249 INFO::Fitting model to feature number 31, ASV423
+2026-06-01 11:41:09.673261 INFO::Fitting model to feature number 32, ASV424
+2026-06-01 11:41:09.674278 INFO::Fitting model to feature number 33, ASV448
+2026-06-01 11:41:09.675558 INFO::Fitting model to feature number 34, ASV460
+2026-06-01 11:41:09.676964 INFO::Fitting model to feature number 35, ASV491
+2026-06-01 11:41:09.678105 INFO::Fitting model to feature number 36, ASV504
+2026-06-01 11:41:09.679225 INFO::Fitting model to feature number 37, ASV527
+2026-06-01 11:41:09.681287 INFO::Fitting model to feature number 38, ASV529
+2026-06-01 11:41:09.683009 INFO::Fitting model to feature number 39, ASV538
+2026-06-01 11:41:09.684106 INFO::Fitting model to feature number 40, ASV540
+2026-06-01 11:41:09.685126 INFO::Fitting model to feature number 41, ASV551
+2026-06-01 11:41:09.686208 INFO::Fitting model to feature number 42, ASV585
+2026-06-01 11:41:09.687376 INFO::Fitting model to feature number 43, ASV589
+2026-06-01 11:41:09.688513 INFO::Fitting model to feature number 44, ASV611
+2026-06-01 11:41:09.689738 INFO::Fitting model to feature number 45, ASV619
+2026-06-01 11:41:09.690916 INFO::Fitting model to feature number 46, ASV634
+2026-06-01 11:41:09.692137 INFO::Fitting model to feature number 47, ASV636
+2026-06-01 11:41:09.69328 INFO::Fitting model to feature number 48, ASV653
+2026-06-01 11:41:09.694342 INFO::Fitting model to feature number 49, ASV662
+2026-06-01 11:41:09.695458 INFO::Fitting model to feature number 50, ASV690
+2026-06-01 11:41:09.696792 INFO::Fitting model to feature number 51, ASV723
+2026-06-01 11:41:09.698898 INFO::Fitting model to feature number 52, ASV724
+2026-06-01 11:41:09.700376 INFO::Fitting model to feature number 53, ASV766
+2026-06-01 11:41:09.70152 INFO::Fitting model to feature number 54, ASV768
+2026-06-01 11:41:09.702501 INFO::Fitting model to feature number 55, ASV828
+2026-06-01 11:41:09.703478 INFO::Fitting model to feature number 56, ASV829
+2026-06-01 11:41:09.704462 INFO::Fitting model to feature number 57, ASV848
+2026-06-01 11:41:09.70542 INFO::Fitting model to feature number 58, ASV855
+2026-06-01 11:41:09.706366 INFO::Fitting model to feature number 59, ASV873
+2026-06-01 11:41:09.707428 INFO::Fitting model to feature number 60, ASV881
+2026-06-01 11:41:09.708451 INFO::Fitting model to feature number 61, ASV892
+2026-06-01 11:41:09.709516 INFO::Fitting model to feature number 62, ASV895
+2026-06-01 11:41:09.710532 INFO::Fitting model to feature number 63, ASV946
+2026-06-01 11:41:09.711607 INFO::Fitting model to feature number 64, ASV960
+2026-06-01 11:41:09.712959 INFO::Fitting model to feature number 65, ASV964
+2026-06-01 11:41:09.71474 INFO::Fitting model to feature number 66, ASV982
+2026-06-01 11:41:09.716484 INFO::Fitting model to feature number 67, ASV997
+2026-06-01 11:41:09.717648 INFO::Fitting model to feature number 68, ASV1015
+2026-06-01 11:41:09.718802 INFO::Fitting model to feature number 69, ASV1021
+2026-06-01 11:41:09.719814 INFO::Fitting model to feature number 70, ASV1040
+2026-06-01 11:41:09.720828 INFO::Fitting model to feature number 71, ASV1070
+2026-06-01 11:41:09.721891 INFO::Fitting model to feature number 72, ASV1090
+2026-06-01 11:41:09.723029 INFO::Fitting model to feature number 73, ASV1094
+2026-06-01 11:41:09.724037 INFO::Fitting model to feature number 74, ASV1099
+2026-06-01 11:41:09.725112 INFO::Fitting model to feature number 75, ASV1129
+2026-06-01 11:41:09.726213 INFO::Fitting model to feature number 76, ASV1153
+2026-06-01 11:41:09.727453 INFO::Fitting model to feature number 77, ASV1213
+2026-06-01 11:41:09.728714 INFO::Fitting model to feature number 78, ASV1240
+2026-06-01 11:41:09.729967 INFO::Fitting model to feature number 79, ASV1241
+2026-06-01 11:41:09.732666 INFO::Fitting model to feature number 80, ASV1244
+2026-06-01 11:41:09.733917 INFO::Fitting model to feature number 81, ASV1281
+2026-06-01 11:41:09.735011 INFO::Fitting model to feature number 82, ASV1287
+2026-06-01 11:41:09.736106 INFO::Fitting model to feature number 83, ASV1331
+2026-06-01 11:41:09.737296 INFO::Fitting model to feature number 84, ASV1380
+2026-06-01 11:41:09.738541 INFO::Fitting model to feature number 85, ASV1390
+2026-06-01 11:41:09.739794 INFO::Fitting model to feature number 86, ASV1402
+2026-06-01 11:41:09.740899 INFO::Fitting model to feature number 87, ASV1414
+2026-06-01 11:41:09.741923 INFO::Fitting model to feature number 88, ASV1417
+2026-06-01 11:41:09.743192 INFO::Fitting model to feature number 89, ASV1436
+2026-06-01 11:41:09.744534 INFO::Fitting model to feature number 90, ASV1462
+2026-06-01 11:41:09.745763 INFO::Fitting model to feature number 91, ASV1468
+2026-06-01 11:41:09.747057 INFO::Fitting model to feature number 92, ASV1491
+2026-06-01 11:41:09.748954 INFO::Fitting model to feature number 93, ASV1519
+2026-06-01 11:41:09.750252 INFO::Fitting model to feature number 94, ASV1592
+2026-06-01 11:41:09.751314 INFO::Fitting model to feature number 95, ASV1599
+2026-06-01 11:41:09.752297 INFO::Fitting model to feature number 96, ASV1647
+2026-06-01 11:41:09.753358 INFO::Fitting model to feature number 97, ASV1652
+2026-06-01 11:41:09.754541 INFO::Fitting model to feature number 98, ASV1675
+2026-06-01 11:41:09.755683 INFO::Fitting model to feature number 99, ASV1701
+2026-06-01 11:41:09.756689 INFO::Fitting model to feature number 100, ASV1712
+2026-06-01 11:41:09.757736 INFO::Fitting model to feature number 101, ASV1715
+2026-06-01 11:41:09.759125 INFO::Fitting model to feature number 102, ASV1736
+2026-06-01 11:41:09.760558 INFO::Fitting model to feature number 103, ASV1744
+2026-06-01 11:41:09.761659 INFO::Fitting model to feature number 104, ASV1753
+2026-06-01 11:41:09.762715 INFO::Fitting model to feature number 105, ASV1784
+2026-06-01 11:41:09.764502 INFO::Fitting model to feature number 106, ASV1788
+2026-06-01 11:41:09.7663 INFO::Fitting model to feature number 107, ASV1796
+2026-06-01 11:41:09.767388 INFO::Fitting model to feature number 108, ASV1806
+2026-06-01 11:41:09.768497 INFO::Fitting model to feature number 109, ASV1814
+2026-06-01 11:41:09.769589 INFO::Fitting model to feature number 110, ASV1825
+2026-06-01 11:41:09.770618 INFO::Fitting model to feature number 111, ASV1831
+2026-06-01 11:41:09.771608 INFO::Fitting model to feature number 112, ASV1833
+2026-06-01 11:41:09.772799 INFO::Fitting model to feature number 113, ASV1835
+2026-06-01 11:41:09.773914 INFO::Fitting model to feature number 114, ASV1879
+2026-06-01 11:41:09.774951 INFO::Fitting model to feature number 115, ASV1887
+2026-06-01 11:41:09.776111 INFO::Fitting model to feature number 116, ASV1897
+2026-06-01 11:41:09.777382 INFO::Fitting model to feature number 117, ASV1898
+2026-06-01 11:41:09.778518 INFO::Fitting model to feature number 118, ASV1906
+2026-06-01 11:41:09.779749 INFO::Fitting model to feature number 119, ASV1921
+2026-06-01 11:41:09.78122 INFO::Fitting model to feature number 120, ASV1925
+2026-06-01 11:41:09.782662 INFO::Fitting model to feature number 121, ASV2011
+2026-06-01 11:41:09.783683 INFO::Fitting model to feature number 122, ASV2013
+2026-06-01 11:41:09.784665 INFO::Fitting model to feature number 123, ASV2014
+2026-06-01 11:41:09.785637 INFO::Fitting model to feature number 124, ASV2031
+2026-06-01 11:41:09.786604 INFO::Fitting model to feature number 125, ASV2038
+2026-06-01 11:41:09.787626 INFO::Fitting model to feature number 126, ASV2045
+2026-06-01 11:41:09.78866 INFO::Fitting model to feature number 127, ASV2057
+2026-06-01 11:41:09.78965 INFO::Fitting model to feature number 128, ASV2064
+2026-06-01 11:41:09.790599 INFO::Fitting model to feature number 129, ASV2074
+2026-06-01 11:41:09.791536 INFO::Fitting model to feature number 130, ASV2100
+2026-06-01 11:41:09.792485 INFO::Fitting model to feature number 131, ASV2166
+2026-06-01 11:41:09.793453 INFO::Fitting model to feature number 132, ASV2168
+2026-06-01 11:41:09.794418 INFO::Fitting model to feature number 133, ASV2181
+2026-06-01 11:41:09.795394 INFO::Fitting model to feature number 134, ASV2184
+2026-06-01 11:41:09.796741 INFO::Fitting model to feature number 135, ASV2196
+2026-06-01 11:41:09.798554 INFO::Fitting model to feature number 136, ASV2197
+2026-06-01 11:41:09.7999 INFO::Fitting model to feature number 137, ASV2284
+2026-06-01 11:41:09.801066 INFO::Fitting model to feature number 138, ASV2285
+2026-06-01 11:41:09.802215 INFO::Fitting model to feature number 139, ASV2289
+2026-06-01 11:41:09.803235 INFO::Fitting model to feature number 140, ASV2314
+2026-06-01 11:41:09.804233 INFO::Fitting model to feature number 141, ASV2365
+2026-06-01 11:41:09.805221 INFO::Fitting model to feature number 142, ASV2370
+2026-06-01 11:41:09.806489 INFO::Fitting model to feature number 143, ASV2395
+2026-06-01 11:41:09.807565 INFO::Fitting model to feature number 144, ASV2403
+2026-06-01 11:41:09.808583 INFO::Fitting model to feature number 145, ASV2406
+2026-06-01 11:41:09.809676 INFO::Fitting model to feature number 146, ASV2424
+2026-06-01 11:41:09.810731 INFO::Fitting model to feature number 147, ASV2440
+2026-06-01 11:41:09.81196 INFO::Fitting model to feature number 148, ASV2461
+2026-06-01 11:41:09.813385 INFO::Fitting model to feature number 149, ASV2489
+2026-06-01 11:41:09.815145 INFO::Fitting model to feature number 150, ASV2523
+2026-06-01 11:41:09.816679 INFO::Fitting model to feature number 151, ASV2527
+2026-06-01 11:41:09.817799 INFO::Fitting model to feature number 152, ASV2536
+2026-06-01 11:41:09.818777 INFO::Fitting model to feature number 153, ASV2539
+2026-06-01 11:41:09.819782 INFO::Fitting model to feature number 154, ASV2544
+2026-06-01 11:41:09.820862 INFO::Fitting model to feature number 155, ASV2546
+2026-06-01 11:41:09.821994 INFO::Fitting model to feature number 156, ASV2593
+2026-06-01 11:41:09.834537 INFO::Fitting model to feature number 157, ASV2595
+2026-06-01 11:41:09.836036 INFO::Fitting model to feature number 158, ASV2613
+2026-06-01 11:41:09.83716 INFO::Fitting model to feature number 159, ASV2628
+2026-06-01 11:41:09.838164 INFO::Fitting model to feature number 160, ASV2695
+2026-06-01 11:41:09.83917 INFO::Fitting model to feature number 161, ASV2709
+2026-06-01 11:41:09.840205 INFO::Fitting model to feature number 162, ASV2711
+2026-06-01 11:41:09.841248 INFO::Fitting model to feature number 163, ASV2714
+2026-06-01 11:41:09.842272 INFO::Fitting model to feature number 164, ASV2742
+2026-06-01 11:41:09.843517 INFO::Fitting model to feature number 165, ASV2753
+2026-06-01 11:41:09.844828 INFO::Fitting model to feature number 166, ASV2758
+2026-06-01 11:41:09.846051 INFO::Fitting model to feature number 167, ASV2778
+2026-06-01 11:41:09.847484 INFO::Fitting model to feature number 168, ASV2791
+2026-06-01 11:41:09.849165 INFO::Fitting model to feature number 169, ASV2796
+2026-06-01 11:41:09.850225 INFO::Fitting model to feature number 170, ASV2805
+2026-06-01 11:41:09.851227 INFO::Fitting model to feature number 171, ASV2823
+2026-06-01 11:41:09.852229 INFO::Fitting model to feature number 172, ASV2889
+2026-06-01 11:41:09.853218 INFO::Fitting model to feature number 173, ASV2899
+2026-06-01 11:41:09.854221 INFO::Fitting model to feature number 174, ASV2917
+2026-06-01 11:41:09.855156 INFO::Fitting model to feature number 175, ASV2924
+2026-06-01 11:41:09.856108 INFO::Fitting model to feature number 176, ASV2943
+2026-06-01 11:41:09.857061 INFO::Fitting model to feature number 177, ASV2985
+2026-06-01 11:41:09.858038 INFO::Fitting model to feature number 178, ASV3022
+2026-06-01 11:41:09.859297 INFO::Fitting model to feature number 179, ASV3040
+2026-06-01 11:41:09.860474 INFO::Fitting model to feature number 180, ASV3042
+2026-06-01 11:41:09.861562 INFO::Fitting model to feature number 181, ASV3060
+2026-06-01 11:41:09.862742 INFO::Fitting model to feature number 182, ASV3084
+2026-06-01 11:41:09.864088 INFO::Fitting model to feature number 183, ASV3089
+2026-06-01 11:41:09.865575 INFO::Fitting model to feature number 184, ASV3119
+2026-06-01 11:41:09.866606 INFO::Fitting model to feature number 185, ASV3147
+2026-06-01 11:41:09.867582 INFO::Fitting model to feature number 186, ASV3148
+2026-06-01 11:41:09.868567 INFO::Fitting model to feature number 187, ASV3182
+2026-06-01 11:41:09.869561 INFO::Fitting model to feature number 188, ASV3250
+2026-06-01 11:41:09.870543 INFO::Fitting model to feature number 189, ASV3300
+2026-06-01 11:41:09.871544 INFO::Fitting model to feature number 190, ASV3336
+2026-06-01 11:41:09.872536 INFO::Fitting model to feature number 191, ASV3337
+2026-06-01 11:41:09.873511 INFO::Fitting model to feature number 192, ASV3340
+2026-06-01 11:41:09.874463 INFO::Fitting model to feature number 193, ASV3342
+2026-06-01 11:41:09.875674 INFO::Fitting model to feature number 194, ASV3346
+2026-06-01 11:41:09.876959 INFO::Fitting model to feature number 195, ASV3347
+2026-06-01 11:41:09.878009 INFO::Fitting model to feature number 196, ASV3361
+2026-06-01 11:41:09.879076 INFO::Fitting model to feature number 197, ASV3371
+2026-06-01 11:41:09.880365 INFO::Fitting model to feature number 198, ASV3403
+2026-06-01 11:41:09.882125 INFO::Fitting model to feature number 199, ASV3408
+2026-06-01 11:41:09.88338 INFO::Fitting model to feature number 200, ASV3443
+2026-06-01 11:41:09.884458 INFO::Fitting model to feature number 201, ASV3466
+2026-06-01 11:41:09.885473 INFO::Fitting model to feature number 202, ASV3489
+2026-06-01 11:41:09.88649 INFO::Fitting model to feature number 203, ASV3500
+2026-06-01 11:41:09.887485 INFO::Fitting model to feature number 204, ASV3515
+2026-06-01 11:41:09.888461 INFO::Fitting model to feature number 205, ASV3540
+2026-06-01 11:41:09.889443 INFO::Fitting model to feature number 206, ASV3541
+2026-06-01 11:41:09.89043 INFO::Fitting model to feature number 207, ASV3558
+2026-06-01 11:41:09.891431 INFO::Fitting model to feature number 208, ASV3559
+2026-06-01 11:41:09.892537 INFO::Fitting model to feature number 209, ASV3579
+2026-06-01 11:41:09.893548 INFO::Fitting model to feature number 210, ASV3580
+2026-06-01 11:41:09.89453 INFO::Fitting model to feature number 211, ASV3587
+2026-06-01 11:41:09.895491 INFO::Fitting model to feature number 212, ASV3620
+2026-06-01 11:41:09.896488 INFO::Fitting model to feature number 213, ASV3641
+2026-06-01 11:41:09.898928 INFO::Fitting model to feature number 214, ASV3676
+2026-06-01 11:41:09.900299 INFO::Fitting model to feature number 215, ASV3685
+2026-06-01 11:41:09.90139 INFO::Fitting model to feature number 216, ASV3686
+2026-06-01 11:41:09.9024 INFO::Fitting model to feature number 217, ASV3706
+2026-06-01 11:41:09.912441 INFO::Counting total values for each feature
+2026-06-01 11:41:09.917216 INFO::Writing filtered data to file /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/E_asv_es/features/filtered_data.tsv
+2026-06-01 11:41:09.923449 INFO::Writing filtered, normalized data to file /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/E_asv_es/features/filtered_data_norm.tsv
+2026-06-01 11:41:09.929652 INFO::Writing filtered, normalized, transformed data to file /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/E_asv_es/features/filtered_data_norm_transformed.tsv
+2026-06-01 11:41:09.936372 WARNING::Deleting existing residuals file: /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/E_asv_es/fits/residuals.rds
+2026-06-01 11:41:09.937085 INFO::Writing residuals to file /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/E_asv_es/fits/residuals.rds
+2026-06-01 11:41:09.939543 WARNING::Deleting existing fitted file: /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/E_asv_es/fits/fitted.rds
+2026-06-01 11:41:09.940234 INFO::Writing fitted values to file /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/E_asv_es/fits/fitted.rds
+2026-06-01 11:41:09.941247 INFO::Writing all results to file (ordered by increasing q-values): /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/E_asv_es/all_results.tsv
+2026-06-01 11:41:09.942757 INFO::Writing the significant results (those which are less than or equal to the threshold of 0.250000 ) to file (ordered by increasing q-values): /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/E_asv_es/significant_results.tsv

@@ -1,0 +1,148 @@
+2026-06-01 11:41:07.846171 INFO::Writing function arguments to log file
+2026-06-01 11:41:07.846662 DEBUG::Function arguments
+2026-06-01 11:41:07.846928 DEBUG::Output folder: /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/B_genus_epithelium_remaining
+2026-06-01 11:41:07.847144 DEBUG::Min Abundance: 0.000000
+2026-06-01 11:41:07.847375 DEBUG::Min Prevalence: 0.100000
+2026-06-01 11:41:07.847546 DEBUG::Normalization: NONE
+2026-06-01 11:41:07.847701 DEBUG::Transform: NONE
+2026-06-01 11:41:07.847851 DEBUG::Analysis method: LM
+2026-06-01 11:41:07.848001 DEBUG::Max significance: 0.250000
+2026-06-01 11:41:07.84815 DEBUG::Random effects:
+2026-06-01 11:41:07.848292 DEBUG::Fixed effects: epithelium_remaining
+2026-06-01 11:41:07.848424 DEBUG::Correction method: BH
+2026-06-01 11:41:07.848558 DEBUG::Standardize: TRUE
+2026-06-01 11:41:07.848693 DEBUG::Cores: 1
+2026-06-01 11:41:07.848827 INFO::Verifying options selected are valid
+2026-06-01 11:41:07.849216 INFO::Determining format of input files
+2026-06-01 11:41:07.849541 INFO::Input format is data samples as rows and metadata samples as rows
+2026-06-01 11:41:07.850211 DEBUG::A total of 40 samples were found in both the data and metadata
+2026-06-01 11:41:07.850346 DEBUG::Reordering data/metadata to use same sample ordering
+2026-06-01 11:41:07.851124 INFO::Formula for fixed effects: expr ~  epithelium_remaining
+2026-06-01 11:41:07.851469 INFO::Filter data based on min abundance and min prevalence
+2026-06-01 11:41:07.851757 INFO::Total samples in data: 40
+2026-06-01 11:41:07.85203 INFO::Min samples required with min abundance for a feature not to be filtered: 4.000000
+2026-06-01 11:41:07.85307 INFO::Total filtered features: 57
+2026-06-01 11:41:07.853426 INFO::Filtered feature names from abundance and prevalence filtering: Thermomonas, Klenkia, Monoglobus, Nocardia, Tateyamaria, Porphyromonas, Micrococcaceae, Collinsella, Photobacterium, Sphingopyxis, Dermacoccaceae, Corticibacterium, Leptotrichiaceae, Phreatobacter, Dietzia, Rubellimicrobium, Hymenobacter, Coprococcus, Sphingoaurantiacus, Anaerovorax, Parasutterella, Ammoniphilus, Tepidiphilus, env.OPS.17, Truepera, Frigoribacterium, Zoogloea, Caldimonas, Methyloversatilis, Gemella, Acidovorax, Paraclostridium, Vibrio, Pseudoleptotrichia, Methylocella, Alkanindiges, Nocardioides, Cellvibrionaceae, Gemmatimonas, Legionella, Terrabacter, Leucobacter, Chroococcidiopsis.SAG.2023, Intrasporangiaceae, Gemmiger, Shewanella, Amaricoccus, Propionivibrio, Macrococcus, Aliterella, Microbacteriaceae, Janthinobacterium, Brachybacterium, Ralstonia, Lichenibacterium, Roseburia, Marmoricola
+2026-06-01 11:41:07.854502 INFO::Total filtered features with variance filtering: 0
+2026-06-01 11:41:07.85484 INFO::Filtered feature names from variance filtering:
+2026-06-01 11:41:07.855132 INFO::Running selected normalization method: NONE
+2026-06-01 11:41:07.85541 INFO::Applying z-score to standardize continuous metadata
+2026-06-01 11:41:07.856955 INFO::Running selected transform method: NONE
+2026-06-01 11:41:07.857426 INFO::Running selected analysis method: LM
+2026-06-01 11:41:07.857796 INFO::Fitting model to feature number 1, Lachnospiraceae.NK4A136.group
+2026-06-01 11:41:07.859052 INFO::Fitting model to feature number 2, Methylobacterium
+2026-06-01 11:41:07.860413 INFO::Fitting model to feature number 3, Streptococcus
+2026-06-01 11:41:07.861511 INFO::Fitting model to feature number 4, Neisseriaceae
+2026-06-01 11:41:07.86258 INFO::Fitting model to feature number 5, Paucibacter
+2026-06-01 11:41:07.864033 INFO::Fitting model to feature number 6, Rhodococcus
+2026-06-01 11:41:07.865754 INFO::Fitting model to feature number 7, Micrococcus
+2026-06-01 11:41:07.866834 INFO::Fitting model to feature number 8, Massilia
+2026-06-01 11:41:07.867827 INFO::Fitting model to feature number 9, Dermacoccus
+2026-06-01 11:41:07.868922 INFO::Fitting model to feature number 10, Lactobacillus
+2026-06-01 11:41:07.869996 INFO::Fitting model to feature number 11, Actinomyces
+2026-06-01 11:41:07.871085 INFO::Fitting model to feature number 12, Noviherbaspirillum
+2026-06-01 11:41:07.872206 INFO::Fitting model to feature number 13, Deinococcus
+2026-06-01 11:41:07.87329 INFO::Fitting model to feature number 14, Aeromonas
+2026-06-01 11:41:07.874312 INFO::Fitting model to feature number 15, Brevundimonas
+2026-06-01 11:41:07.875346 INFO::Fitting model to feature number 16, Brevibacterium
+2026-06-01 11:41:07.87655 INFO::Fitting model to feature number 17, Luteolibacter
+2026-06-01 11:41:07.877668 INFO::Fitting model to feature number 18, Arcobacter
+2026-06-01 11:41:07.878759 INFO::Fitting model to feature number 19, Tychonema.CCAP.1459.11B
+2026-06-01 11:41:07.879958 INFO::Fitting model to feature number 20, Agathobacter
+2026-06-01 11:41:07.881846 INFO::Fitting model to feature number 21, Veillonella
+2026-06-01 11:41:07.883213 INFO::Fitting model to feature number 22, Abiotrophia
+2026-06-01 11:41:07.884299 INFO::Fitting model to feature number 23, Actinomycetospora
+2026-06-01 11:41:07.885339 INFO::Fitting model to feature number 24, Granulicatella
+2026-06-01 11:41:07.886319 INFO::Fitting model to feature number 25, Anoxybacillus
+2026-06-01 11:41:07.887423 INFO::Fitting model to feature number 26, Mobilicoccus
+2026-06-01 11:41:07.888516 INFO::Fitting model to feature number 27, Chroococcidiopsaceae
+2026-06-01 11:41:07.889497 INFO::Fitting model to feature number 28, Haemophilus
+2026-06-01 11:41:07.890458 INFO::Fitting model to feature number 29, Klebsiella
+2026-06-01 11:41:07.891455 INFO::Fitting model to feature number 30, Anaerococcus
+2026-06-01 11:41:07.892531 INFO::Fitting model to feature number 31, Thermus
+2026-06-01 11:41:07.893567 INFO::Fitting model to feature number 32, Frondihabitans
+2026-06-01 11:41:07.894599 INFO::Fitting model to feature number 33, Hafnia.Obesumbacterium
+2026-06-01 11:41:07.895766 INFO::Fitting model to feature number 34, Curtobacterium
+2026-06-01 11:41:07.897229 INFO::Fitting model to feature number 35, Citrobacter
+2026-06-01 11:41:07.899324 INFO::Fitting model to feature number 36, Ephemeroptericola
+2026-06-01 11:41:07.900544 INFO::Fitting model to feature number 37, Geobacillus
+2026-06-01 11:41:07.901569 INFO::Fitting model to feature number 38, Pseudomonas
+2026-06-01 11:41:07.902561 INFO::Fitting model to feature number 39, Tetragenococcus
+2026-06-01 11:41:07.903541 INFO::Fitting model to feature number 40, Bifidobacterium
+2026-06-01 11:41:07.904475 INFO::Fitting model to feature number 41, Psychrobacter
+2026-06-01 11:41:07.905447 INFO::Fitting model to feature number 42, Lachnoclostridium
+2026-06-01 11:41:07.906455 INFO::Fitting model to feature number 43, Exiguobacterium
+2026-06-01 11:41:07.907473 INFO::Fitting model to feature number 44, Staphylococcus
+2026-06-01 11:41:07.908485 INFO::Fitting model to feature number 45, Segatella
+2026-06-01 11:41:07.909564 INFO::Fitting model to feature number 46, Flavobacterium
+2026-06-01 11:41:07.91058 INFO::Fitting model to feature number 47, Marisediminicola
+2026-06-01 11:41:07.911636 INFO::Fitting model to feature number 48, Clostridium
+2026-06-01 11:41:07.912967 INFO::Fitting model to feature number 49, Cetobacterium
+2026-06-01 11:41:07.914386 INFO::Fitting model to feature number 50, Oxalobacteraceae
+2026-06-01 11:41:07.924033 INFO::Fitting model to feature number 51, Rathayibacter
+2026-06-01 11:41:07.925116 INFO::Fitting model to feature number 52, Akkermansia
+2026-06-01 11:41:07.92616 INFO::Fitting model to feature number 53, Peptoniphilus
+2026-06-01 11:41:07.927141 INFO::Fitting model to feature number 54, Sphingobacterium
+2026-06-01 11:41:07.928122 INFO::Fitting model to feature number 55, Malacoplasma
+2026-06-01 11:41:07.929533 INFO::Fitting model to feature number 56, Lawsonella
+2026-06-01 11:41:07.931162 INFO::Fitting model to feature number 57, Carnobacterium
+2026-06-01 11:41:07.93268 INFO::Fitting model to feature number 58, Serratia
+2026-06-01 11:41:07.933713 INFO::Fitting model to feature number 59, Paracoccaceae
+2026-06-01 11:41:07.934715 INFO::Fitting model to feature number 60, Cloacibacterium
+2026-06-01 11:41:07.935706 INFO::Fitting model to feature number 61, Pedobacter
+2026-06-01 11:41:07.936698 INFO::Fitting model to feature number 62, Allomeiothermus
+2026-06-01 11:41:07.937698 INFO::Fitting model to feature number 63, Mycobacterium
+2026-06-01 11:41:07.93866 INFO::Fitting model to feature number 64, Parageobacillus
+2026-06-01 11:41:07.939622 INFO::Fitting model to feature number 65, Methylorubrum
+2026-06-01 11:41:07.94057 INFO::Fitting model to feature number 66, Roseomonas
+2026-06-01 11:41:07.941529 INFO::Fitting model to feature number 67, Enterococcus
+2026-06-01 11:41:07.942615 INFO::Fitting model to feature number 68, Bacteroides
+2026-06-01 11:41:07.943632 INFO::Fitting model to feature number 69, Alistipes
+2026-06-01 11:41:07.944618 INFO::Fitting model to feature number 70, Sphingomonas
+2026-06-01 11:41:07.945692 INFO::Fitting model to feature number 71, Arthrobacter
+2026-06-01 11:41:07.947211 INFO::Fitting model to feature number 72, Plesiomonas
+2026-06-01 11:41:07.948781 INFO::Fitting model to feature number 73, Knoellia
+2026-06-01 11:41:07.949914 INFO::Fitting model to feature number 74, Comamonadaceae
+2026-06-01 11:41:07.950897 INFO::Fitting model to feature number 75, Dolosigranulum
+2026-06-01 11:41:07.951988 INFO::Fitting model to feature number 76, Rhizobiaceae
+2026-06-01 11:41:07.952986 INFO::Fitting model to feature number 77, Corynebacterium
+2026-06-01 11:41:07.954397 INFO::Fitting model to feature number 78, Blastococcus
+2026-06-01 11:41:07.955587 INFO::Fitting model to feature number 79, Caldicellulosiruptor
+2026-06-01 11:41:07.956805 INFO::Fitting model to feature number 80, Undibacterium
+2026-06-01 11:41:07.958163 INFO::Fitting model to feature number 81, Kocuria
+2026-06-01 11:41:07.959332 INFO::Fitting model to feature number 82, Bacillus
+2026-06-01 11:41:07.960492 INFO::Fitting model to feature number 83, Blautia
+2026-06-01 11:41:07.961488 INFO::Fitting model to feature number 84, Nakamurella
+2026-06-01 11:41:07.962558 INFO::Fitting model to feature number 85, Acinetobacter
+2026-06-01 11:41:07.963895 INFO::Fitting model to feature number 86, Lautropia
+2026-06-01 11:41:07.965591 INFO::Fitting model to feature number 87, Rhodoferax
+2026-06-01 11:41:07.966689 INFO::Fitting model to feature number 88, Limnohabitans
+2026-06-01 11:41:07.967735 INFO::Fitting model to feature number 89, Comamonas
+2026-06-01 11:41:07.968815 INFO::Fitting model to feature number 90, Lactococcus
+2026-06-01 11:41:07.969813 INFO::Fitting model to feature number 91, Patulibacter
+2026-06-01 11:41:07.970784 INFO::Fitting model to feature number 92, Escherichia.Shigella
+2026-06-01 11:41:07.971744 INFO::Fitting model to feature number 93, Bradyrhizobium
+2026-06-01 11:41:07.972708 INFO::Fitting model to feature number 94, Rothia
+2026-06-01 11:41:07.973685 INFO::Fitting model to feature number 95, Muribaculaceae
+2026-06-01 11:41:07.974666 INFO::Fitting model to feature number 96, Turicibacter
+2026-06-01 11:41:07.975729 INFO::Fitting model to feature number 97, Enhydrobacter
+2026-06-01 11:41:07.976789 INFO::Fitting model to feature number 98, Aggregatibacter
+2026-06-01 11:41:07.977822 INFO::Fitting model to feature number 99, Dubosiella
+2026-06-01 11:41:07.979011 INFO::Fitting model to feature number 100, Neisseria
+2026-06-01 11:41:07.980349 INFO::Fitting model to feature number 101, Ramlibacter
+2026-06-01 11:41:07.98191 INFO::Fitting model to feature number 102, Paracoccus
+2026-06-01 11:41:07.983061 INFO::Fitting model to feature number 103, Faecalibacterium
+2026-06-01 11:41:07.984059 INFO::Fitting model to feature number 104, Iodobacter
+2026-06-01 11:41:07.98504 INFO::Fitting model to feature number 105, Chryseobacterium
+2026-06-01 11:41:07.98614 INFO::Fitting model to feature number 106, Mesomycoplasma
+2026-06-01 11:41:07.992132 INFO::Counting total values for each feature
+2026-06-01 11:41:07.994447 INFO::Writing filtered data to file /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/B_genus_epithelium_remaining/features/filtered_data.tsv
+2026-06-01 11:41:07.998254 INFO::Writing filtered, normalized data to file /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/B_genus_epithelium_remaining/features/filtered_data_norm.tsv
+2026-06-01 11:41:08.001928 INFO::Writing filtered, normalized, transformed data to file /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/B_genus_epithelium_remaining/features/filtered_data_norm_transformed.tsv
+2026-06-01 11:41:08.005313 WARNING::Deleting existing residuals file: /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/B_genus_epithelium_remaining/fits/residuals.rds
+2026-06-01 11:41:08.006116 INFO::Writing residuals to file /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/B_genus_epithelium_remaining/fits/residuals.rds
+2026-06-01 11:41:08.007522 WARNING::Deleting existing fitted file: /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/B_genus_epithelium_remaining/fits/fitted.rds
+2026-06-01 11:41:08.008128 INFO::Writing fitted values to file /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/B_genus_epithelium_remaining/fits/fitted.rds
+2026-06-01 11:41:08.009129 INFO::Writing all results to file (ordered by increasing q-values): /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/B_genus_epithelium_remaining/all_results.tsv
+2026-06-01 11:41:08.010308 INFO::Writing the significant results (those which are less than or equal to the threshold of 0.250000 ) to file (ordered by increasing q-values): /Users/andrew/claude/SMB/salmon_microbiome/04_00_MAASLIN2/maaslin2_output/B_genus_epithelium_remaining/significant_results.tsv
+2026-06-01 11:41:08.012508 WARNING::Input is a matrix, passing through as.data.frame() .

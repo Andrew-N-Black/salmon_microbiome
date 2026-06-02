@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='576.00pt' height='432.00pt' viewBox='0 0 576.00 432.00'>
+<g class='svglite'>
+<defs>
+  <style type='text/css'><![CDATA[
+    .svglite line, .svglite polyline, .svglite polygon, .svglite path, .svglite rect, .svglite circle {
+      fill: none;
+      stroke: #000000;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10.00;
+    }
+    .svglite text {
+      white-space: pre;
+    }
+    .svglite g.glyphgroup path {
+      fill: inherit;
+      stroke: none;
+    }
+  ]]></style>
+</defs>
+<rect width='100%' height='100%' style='stroke: none; fill: #FFFFFF;'/>
+<defs>
+  <clipPath id='cpMC4wMHw1NzYuMDB8MC4wMHw0MzIuMDA='>
+    <rect x='0.00' y='0.00' width='576.00' height='432.00' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMC4wMHw1NzYuMDB8MC4wMHw0MzIuMDA=)'>
+<rect x='0.00' y='0.00' width='576.00' height='432.00' style='stroke-width: 1.16; stroke: #FFFFFF; fill: #FFFFFF;' />
+</g>
+<defs>
+  <clipPath id='cpODkuMTJ8NTcwLjAyfDQyLjM4fDM5Ny42NQ=='>
+    <rect x='89.12' y='42.38' width='480.90' height='355.28' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpODkuMTJ8NTcwLjAyfDQyLjM4fDM5Ny42NQ==)'>
+<rect x='89.12' y='42.38' width='480.90' height='355.28' style='stroke-width: 1.16; stroke: none; fill: #FFFFFF;' />
+<line x1='548.16' y1='397.65' x2='548.16' y2='42.38' style='stroke-width: 1.16; stroke: #999999; stroke-dasharray: 6.21,6.21; stroke-linecap: butt;' />
+<polyline points='315.21,359.59 315.21,334.21 ' style='stroke-width: 1.16; stroke: #8B2E2E; stroke-opacity: 0.70; stroke-linecap: butt;' />
+<polyline points='315.21,346.90 110.98,346.90 ' style='stroke-width: 1.16; stroke: #8B2E2E; stroke-opacity: 0.70; stroke-linecap: butt;' />
+<polyline points='110.98,359.59 110.98,334.21 ' style='stroke-width: 1.16; stroke: #8B2E2E; stroke-opacity: 0.70; stroke-linecap: butt;' />
+<polyline points='344.74,275.00 344.74,249.62 ' style='stroke-width: 1.16; stroke: #8B2E2E; stroke-opacity: 0.70; stroke-linecap: butt;' />
+<polyline points='344.74,262.31 180.35,262.31 ' style='stroke-width: 1.16; stroke: #8B2E2E; stroke-opacity: 0.70; stroke-linecap: butt;' />
+<polyline points='180.35,275.00 180.35,249.62 ' style='stroke-width: 1.16; stroke: #8B2E2E; stroke-opacity: 0.70; stroke-linecap: butt;' />
+<polyline points='355.00,190.41 355.00,165.03 ' style='stroke-width: 1.16; stroke: #8B2E2E; stroke-opacity: 0.70; stroke-linecap: butt;' />
+<polyline points='355.00,177.72 210.63,177.72 ' style='stroke-width: 1.16; stroke: #8B2E2E; stroke-opacity: 0.70; stroke-linecap: butt;' />
+<polyline points='210.63,190.41 210.63,165.03 ' style='stroke-width: 1.16; stroke: #8B2E2E; stroke-opacity: 0.70; stroke-linecap: butt;' />
+<polyline points='453.11,105.82 453.11,80.44 ' style='stroke-width: 1.16; stroke: #8B2E2E; stroke-opacity: 0.70; stroke-linecap: butt;' />
+<polyline points='453.11,93.13 348.49,93.13 ' style='stroke-width: 1.16; stroke: #8B2E2E; stroke-opacity: 0.70; stroke-linecap: butt;' />
+<polyline points='348.49,105.82 348.49,80.44 ' style='stroke-width: 1.16; stroke: #8B2E2E; stroke-opacity: 0.70; stroke-linecap: butt;' />
+<circle cx='213.10' cy='346.90' r='3.59' style='stroke-width: 0.77; stroke: #8B2E2E; fill: #8B2E2E;' />
+<circle cx='262.55' cy='262.31' r='3.59' style='stroke-width: 0.77; stroke: #8B2E2E; fill: #8B2E2E;' />
+<circle cx='282.81' cy='177.72' r='3.59' style='stroke-width: 0.77; stroke: #8B2E2E; fill: #8B2E2E;' />
+<circle cx='400.80' cy='93.13' r='3.59' style='stroke-width: 0.77; stroke: #8B2E2E; fill: #8B2E2E;' />
+</g>
+<g clip-path='url(#cpMC4wMHw1NzYuMDB8MC4wMHw0MzIuMDA=)'>
+<polyline points='89.12,397.65 89.12,42.38 ' style='stroke-width: 1.16; stroke-linecap: square;' />
+<text x='83.74' y='350.33' text-anchor='end' style='font-size: 9.60px; font-family: "Arial";' textLength='77.77px' lengthAdjust='spacingAndGlyphs'>Chryseobacterium</text>
+<text x='83.74' y='265.74' text-anchor='end' style='font-size: 9.60px; font-family: "Arial";' textLength='50.62px' lengthAdjust='spacingAndGlyphs'>Patulibacter</text>
+<text x='83.74' y='181.15' text-anchor='end' style='font-size: 9.60px; font-family: "Arial";' textLength='63.39px' lengthAdjust='spacingAndGlyphs'>Frondihabitans</text>
+<text x='83.74' y='96.56' text-anchor='end' style='font-size: 9.60px; font-family: "Arial";' textLength='63.91px' lengthAdjust='spacingAndGlyphs'>Methylorubrum</text>
+<polyline points='86.13,346.90 89.12,346.90 ' style='stroke-width: 1.16; stroke-linecap: butt;' />
+<polyline points='86.13,262.31 89.12,262.31 ' style='stroke-width: 1.16; stroke-linecap: butt;' />
+<polyline points='86.13,177.72 89.12,177.72 ' style='stroke-width: 1.16; stroke-linecap: butt;' />
+<polyline points='86.13,93.13 89.12,93.13 ' style='stroke-width: 1.16; stroke-linecap: butt;' />
+<polyline points='89.12,397.65 570.02,397.65 ' style='stroke-width: 1.16; stroke-linecap: square;' />
+<polyline points='166.86,400.64 166.86,397.65 ' style='stroke-width: 1.16; stroke-linecap: butt;' />
+<polyline points='293.96,400.64 293.96,397.65 ' style='stroke-width: 1.16; stroke-linecap: butt;' />
+<polyline points='421.06,400.64 421.06,397.65 ' style='stroke-width: 1.16; stroke-linecap: butt;' />
+<polyline points='548.16,400.64 548.16,397.65 ' style='stroke-width: 1.16; stroke-linecap: butt;' />
+<text x='166.86' y='409.90' text-anchor='middle' style='font-size: 9.60px; font-family: "Arial";' textLength='8.52px' lengthAdjust='spacingAndGlyphs'>-3</text>
+<text x='293.96' y='409.90' text-anchor='middle' style='font-size: 9.60px; font-family: "Arial";' textLength='8.52px' lengthAdjust='spacingAndGlyphs'>-2</text>
+<text x='421.06' y='409.90' text-anchor='middle' style='font-size: 9.60px; font-family: "Arial";' textLength='8.52px' lengthAdjust='spacingAndGlyphs'>-1</text>
+<text x='548.16' y='409.90' text-anchor='middle' style='font-size: 9.60px; font-family: "Arial";' textLength='5.33px' lengthAdjust='spacingAndGlyphs'>0</text>
+<text x='329.57' y='423.50' text-anchor='middle' style='font-size: 12.00px; font-family: "Arial";' textLength='127.16px' lengthAdjust='spacingAndGlyphs'>Coefficient (CLR space)</text>
+<text x='329.57' y='33.88' text-anchor='middle' style='font-size: 12.00px;fill: #7F7F7F; font-family: "Arial";' textLength='163.17px' lengthAdjust='spacingAndGlyphs'>q &lt; 0.25 | n = 4 significant taxa</text>
+<text x='329.57' y='16.28' text-anchor='middle' style='font-size: 14.40px; font-weight: bold; font-family: "Arial";' textLength='315.66px' lengthAdjust='spacingAndGlyphs'>Taxa associated with enteritis grade (enteritis)</text>
+</g>
+</g>
+</svg>

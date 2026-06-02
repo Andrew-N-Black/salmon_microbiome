@@ -31,10 +31,6 @@ ps <- prune_samples(!(sample_names(ps_MC) %in% sample_to_remove), ps_MC)
 #sample_data() Sample Data:       [ 60 samples by 17 sample variables ]
 #tax_table()   Taxonomy Table:    [ 3726 taxa by 7 taxonomic ranks ]
 
-#Add read counts / sample for downstream assessment
-read_counts <- sample_sums(hr_phyloseq)
-sample_data(hr_phyloseq)$TotalReads <- sample_sums(hr_phyloseq)
-
 #Parse phyloseq object for downstream analyses
 tax = as.data.frame(phyloseqCompanion::taxa.matrix(tax_table(ps)))
 otu = as.data.frame(phyloseqCompanion::otu.matrix(otu_table(ps)))
@@ -83,6 +79,10 @@ for(i in 1:N){ #Rename each colname. Inefficient, but thats ok.
 hr_phyloseq = phyloseq(otu_table(new_otu, taxa_are_rows = FALSE), tax_table(as.matrix(new_tax)), sample_data(meta))
 hr_phyloseq
 taxa_names(hr_phyloseq)
+
+#Add read counts / sample for downstream assessment
+read_counts <- sample_sums(hr_phyloseq)
+sample_data(hr_phyloseq)$TotalReads <- sample_sums(hr_phyloseq)
 
 # Set filtering thresholds
 max_relab_threshold  <- 0.001   # 0.1% in at least one sample (Bokulich et al. 2013)
@@ -136,6 +136,9 @@ ps.tax.filtered <- prune_taxa(keep_taxa, hr_phyloseq)
 #sample_data() Sample Data:       [ 60 samples by 17 sample variables ]
 #tax_table()   Taxonomy Table:    [ 324 taxa by 7 taxonomic ranks ]
 
+#Remove thermis bacteria
+badASV<-"ASV2481"
+ps.tax.filtered <- prune_taxa(!(taxa_names(ps.tax.filtered) %in% badASV), ps.tax.filtered)
 
 #Make a second phyloseq containing rarefied counts
 ps_rarefied = rarefy_even_depth(ps.tax.filtered,rngseed = 123,replace=FALSE)#Add replace=FALSE AND recheck collectors curve

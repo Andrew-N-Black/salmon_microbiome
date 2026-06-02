@@ -1,0 +1,93 @@
+# 04_00 Taxon Associations — Run Results
+# Paste this file into Claude to continue downstream analysis.
+# Generated: 2026-06-01 11:41:13.669176
+
+## Settings
+- Normalisation: NONE
+- Transform: CLR (pre-applied)
+- Significance threshold (primary): q < 0.25
+- Significance threshold (strict):  q < 0.05
+- Level: genus (primary), ASV (supplementary)
+
+## Dataset
+- Input: ps.tax.filtered from 01_phyloseq.R, ASEnum == 'positive'
+- Samples:                             40
+- Samples with cshasta:                40
+- Samples with epithelium_remaining:   40
+- Samples with hatchery:               40
+- Samples with enteritis:              40
+- Samples with es (E. schreckii):      40
+- Genera tested:                       163
+- ASVs tested:                         323
+
+## Primary model results (genus level)
+
+### Model A: cshasta
+- Significant genera (q < 0.25): 0
+- Significant genera (q < 0.05): 0
+- Top 5 by q-value:
+# A tibble: 0 × 5
+# ℹ 5 variables: feature <chr>, coef <dbl>, stderr <dbl>, pval <dbl>,
+#   qval <dbl>
+
+### Model B: epithelium_remaining
+- Significant genera (q < 0.25): 0
+- Significant genera (q < 0.05): 0
+- Top 5 by q-value:
+# A tibble: 0 × 5
+# ℹ 5 variables: feature <chr>, coef <dbl>, stderr <dbl>, pval <dbl>,
+#   qval <dbl>
+
+### Model C: hatchery
+- Significant genera (q < 0.25): 46
+- Significant genera (q < 0.05): 25
+- Top 5 by q-value:
+# A tibble: 5 × 5
+  feature            coef stderr        pval      qval
+  <chr>             <dbl>  <dbl>       <dbl>     <dbl>
+1 Iodobacter         6.77  1.04  0.000000137 0.0000436
+2 Ephemeroptericola  4.00  0.729 0.00000347  0.000384 
+3 Carnobacterium     5.91  1.08  0.00000362  0.000384 
+4 Serratia           5.16  1.08  0.0000302   0.00240  
+5 Enterococcus       4.36  1.03  0.000159    0.0101   
+
+### Model D: enteritis
+- Significant genera (q < 0.25): 4
+- Significant genera (q < 0.05): 0
+- Top 5 by q-value:
+# A tibble: 4 × 5
+  feature           coef stderr     pval   qval
+  <chr>            <dbl>  <dbl>    <dbl>  <dbl>
+1 Frondihabitans   -2.09  0.568 0.000729 0.0686
+2 Patulibacter     -2.25  0.647 0.00129  0.0686
+3 Chryseobacterium -2.64  0.803 0.00222  0.0784
+4 Methylorubrum    -1.16  0.412 0.00765  0.203 
+
+### Model E: es (Enterocytozoon schreckii)
+- Significant genera (q < 0.25): 33
+- Significant genera (q < 0.05): 0
+- Top 5 by q-value:
+# A tibble: 5 × 5
+  feature            coef stderr    pval   qval
+  <chr>             <dbl>  <dbl>   <dbl>  <dbl>
+1 Massilia          1.19   0.366 0.00241 0.0704
+2 Citrobacter      -0.754  0.235 0.00266 0.0704
+3 Sphingobacterium  0.837  0.254 0.00216 0.0704
+4 Lawsonella        0.966  0.291 0.00197 0.0704
+5 Curtobacterium    0.993  0.326 0.00418 0.0739
+
+## Cross-predictor overlap (q < 0.25)
+- cshasta only:              0
+- epithelium_remaining only: 0
+- hatchery only:             22
+- enteritis only:            0
+- E. schreckii only:         17
+- All five predictors:       0
+
+## Key files
+- 00_genus_label_key.csv                : genus labels to full taxonomy
+- 01_maaslin2_primary_genus.csv         : primary model results (genus)
+- 01_maaslin2_primary_asv.csv           : primary model results (ASV)
+- 04_significant_taxa_overlap.csv       : overlap table for upset plot
+- maaslin2_output/                      : full MaAsLin2 output per model
+
