@@ -6,6 +6,7 @@ library(tibble)
 library(dplyr)
 library(reshape2)
 library(ape)
+library(vegan)
 
 ###Atchison distance PCOA#####
 #Convert to center log transformed matrix
