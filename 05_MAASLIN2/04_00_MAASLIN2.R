@@ -207,6 +207,8 @@ cat("\n--- 1. LOAD DATA AND PREPARE INPUTS ---\n")
 # to human-readable IDs (ASV1…ASVN), and applies prevalence/abundance filters.
 source(here("salmon_microbiome/02_BioinformaticProcessingFiltering/01_phyloseq.R"))
 
+# Restrict to ASE-positive (diseased) fish — parasite and pathology variation
+# is most interpretable within this subset where ASE has been confirmed
 ps <- subset_samples(ps.tax.filtered, ASEnum == "positive")
 cat("Using ps.tax.filtered from 01_phyloseq.R, subsetted to ASEnum == 'positive'\n")
 cat("Samples:", nsamples(ps), "\n")
@@ -215,12 +217,12 @@ cat("Taxa:   ", ntaxa(ps),    "\n")
 # Metadata
 meta <- data.frame(sample_data(ps), check.names = FALSE)
 
-# Coerce predictor types
-meta$hatchery             <- as.character(meta$hatchery)
-meta$enteritis            <- as.character(meta$enteritis)
-meta$es                   <- as.numeric(meta$es)
-meta$epithelium_remaining <- as.numeric(meta$epithelium_remaining)
-meta$cshasta              <- as.numeric(meta$cshasta)
+# Coerce predictor types for MaAsLin2 (numeric for continuous, character for categorical)
+meta$hatchery             <- as.character(meta$hatchery)   # categorical; MaAsLin2 will dummy-code
+meta$enteritis            <- as.character(meta$enteritis)  # ordinal treated as categorical
+meta$es                   <- as.numeric(meta$es)           # treated as continuous ordinal
+meta$epithelium_remaining <- as.numeric(meta$epithelium_remaining)  # continuous (0–100%)
+meta$cshasta              <- as.numeric(meta$cshasta)      # treated as continuous ordinal
 
 cat("\nMissingness in key predictors:\n")
 cat("cshasta missing:              ", sum(is.na(meta$cshasta)), "\n")
@@ -236,7 +238,7 @@ cat("es missing:                   ", sum(is.na(meta$es)), "\n")
 # -----------------------------------------------------------------------------
 
 asv_mat <- get_otu_samples_x_taxa(ps)   # samples x ASVs
-colnames(asv_mat) <- make.names(colnames(asv_mat))
+colnames(asv_mat) <- make.names(colnames(asv_mat))  # sanitize names for R/MaAsLin2 compatibility
 cat("\nASV feature table:", nrow(asv_mat), "samples x", ncol(asv_mat), "ASVs\n")
 
 
@@ -248,15 +250,16 @@ cat("\nASV feature table:", nrow(asv_mat), "samples x", ncol(asv_mat), "ASVs\n")
 
 cat("\n--- 1.2 Genus-level agglomeration ---\n")
 
+# tax_glom merges all ASVs sharing the same genus; NArm=FALSE retains unclassified genera
 ps_genus <- tax_glom(ps, taxrank = "Genus", NArm = FALSE)
 
 tax_genus_df <- as.data.frame(tax_table(ps_genus))
-genus_labels <- best_tax_label(tax_genus_df)
-genus_labels <- make.unique(genus_labels, sep = "_")
+genus_labels <- best_tax_label(tax_genus_df)   # use finest resolved taxonomy as label
+genus_labels <- make.unique(genus_labels, sep = "_")  # append _1, _2 if duplicate genus names
 taxa_names(ps_genus) <- genus_labels
 
 genus_mat <- get_otu_samples_x_taxa(ps_genus)   # samples x genera
-colnames(genus_mat) <- make.names(colnames(genus_mat))
+colnames(genus_mat) <- make.names(colnames(genus_mat))  # sanitize names
 
 cat("Genus feature table:", nrow(genus_mat), "samples x", ncol(genus_mat), "genera\n")
 
@@ -355,7 +358,7 @@ res_c_genus <- run_maaslin(
   fixed_effects = "hatchery",
   output_dir    = dir_maas,
   model_name    = "C_genus_hatchery",
-  reference     = "hatchery,round_butte"
+  reference     = "hatchery,round_butte"  # round_butte chosen as reference; all other hatcheries compared to it
 )
 
 res_c_asv <- run_maaslin(
@@ -364,7 +367,7 @@ res_c_asv <- run_maaslin(
   fixed_effects = "hatchery",
   output_dir    = dir_maas,
   model_name    = "C_asv_hatchery",
-  reference     = "hatchery,round_butte"
+  reference     = "hatchery,round_butte"  # same reference as genus model for consistency
 )
 
 cat("Model C genus — significant taxa (q <", Q_PRIMARY, "):",
@@ -637,16 +640,18 @@ cat("\n-- 3.3 Heatmap --\n")
 
 if (length(all_sig) > 0) {
 
+  # Order samples by enteritis grade (E0 -> E3) to reveal gradient-related patterns
   meta_ordered <- meta %>%
     filter(!is.na(enteritis)) %>%
     arrange(enteritis)
 
   sample_order <- rownames(meta_ordered)
 
+  # CLR-transform the genus matrix for consistent display with MaAsLin2 model space
   genus_clr <- clr_transform(genus_mat)
 
   heat_mat <- genus_clr[sample_order, all_sig, drop = FALSE]
-  heat_mat <- t(heat_mat)   # taxa x samples for heatmap
+  heat_mat <- t(heat_mat)   # transpose to taxa x samples for ComplexHeatmap
 
   enteritis_levels <- sort(unique(meta_ordered$enteritis[!is.na(meta_ordered$enteritis)]))
   col_anno <- HeatmapAnnotation(

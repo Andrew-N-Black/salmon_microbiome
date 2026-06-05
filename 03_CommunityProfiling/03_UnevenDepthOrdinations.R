@@ -1,3 +1,17 @@
+# =============================================================================
+# Purpose:  Supplementary beta diversity analysis using rarefied data and
+#           alternative distance metrics (Jaccard, Bray-Curtis). These are
+#           presented in supplementary figures to contrast with the primary
+#           Aitchison-based analysis in 06_Beta.R, which does not require
+#           rarefaction and is preferred for compositional microbiome data.
+# Inputs:   ps_rarefied — rarefied phyloseq (from 01_phyloseq.R)
+#           metadata    — sample metadata data frame
+# Outputs:  ~/Figure_S2a.svg — Jaccard PCoA by hatchery
+#           ~/Figure_S2b.svg — Jaccard betadisper by hatchery
+#           ~/Figure_S2c.svg — Bray-Curtis PCoA by hatchery
+#           ~/Figure_S2d.svg — Bray-Curtis betadisper by hatchery
+# =============================================================================
+
 library(phyloseq)
 library(qiime2R)
 library(microViz)
@@ -8,23 +22,21 @@ library(reshape2)
 library(ape)
 
 
-####################################
-################ JACCARD ###########
-####################################
+# --- JACCARD DISTANCE ---
 
-#==================================#
-#----------ORDINATION--------------#
-#==================================#
-p<-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "PCoA",distance="jaccard")) 
+# --- Jaccard PCoA ordination ---
+p<-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "PCoA",distance="jaccard"))
 p$data$hatchery <- factor(p$data$hatchery, levels = desired_facet_order)
+# 95% normal ellipses per hatchery; shape = ASE status
 p +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 4,aes(shape=ASE,color=hatchery,fill=hatchery)) +stat_ellipse(aes(group = hatchery,color=hatchery), type = "norm", level = 0.95, linewidth = 0.8) +labs(title="Jaccard") +
     theme_classic()+scale_fill_brewer(palette = "Dark2")+scale_color_brewer(palette = "Dark2")
 ggsave("~/Figure_S2a.svg", width = 8, height = 5)
 
 
-#==================================#
-#----------Betadispersal-----------#
-#==================================#
+# --- Jaccard betadispersal (homogeneity of group dispersions) ---
+# betadisper tests whether within-group spread differs across hatcheries.
+# Significant betadisper violates the assumption of PERMANOVA; results reported
+# alongside PERMANOVA to aid interpretation.
 #Plot betadisp distances for jaccard, by Hatchery
 dist_matrixJ <- phyloseq::distance(ps_rarefied, method = "jaccard")
 dispersionJ<-betadisper(dist_matrixJ,group=ps_rarefied@sam_data$hatchery)
@@ -36,16 +48,17 @@ permutest(dispersionJ)
 #Residuals 54 2.03067 0.037605  
 
 
-#Plot centroid distance among hatcheries
-p <- cbind(distance = as.numeric(dispersionJ$distances),hatchery = metadata$hatchery,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance)) 
+# Extract per-sample distance to hatchery centroid for plotting
+p <- cbind(distance = as.numeric(dispersionJ$distances),hatchery = metadata$hatchery,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance))
 desired_facet_order <- c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")
 p$hatchery <- factor(p$hatchery, levels = desired_facet_order)
 
-ggplot(p,aes(hatchery, distance,fill=hatchery)) + 
+ggplot(p,aes(hatchery, distance,fill=hatchery)) +
     geom_boxplot() +
     theme_classic(base_size = 12)+xlab("Hatchery")+ylab("Distance from centroid")+scale_fill_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())+geom_jitter(aes(x=hatchery, y=distance), width=0.1)
 ggsave("~/Figure_S2b.svg", width = 8, height = 5)
 
+# Betadispersal by ASE (tests whether ASE-positive fish have higher community variability)
 #Plot betadisp distances for jaccard, by ASE
 dispersionJ<-betadisper(dist_matrixJ,group=ps_rarefied@sam_data$ASE)
 permutest(dispersionJ)
@@ -54,11 +67,9 @@ permutest(dispersionJ)
 #Groups     1 0.34729 0.34729 12.422    999  0.002
 #Residuals 58 1.62158 0.02796  
 
-#==================================#
-#----------Permanova--------------#
-#==================================#
-
-#Permanova of Jaccard, by Hatchery
+# --- Jaccard PERMANOVA ---
+# adonis2 tests whether community composition differs by group.
+# Permanova of Jaccard, by Hatchery
 adonis2(dist_matrixJ ~ hatchery, data = metadata)
 
 #adonis2(formula = dist_matrixJ ~ hatchery, data = metadata)
@@ -79,9 +90,9 @@ adonis2(dist_matrixJ ~ ASE, data = metadata)
 #Residual 58  20.2742 0.84049                  
 #Total    59  24.1220 1.00000  
 
-#==================================#
-#----------ADONIS------------------#
-#==================================#
+# --- Jaccard ANOSIM ---
+# ANOSIM R statistic: rank-based measure of between- vs within-group dissimilarity.
+# R near 1 = complete separation; R near 0 = no separation.
 #Test by ASE
 #Format before analysis of similarity
 pc = ps_rarefied@otu_table
@@ -91,8 +102,8 @@ m_com = as.matrix(pc)
 #Anosim by ASE
 anosim(m_com, metadata$ASE, distance = "jaccard", permutations = 9999)
 
-#ANOSIM statistic R: 0.577 
-#      Significance: 1e-04 
+#ANOSIM statistic R: 0.577
+#      Significance: 1e-04
 
 #Anosim by hatchery
 anosim(x = m_com, grouping = metadata$hatchery, permutations = 9999, distance = "jaccard")
@@ -101,24 +112,18 @@ anosim(x = m_com, grouping = metadata$hatchery, permutations = 9999, distance = 
 
 
 
-#################################
-################ BRAY ###########
-#################################
-#==================================#
-#----------ORDINATION--------------#
-#==================================#
+# --- BRAY-CURTIS DISTANCE ---
 
+# --- Bray-Curtis PCoA ordination ---
 #By hatchery
-p<-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "PCoA",distance="bray")) 
+p<-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "PCoA",distance="bray"))
 p$data$hatchery <- factor(p$data$hatchery, levels = desired_facet_order)
 p +geom_vline(xintercept = 0, linetype = "dashed", color = "grey50")+geom_hline(yintercept = 0, linetype = "dashed", color = "grey50")+ geom_point(size = 4,aes(shape=ASE,color=hatchery,fill=hatchery)) +stat_ellipse(aes(group = hatchery,color=hatchery), type = "norm", level = 0.95, linewidth = 0.8) +labs(title="Bray Curtis") +
 theme_classic()+scale_fill_brewer(palette = "Dark2")+scale_color_brewer(palette = "Dark2")
 ggsave("~/Figure_S2c.svg", width = 8, height = 5)
 
 
-#==================================#
-#----------Betadisper--------------#
-#==================================#
+# --- Bray-Curtis betadispersal ---
 #Plot betadisp distances by sorted hatchery
 dist_matrixB <- phyloseq::distance(ps_rarefied, method = "bray")
 dispersionB<-betadisper(dist_matrixB,group=ps_rarefied@sam_data$hatchery)
@@ -130,17 +135,19 @@ permutest(dispersionB)
 #Residuals 54 2.67852 0.049602  
 
 
+# Extract per-sample distance to hatchery centroid for Bray-Curtis
 #Plot betadisp, grouped by hatchery
-p <- cbind(distance = as.numeric(dispersionB$distances),hatchery = metadata$hatchery,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance)) 
+p <- cbind(distance = as.numeric(dispersionB$distances),hatchery = metadata$hatchery,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance))
 desired_facet_order <- c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")
 p$hatchery <- factor(p$hatchery, levels = desired_facet_order)
 
 
-ggplot(p,aes(hatchery, distance,fill=hatchery)) + 
+ggplot(p,aes(hatchery, distance,fill=hatchery)) +
     geom_boxplot() +
     theme_classic(base_size = 12)+xlab("Hatchery")+ylab("Distance from centroid")+scale_fill_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())+geom_jitter(aes(x=hatchery, y=distance), width=0.1)
 ggsave("~/Figure_S2d.svg", width = 8, height = 5)
 
+# Betadispersal by ASE for Bray-Curtis
 #Plot betadisp distances by ASE
 dispersionB<-betadisper(dist_matrixB,group=ps_rarefied@sam_data$ASE)
 permutest(dispersionB)
@@ -149,15 +156,13 @@ permutest(dispersionB)
 #Groups     1 0.41767 0.41767 10.983    999  0.002
 #Residuals 58 2.20572 0.03803 
 
-#==================================#
-#----------Permanova--------------#
-#==================================#
+# --- Bray-Curtis PERMANOVA ---
 adonis2(dist_matrixB ~ hatchery, data = metadata)
 
- #        Df SumOfSqs     R2      F Pr(>F)    
+ #        Df SumOfSqs     R2      F Pr(>F)
 #Model     5   9.2155 0.4294 8.1274  0.001 ***
-#Residual 54  12.2460 0.5706                  
-#Total    59  21.4615 1.0000            
+#Residual 54  12.2460 0.5706
+#Total    59  21.4615 1.0000
 
 
 #Bray, by ASE
@@ -168,10 +173,7 @@ adonis2(dist_matrixB ~ ASE, data = metadata)
 #Residual 58  16.9826 0.79131                  
 #Total    59  21.4615 1.00000       
 
-#==================================#
-#----------ADONIS------------------#
-#==================================#
-
+# --- Bray-Curtis ANOSIM ---
 #Format before analysis of similarity
 pc = ps_rarefied@otu_table
 metadata = phyloseqCompanion::sample.data.frame(ps_rarefied)
@@ -179,7 +181,7 @@ m_com = as.matrix(pc)
 ano = anosim(m_com, metadata$ASE, distance = "bray", permutations = 9999)
 
 #Test by ASE
-anosim(x = m_com, grouping = metadata$ASE, permutations = 9999,      distance = "bray") 
+anosim(x = m_com, grouping = metadata$ASE, permutations = 9999,      distance = "bray")
 #Dissimilarity: bray 
 #ANOSIM statistic R: 0.577 
 #      Significance: 1e-04 

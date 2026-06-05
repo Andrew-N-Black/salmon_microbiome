@@ -1,4 +1,24 @@
 #!/usr/bin/env Rscript
+# =============================================================================
+# Purpose:  Test whether E. schreckii (es) and C. shasta (cshasta) parasite
+#           loads are associated with gut microbiome beta diversity in Chinook
+#           salmon. Produces parasite-colored PCoA plots, betadisper plots,
+#           and a combined multi-panel figure. Runs a combined PERMANOVA with
+#           es + cshasta + hatchery as predictors.
+# Inputs:   Raw qiime2 artifacts (re-imports and re-filters internally)
+#           Uses same filtering thresholds as 02_BioinformaticProcessingFiltering/01_phyloseq.R
+# Outputs:  ~/claude/SMB/figures/Parasite_PCoA_es.svg/.pdf/.png
+#           ~/claude/SMB/figures/Parasite_PCoA_cshasta.svg/.pdf/.png
+#           ~/claude/SMB/figures/Parasite_betadisp_es.svg/.pdf/.png
+#           ~/claude/SMB/figures/Parasite_betadisp_cshasta.svg/.pdf/.png
+#           ~/claude/SMB/figures/Parasite_combined.svg/.pdf/.png
+#           Console: betadisper permutation tests and combined PERMANOVA
+# Key parameters:
+#   es      — Enterocytozoon schreckii load (ordinal 0–2), treated as factor
+#   cshasta — Ceratonova shasta load (ordinal 0–3), treated as factor
+#   PERMANOVA model: es + cshasta + hatchery (tests parasite effect controlling for hatchery)
+#   Distance: Aitchison (CLR + Euclidean), no rarefaction
+# =============================================================================
 
 library(phyloseq)
 library(qiime2R)
@@ -9,7 +29,7 @@ library(ape)
 library(vegan)
 library(patchwork)
 
-# Output directory and dimensions
+# --- Output settings ---
 fig_dir <- "~/claude/SMB/figures"
 dir.create(path.expand(fig_dir), showWarnings = FALSE, recursive = TRUE)
 
@@ -18,7 +38,7 @@ col1_w    <- 3.5
 col1_h    <- 3.0
 base_size <- 11
 
-# Helper: save as both SVG and PDF; pass plot = obj to save a specific object
+# Helper: save a plot as SVG, PDF, and PNG in one call
 save_plot <- function(filename, width = col1_w, height = col1_h, plot = NULL) {
     base <- file.path(path.expand(fig_dir), filename)
     ggsave(paste0(base, ".svg"), plot = plot, width = width, height = height)
@@ -27,7 +47,9 @@ save_plot <- function(filename, width = col1_w, height = col1_h, plot = NULL) {
     cat("Saved:", paste0(base, ".svg/.pdf/.png\n"))
 }
 
-### Setup: build ps.tax.filtered, metadata, and D_aitch ###
+# --- Build ps.tax.filtered, metadata, and Aitchison distance ---
+# Self-contained pipeline replication: reimports qiime2 data and applies
+# standard filtering (mirrors 02_BioinformaticProcessingFiltering/01_phyloseq.R)
 phyloseq_object <- qza_to_phyloseq(
     features = "~/SMB_n61/qiime2/input/table.qza",
     taxonomy = "~/SMB_n61/qiime2/input/taxonomy.qza",
@@ -65,19 +87,21 @@ if (taxa_are_rows(ps.tax.filtered)) X <- t(X)
 X_clr   <- scale(log(X + 1), center = TRUE, scale = FALSE)
 D_aitch <- dist(X_clr, method = "euclidean")
 
-### PCoA ###
+# --- Aitchison PCoA ---
 pcoa     <- ape::pcoa(D_aitch)
 var_expl <- 100 * pcoa$values$Relative_eig[1:2]
 cat("Variance explained by first 6 axes:\n")
 print(round(100 * pcoa$values$Relative_eig[1:6], 2))
 
+# Join ordination axes with metadata for plotting
 pcoa_df <- as_tibble(pcoa$vectors[, 1:2], rownames = "sample") %>%
     left_join(
         metadata %>% rownames_to_column("sample"),
         by = "sample"
     )
 
-### 1. PCoA colored by es ###
+# --- Plot 1: PCoA colored by E. schreckii load ---
+# Filled circles (shape 21) with black outline; color/fill both show es level
 p_pcoa_es <- ggplot(pcoa_df, aes(Axis.1, Axis.2)) +
     geom_point(aes(fill = es), size = 2.5, shape = 21, color = "black", stroke = 0.4) +
     stat_ellipse(aes(color = es, group = es), type = "norm", level = 0.95, linewidth = 0.8) +
@@ -93,7 +117,7 @@ p_pcoa_es <- ggplot(pcoa_df, aes(Axis.1, Axis.2)) +
     scale_color_brewer(palette = "Dark2")
 save_plot("Parasite_PCoA_es"); print(p_pcoa_es)
 
-### 2. PCoA colored by cshasta ###
+# --- Plot 2: PCoA colored by C. shasta load ---
 p_pcoa_cshasta <- ggplot(pcoa_df, aes(Axis.1, Axis.2)) +
     geom_point(aes(fill = cshasta), size = 2.5, shape = 21, color = "black", stroke = 0.4) +
     stat_ellipse(aes(color = cshasta, group = cshasta), type = "norm", level = 0.95, linewidth = 0.8) +
@@ -109,7 +133,8 @@ p_pcoa_cshasta <- ggplot(pcoa_df, aes(Axis.1, Axis.2)) +
     scale_color_brewer(palette = "Dark2")
 save_plot("Parasite_PCoA_cshasta"); print(p_pcoa_cshasta)
 
-### 3. Betadisper by es ###
+# --- Betadisper by E. schreckii load ---
+# Tests whether within-group community spread differs by es score
 dispersion_es <- betadisper(D_aitch, group = metadata[rownames(metadata), "es"])
 cat("\nBetadisper permutation test - ES:\n")
 print(permutest(dispersion_es))
@@ -133,7 +158,8 @@ p_betadisp_es <- ggplot(df_es, aes(es, distance, fill = es)) +
     )
 save_plot("Parasite_betadisp_es"); print(p_betadisp_es)
 
-### 4. Betadisper by cshasta ###
+# --- Betadisper by C. shasta load ---
+# Tests whether within-group community spread differs by cshasta score
 dispersion_cshasta <- betadisper(D_aitch, group = metadata[rownames(metadata), "cshasta"])
 cat("\nBetadisper permutation test - C. shasta:\n")
 print(permutest(dispersion_cshasta))
@@ -157,13 +183,17 @@ p_betadisp_cshasta <- ggplot(df_cshasta, aes(cshasta, distance, fill = cshasta))
     )
 save_plot("Parasite_betadisp_cshasta"); print(p_betadisp_cshasta)
 
-### PERMANOVA ###
+# --- Combined PERMANOVA: parasite loads + hatchery ---
+# Tests joint effect of both parasites while controlling for hatchery;
+# sequential (type I) SS so term order matters — hatchery entered last
+# to test parasite signal after site effects are accounted for.
 # Ensure metadata row order matches distance matrix
 meta_ordered <- metadata[rownames(as.matrix(D_aitch)), ]
 cat("\nPERMANOVA: adonis2(D_aitch ~ es + cshasta + hatchery):\n")
 print(adonis2(D_aitch ~ es + cshasta + hatchery, data = meta_ordered, permutations = 999))
 
-### Combined figure: (a) PCoA es, (b) betadisp es, (c) PCoA cshasta, (d) betadisp cshasta ###
+# --- Combined 2x2 figure: PCoA and betadisper for both parasites ---
+# Layout: row 1 = E. schreckii (PCoA | betadisp), row 2 = C. shasta (PCoA | betadisp)
 combined <- (p_pcoa_es | p_betadisp_es) / (p_pcoa_cshasta | p_betadisp_cshasta) +
     plot_annotation(tag_levels = "a", tag_prefix = "(", tag_suffix = ")")
 

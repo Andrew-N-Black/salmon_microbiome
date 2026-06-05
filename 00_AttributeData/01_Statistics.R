@@ -1,6 +1,21 @@
+# =============================================================================
+# Purpose:  Statistical tests for host pathology variables across hatcheries
+#           and in relation to parasite loads. Supports Figure 1 and Table S1.
+# Inputs:   meta — sample metadata data frame (from filtered phyloseq object)
+#           metadata — alias used in some sections; same data
+# Outputs:  Console output (inline results pasted as comments)
+# Key parameters:
+#   Kruskal-Wallis: non-parametric test for differences across 6 hatcheries
+#   Spearman correlation: epithelium_remaining vs enteritis score
+#   Beta regression: models epithelial integrity as a proportion (0,1)
+#   CLMM: cumulative link mixed model for ordinal enteritis outcome
+#   Predictors: cshasta (0–3), es (0–2), hatchery (categorical)
+# =============================================================================
+
 library(rstatix)
 library(dplyr)
 
+# --- Kruskal-Wallis tests: pathology variables by hatchery ---
 
 ##Kruskal test for epithelium remaining by hatchery
 meta %>% kruskal_test(epithelium_remaining ~ hatchery)
@@ -13,13 +28,14 @@ meta %>% kruskal_test(epithelium_remaining ~ hatchery)
 
 ##Kruskal test for Enteritis Score by hatchery
 meta %>% kruskal_test(enteritis ~ hatchery)
-# .y.           n statistic    df             p method        
-#* <chr>     <int>     <dbl> <int>         <dbl> <chr>         
+# .y.           n statistic    df             p method
+#* <chr>     <int>     <dbl> <int>         <dbl> <chr>
 #1 enteritis    60      46.9     5 0.00000000594 Kruskal-Wallis
 
+# --- Spearman correlation: epithelial integrity vs enteritis score ---
 ## Epithelium integrity vs Enteritis score
 #First change enteritis score to numeric
- meta$enteritis <- gsub("E", "", meta$enteritis)
+ meta$enteritis <- gsub("E", "", meta$enteritis)  # strip "E" prefix (e.g. "E2" -> "2")
 meta$enteritis <- as.numeric(meta$enteritis)
 #Then run correlation
 cor.test(meta$epithelium_remaining, meta$enteritis, method = "spearman",exact=FALSE)
@@ -34,15 +50,16 @@ cor.test(meta$epithelium_remaining, meta$enteritis, method = "spearman",exact=FA
 #-0.8070252 
 
 
+# --- Kruskal-Wallis tests: parasite loads by hatchery ---
 meta %>% kruskal_test(es ~ hatchery)
-#  .y.       n statistic    df       p method        
-#* <chr> <int>     <dbl> <int>   <dbl> <chr>         
+#  .y.       n statistic    df       p method
+#* <chr> <int>     <dbl> <int>   <dbl> <chr>
 #1 es       60      21.6     5 0.00062 Kruskal-Wallis
 
 # Cshasta
 meta %>% kruskal_test(cshasta ~ hatchery)
-#  .y.         n statistic    df           p method        
-#* <chr>   <int>     <dbl> <int>       <dbl> <chr>         
+#  .y.         n statistic    df           p method
+#* <chr>   <int>     <dbl> <int>       <dbl> <chr>
 #1 cshasta    60      38.0     5 0.000000369 Kruskal-Wallis
 
 
@@ -56,28 +73,34 @@ meta %>% kruskal_test(TotalReads~hatchery)
 
 
 
+# --- Beta regression: epithelial integrity as a function of parasite load and hatchery ---
 library(dplyr)
 library(betareg)
 library(ordinal)
 
+# Build modeling data frame with ordered predictors and proportion outcome
 #Formulate a dataframe with squeezed epithelium integrity values.
 df2 <- metadata %>%
     mutate(
-        # outcome as proportion
+        # outcome as proportion (percent -> 0–1 scale)
         epithelium_prop = percent_epithelium / 100,
-        
+
         # scores as ordered predictors (0 < 1 < 2 < 3)
         Cshasta_score   = ordered(cshasta, levels = c(0, 1, 2, 3)),
         Esherekii_score = ordered(es, levels = c(0, 1, 2)),Enteritis_ordered   = ordered(enteritis, levels = c("E0", "E1", "E2", "E3")))
 
-## "Squeeze" 0 and 1 into (0,1) so beta regression is valid. Beta regression only works on 0 - 1 non-inclusive. 
-So we add a tiny think to those values which are exactly 1 or 0. 
+## "Squeeze" 0 and 1 into (0,1) so beta regression is valid. Beta regression only works on 0 - 1 non-inclusive.
+# Smithson & Verkuilen (2006) transformation: shifts boundary values by a small constant
+# proportional to 1/(2n), preserving the rank structure of the data.
+So we add a tiny think to those values which are exactly 1 or 0.
 This is an adjustment that is commonly done for beta regression which takes into account the sample size and the y value.
 
 n <- nrow(df2)
 df2 <- df2 %>%
     mutate(epithelium_prop_squeezed = (epithelium_prop * (n - 1) + 0.5) / n)
 
+# Fit beta regression: logit link; hatchery as fixed effect accounts for
+# site-level baseline differences in epithelial integrity
 #Run a betaregression
 m_beta <- betareg(
   epithelium_prop_squeezed ~ Cshasta_score + Esherekii_score + hatchery,
@@ -118,6 +141,9 @@ Pseudo R-squared: 0.9038
 Number of iterations: 42 (BFGS) + 3 (Fisher scoring) 
 
 
+# --- Cumulative link mixed model: ordinal enteritis grade ---
+# CLMM models enteritis (E0–E3) as a function of parasite loads,
+# with hatchery as a random intercept to account for site clustering
 #Enteritis###
 mm<-clmm(
     Enteritis_ordered ~ Cshasta_score + Esherekii_score + (1 | hatchery),
