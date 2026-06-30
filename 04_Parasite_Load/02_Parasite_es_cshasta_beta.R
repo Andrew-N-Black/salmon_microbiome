@@ -198,3 +198,23 @@ combined <- (p_pcoa_es | p_betadisp_es) / (p_pcoa_cshasta | p_betadisp_cshasta) 
     plot_annotation(tag_levels = "a", tag_prefix = "(", tag_suffix = ")")
 
 save_plot("Parasite_combined", plot = combined, width = col1_w * 2, height = col1_h * 2)
+
+#cshasta, controlling for hatchery
+adonis2(formula = D_aitch ~ cshasta + hatchery, data = meta_ordered, permutations = 999, by = "margin")
+         Df SumOfSqs      R2      F Pr(>F)    
+cshasta   3     4232 0.06089 1.4084  0.056 .  
+hatchery  5    11377 0.16368 2.2717  0.001 ***
+Residual 51    51086 0.73496                  
+Total    59    69509 1.00000                  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#E schreckii, controlling for hatchery
+adonis2(formula = D_aitch ~ es + hatchery, data = meta_ordered, permutations = 999, by = "margin")
+         Df SumOfSqs      R2      F Pr(>F)    
+es        2     3882 0.05584 1.9621  0.019 *  
+hatchery  5    10734 0.15443 2.1703  0.001 ***
+Residual 52    51437 0.74001                  
+Total    59    69509 1.00000                  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
