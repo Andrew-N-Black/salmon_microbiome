@@ -35,7 +35,7 @@ ggsave("~/Figure_3a.svg", width = 8, height = 5)
 # --- Kruskal-Wallis test: are read depths significantly different across hatcheries? ---
 #Statistical test for differences in read depth
 meta = phyloseqCompanion::sample.data.frame(ps.tax.filtered)
-kruskal.test(TotalReads ~ hatchery, data = metadata)
+kruskal.test(TotalReads ~ hatchery, data = meta)
 
 #Kruskal-Wallis rank sum test
 
