@@ -54,3 +54,30 @@ p1 <- p1 + theme_bw() + ylab("ASVs")
 p1
 
 ggsave("~/Figure_2b.svg", width = 8, height = 5)
+
+
+##Look at the top three ASVs,according to prevelance:
+library(microbiome)
+library(phyloseq)
+
+ps.rel <- microbiome::transform(ps, "compositional")  # relative abundance
+
+# rank all taxa by prevalence, fraction of samples that have ASV at a minimum detection threshold. 
+prev <- prevalence(ps.rel, detection = 0.005, sort = TRUE)
+head(prev)
+   ASV146   ASV3706   ASV2013   ASV1244   ASV1417    ASV634 
+0.8000000 0.5333333 0.5333333 0.5000000 0.4833333 0.3666667 
+
+
+
+tax_table(ps.tax.filtered)[c("ASV146", "ASV3706","ASV1244"), ]
+
+Taxonomy Table:     [3 taxa by 7 taxonomic ranks]:
+        Domain     Phylum           Class                 Order            
+ASV146  "Bacteria" "Pseudomonadota" "Gammaproteobacteria" "Burkholderiales"
+ASV3706 "Bacteria" "Bacillota"      "Bacilli"             "Mycoplasmatales"
+ASV1244 "Bacteria" "Bacillota"      "Bacilli"             "Lactobacillales"
+        Family             Genus             Species     
+ASV146  "Comamonadaceae"   "Paucibacter"     NA          
+ASV3706 "Mycoplasmataceae" "Mesomycoplasma"  "moatsii"   
+ASV1244 "Enterococcaceae"  "Tetragenococcus" "osmophilus"
