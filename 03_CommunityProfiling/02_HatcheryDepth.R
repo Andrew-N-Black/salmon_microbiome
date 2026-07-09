@@ -15,7 +15,7 @@ library(ggplot2)
 #Summarize read depth / sample and save in metadata
 read_counts <- sample_sums(ps.tax.filtered)
 sample_data(ps.tax.filtered)$TotalReads <- sample_sums(ps.tax.filtered)
-metadata<-sample_data(ps.tax.filtered)
+metadata = phyloseqCompanion::sample.data.frame(ps.tax.filtered)
 
 # Order hatcheries geographically for consistent plot ordering across figures
 #Reorder to set order of hatcheries
@@ -34,8 +34,7 @@ ggsave("~/Figure_3a.svg", width = 8, height = 5)
 
 # --- Kruskal-Wallis test: are read depths significantly different across hatcheries? ---
 #Statistical test for differences in read depth
-meta = phyloseqCompanion::sample.data.frame(ps.tax.filtered)
-kruskal.test(TotalReads ~ hatchery, data = meta)
+kruskal.test(TotalReads ~ hatchery, data = metadata)
 
 #Kruskal-Wallis rank sum test
 
