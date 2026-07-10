@@ -2,9 +2,8 @@
 # Purpose:  Import qiime2 artifacts, filter contaminant taxa and low-quality
 #           samples, rename ASVs to human-readable IDs, apply prevalence and
 #           abundance filters, and produce rarefied phyloseq for alpha diversity.
-# Inputs:   ~/SMB_n61/qiime2/input/table.qza      — ASV count table (qiime2)
-#           ~/SMB_n61/qiime2/input/taxonomy.qza   — taxonomy assignments
-#           ~/SMB_n61/input/metadata61_ext.txt     — sample metadata (n=61)
+# Inputs:   ~/redo_SMB/5_ps_Salmon_prefilter.rds      — ASV count table (phyloseq)
+#           ~/redo_SMB/metadata_full_EL.txt     — sample metadata (n=80)
 # Outputs:  ps.tax.filtered  — filtered phyloseq (324 taxa x 60 samples)
 #           ps_rarefied      — rarefied to even depth (for alpha diversity)
 #           KEY              — data frame mapping ASV1…ASVN to hash addresses
@@ -26,22 +25,28 @@ library(vegan)
 library(Biostrings)
 
 # --- Import qiime2 artifacts ---
-##Read in qiime input files produced from nf-core/ampliseq
-phyloseq_object<-qza_to_phyloseq(features = "~/SMB_n61/qiime2/input/table.qza",taxonomy = "~/SMB_n61/qiime2/input/taxonomy.qza",metadata = "~/SMB_n61/input/metadata61_ext.txt")
-#phyloseq-class experiment-level object
-#otu_table()   OTU Table:         [ 4328 taxa and 61 samples ]
-#sample_data() Sample Data:       [ 61 samples by 14 sample variables ]
-#tax_table()   Taxonomy Table:    [ 4328 taxa by 7 taxonomic ranks ]
+##Read in phyloseq object from 01_decontamination.R
 
-# --- Remove contaminant taxa ---
+phyloseq_object <- readRDS("~/redo_SMB/5_ps_Salmon_prefilter.rds")
+#phyloseq-class experiment-level object
+#otu_table()   OTU Table:         [ 3589 taxa and 80 samples ]
+#sample_data() Sample Data:       [ 80 samples by 4 sample variables ]
+#tax_table()   Taxonomy Table:    [ 3589 taxa by 6 taxonomic ranks ]
+
+#Read in full metadata for n=80 samples
+metadata <- read.delim("~/redo_SMB/metadata_full_EL.txt", row.names = 1, header = TRUE, check.names = FALSE)
+
+# replace the sample_data slot
+sample_data(phyloseq_object) <- sample_data(metadata)
+
+
+# --- Remove any additional mitochondria ---
 # Exclude Eukaryota (host/dietary), mitochondrial, chloroplast, and unassigned sequences
 #Remove any residual ASVs assigned to euks,mito,chloro, and na kingdom
-ps_MC <- subset_taxa(phyloseq_object, Kingdom != "Eukaryota" &
-                         Family != "Mitochondria" &
-                         Class != "Chloroplast" & !is.na(Kingdom))
-#otu_table()   OTU Table:         [ 3726 taxa and 61 samples ]
-#sample_data() Sample Data:       [ 61 samples by 17 sample variables ]
-#tax_table()   Taxonomy Table:    [ 3726 taxa by 7 taxonomic ranks ]
+ps_MC <- subset_taxa(phyloseq_object, Family != "Mitochondria")
+#otu_table()   OTU Table:         [ 3330 taxa and 80 samples ]
+#sample_data() Sample Data:       [ 80 samples by 13 sample variables ]
+#tax_table()   Taxonomy Table:    [ 3330 taxa by 6 taxonomic ranks ]
 
 # --- Remove low-depth sample ---
 #Remove a single sample that now has a total read count below 10,000 (after removing Euk reads)
