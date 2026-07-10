@@ -39,7 +39,6 @@ metadata <- read.delim("~/redo_SMB/metadata_full_EL.txt", row.names = 1, header 
 # replace the sample_data slot
 sample_data(phyloseq_object) <- sample_data(metadata)
 
-
 # --- Remove any additional mitochondria ---
 # Exclude Eukaryota (host/dietary), mitochondrial, chloroplast, and unassigned sequences
 #Remove any residual ASVs assigned to euks,mito,chloro, and na kingdom
@@ -48,14 +47,30 @@ ps_MC <- subset_taxa(phyloseq_object, Family != "Mitochondria")
 #sample_data() Sample Data:       [ 80 samples by 13 sample variables ]
 #tax_table()   Taxonomy Table:    [ 3330 taxa by 6 taxonomic ranks ]
 
-# --- Remove low-depth sample ---
-#Remove a single sample that now has a total read count below 10,000 (after removing Euk reads)
-sample_to_remove <- "WH21_10"
-ps <- prune_samples(!(sample_names(ps_MC) %in% sample_to_remove), ps_MC)
+#Calculate per sample read depth and identify samples with less than 10,000.
+read_counts <- sample_sums(ps_MC)
+sample_data(ps_MC)$TotalReads <- sample_sums(ps_MC)
+metadata = phyloseqCompanion::sample.data.frame(ps_MC)
+low_reads <- rownames(metadata)[metadata$TotalReads < 10000]
+length(low_reads)
+#[1] 8
+
+
+# --- Remove low-depth samples (n=8). This includes the sample Emma flagged for ASCII encoding issues ---
+#Remove samples that has less than 10,000 (after removing Euk reads)
+ps <- prune_samples(!(sample_names(ps_MC) %in% low_reads), ps_MC)
+#otu_table()   OTU Table:         [ 3330 taxa and 72 samples ]
+#sample_data() Sample Data:       [ 71 samples by 14 sample variables ]
+#tax_table()   Taxonomy Table:    [ 3330 taxa by 6 taxonomic ranks ]
+
+
+#Remove one sample that has no metadata associated with it:
+sample_to_remove <- "CHS_WH_F23_10_S73"
+ps <- prune_samples(!(sample_names(ps) %in% sample_to_remove), ps)
 #phyloseq-class experiment-level object
-#otu_table()   OTU Table:         [ 3726 taxa and 60 samples ]
-#sample_data() Sample Data:       [ 60 samples by 17 sample variables ]
-#tax_table()   Taxonomy Table:    [ 3726 taxa by 7 taxonomic ranks ]
+#otu_table()   OTU Table:         [ 3330 taxa and 71 samples ]
+#sample_data() Sample Data:       [ 71 samples by 14 sample variables ]
+#tax_table()   Taxonomy Table:    [ 3330 taxa by 6 taxonomic ranks ]
 
 # --- Parse phyloseq components for inspection ---
 #Parse phyloseq object for downstream analyses
@@ -110,15 +125,10 @@ hr_phyloseq = phyloseq(otu_table(new_otu, taxa_are_rows = FALSE), tax_table(as.m
 hr_phyloseq
 taxa_names(hr_phyloseq)
 
-# --- Add per-sample read counts to metadata ---
-#Add read counts / sample for downstream assessment
-read_counts <- sample_sums(hr_phyloseq)
-sample_data(hr_phyloseq)$TotalReads <- sample_sums(hr_phyloseq)
-
 # --- Prevalence and abundance filtering ---
 # Set filtering thresholds
 max_relab_threshold  <- 0.001   # 0.1% in at least one sample (Bokulich et al. 2013)
-min_prevalence_n     <- 6       # present in at least 6 samples (10% of dataset)
+min_prevalence_n     <- 6       # present in at least 6 samples (8% of dataset)
 detection_threshold  <- 2       # minimum count to call a taxon present
 
 cat("Max relative abundance threshold:", max_relab_threshold, "\n")
@@ -153,11 +163,11 @@ keep_taxa    <- tax_stats_before %>%
 removed_taxa <- setdiff(taxa_names(hr_phyloseq), keep_taxa)
 
 cat("Original taxa:", ntaxa(hr_phyloseq), "\n")
-#Original taxa: 3726
+#Original taxa: 3300
 cat("Taxa kept:",     length(keep_taxa), "\n")
-#Taxa kept: 324 
+#Taxa kept: 177 
 cat("Taxa removed:",  length(removed_taxa), "\n")
-#Taxa removed: 3402 
+#Taxa removed: 3153 
 
 
 # --- Create filtered phyloseq object ---
