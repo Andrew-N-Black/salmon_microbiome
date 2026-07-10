@@ -1,7 +1,5 @@
 # =============================================================================
-# GUT MICROBIOME PIPELINE — MIA MOUSE MODEL
-# Gut-Joint Axis Study | 8-week post-injury timepoint
-# Sample Quality Checks and Phyloseq Curation
+# Index hopping / contaminant identificaiton and removal
 # =============================================================================
 # Sections:
 #   0.   Setup & Configuration
