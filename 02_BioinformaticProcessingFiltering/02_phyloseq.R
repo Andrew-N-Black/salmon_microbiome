@@ -117,7 +117,7 @@ taxa_names(hr_phyloseq)
 # --- Prevalence and abundance filtering ---
 # Set filtering thresholds
 max_relab_threshold  <- 0.001   # 0.1% in at least one sample (Bokulich et al. 2013)
-min_prevalence_n     <- 6       # present in at least 6 samples (8% of dataset)
+min_prevalence_n     <- 6       # present in at least 6 samples (~10% of dataset)
 detection_threshold  <- 2       # minimum count to call a taxon present
 
 cat("Max relative abundance threshold:", max_relab_threshold, "\n")
