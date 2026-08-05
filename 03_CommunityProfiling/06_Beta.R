@@ -52,7 +52,8 @@ pcoa_df <- as_tibble(pcoa$vectors[, 1:2], rownames = "sample") %>%
   )
 
 #Set hatchery order
-pcoa_df$hatchery <- factor(pcoa_df$hatchery, levels = desired_facet_order)
+desired_order <- c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")
+pcoa_df$hatchery <- factor(pcoa_df$hatchery, levels = desired_order)
 
 # --- Figure 4c: PCoA colored by hatchery, shaped by ASE ---
 ggplot(pcoa_df, aes(Axis.1, Axis.2, color = hatchery)) +geom_point(size = 4,aes(fill=hatchery,shape=ASE)) +
