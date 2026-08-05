@@ -33,7 +33,7 @@ phyloseq_object <- readRDS("~/redo_SMB/5_ps_Salmon_prefilter.rds")
 #tax_table()   Taxonomy Table:    [ 3589 taxa by 6 taxonomic ranks ]
 
 #Read in full metadata for n=80 samples
-metadata <- read.delim("~/redo_SMB/metadata_full_EL.txt", row.names = 1, header = TRUE, check.names = FALSE)
+metadata <- read.delim("~/metadata_full_EL.txt", row.names = 1, header = TRUE, check.names = FALSE)
 
 # replace the sample_data slot
 sample_data(phyloseq_object) <- sample_data(metadata)
