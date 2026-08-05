@@ -38,28 +38,19 @@ metadata <- read.delim("~/metadata_full_EL.txt", row.names = 1, header = TRUE, c
 # replace the sample_data slot
 sample_data(phyloseq_object) <- sample_data(metadata)
 
-# --- Remove any additional mitochondria ---
-# Exclude Eukaryota (host/dietary), mitochondrial, chloroplast, and unassigned sequences
-#Remove any residual ASVs assigned to euks,mito,chloro, and na kingdom
-ps_MC <- subset_taxa(phyloseq_object, Family != "Mitochondria")
-#otu_table()   OTU Table:         [ 3330 taxa and 80 samples ]
-#sample_data() Sample Data:       [ 80 samples by 13 sample variables ]
-#tax_table()   Taxonomy Table:    [ 3330 taxa by 6 taxonomic ranks ]
-
 
 #Remove one sample that has no metadata associated with it:
 sample_to_remove <- "CHS_WH_F23_10_S73"
-ps <- prune_samples(!(sample_names(ps_MC) %in% sample_to_remove), ps_MC)
-#phyloseq-class experiment-level object
-#otu_table()   OTU Table:         [ 3330 taxa and 79 samples ]
-#sample_data() Sample Data:       [ 79 samples by 14 sample variables ]
-#tax_table()   Taxonomy Table:    [ 3330 taxa by 6 taxonomic ranks ]
+ps <- prune_samples(!(sample_names(phyloseq_object) %in% sample_to_remove), phyloseq_object)
+#otu_table()   OTU Table:         [ 4239 taxa and 78 samples ]
+#sample_data() Sample Data:       [ 78 samples by 12 sample variables ]
+#tax_table()   Taxonomy Table:    [ 4239 taxa by 7 taxonomic ranks ]
 
 #Remove n=8 samples that were juveniles salmon for a different study:
 ps <- subset_samples(ps, status != "research")
-#otu_table()   OTU Table:         [ 3330 taxa and 71 samples ]
-#sample_data() Sample Data:       [ 71 samples by 13 sample variables ]
-#tax_table()   Taxonomy Table:    [ 3330 taxa by 6 taxonomic ranks ]
+#otu_table()   OTU Table:         [ 4239 taxa and 70 samples ]
+#sample_data() Sample Data:       [ 78 samples by 12 sample variables ]
+#tax_table()   Taxonomy Table:    [ 4239 taxa by 7 taxonomic ranks ]
 
 # --- Parse phyloseq components for inspection ---
 #Parse phyloseq object for downstream analyses
@@ -152,11 +143,11 @@ keep_taxa    <- tax_stats_before %>%
 removed_taxa <- setdiff(taxa_names(hr_phyloseq), keep_taxa)
 
 cat("Original taxa:", ntaxa(hr_phyloseq), "\n")
-#Original taxa: 3300
+#Original taxa: 4239
 cat("Taxa kept:",     length(keep_taxa), "\n")
-#Taxa kept: 161 
+#Taxa kept: 180 
 cat("Taxa removed:",  length(removed_taxa), "\n")
-#Taxa removed: 3169 
+#Taxa removed: 4059 
 
 
 # --- Create filtered phyloseq object ---
@@ -164,9 +155,9 @@ cat("Taxa removed:",  length(removed_taxa), "\n")
 ps.tax.filtered <- prune_taxa(keep_taxa, hr_phyloseq)
 
 #phyloseq-class experiment-level object
-#otu_table()   OTU Table:         [ 161 taxa and 71 samples ]
-#sample_data() Sample Data:       [ 71 samples by 13 sample variables ]
-#tax_table()   Taxonomy Table:    [ 161 taxa by 6 taxonomic ranks ]
+#otu_table()   OTU Table:         [ 180 taxa and 70 samples ]
+#sample_data() Sample Data:       [ 70 samples by 12 sample variables ]
+#tax_table()   Taxonomy Table:    [ 180 taxa by 7 taxonomic ranks ]
 
 
 #Calculate read depth to identify samples with low counts:
@@ -175,24 +166,23 @@ sample_data(ps.tax.filtered)$TotalReadsFINAL <- sample_sums(ps.tax.filtered)
 metadata = phyloseqCompanion::sample.data.frame(ps.tax.filtered)
 low_reads <- rownames(metadata)[metadata$TotalReadsFINAL < 10000]
 length(low_reads)
-#[1] 10
+#[1] 7
 
-# --- Remove low-depth samples (n=8). This includes the sample Emma flagged for ASCII encoding issues ---
+# --- Remove low-depth samples (n=8). This includes the sample Emma previously removed for ASCII encoding issues ---
 #Remove samples that has less than 10,000
 ps.tax.filtered <- prune_samples(!(sample_names(ps.tax.filtered) %in% low_reads), ps.tax.filtered)
-#otu_table()   OTU Table:         [ 161 taxa and 61 samples ]
-#sample_data() Sample Data:       [ 61 samples by 14 sample variables ]
-#tax_table()   Taxonomy Table:    [ 161 taxa by 6 taxonomic ranks ]
+#otu_table()   OTU Table:         [ 180 taxa and 63 samples ]
+#sample_data() Sample Data:       [ 63 samples by 13 sample variables ]
+#tax_table()   Taxonomy Table:    [ 180 taxa by 7 taxonomic ranks ]
 
 # --- Rarefy to even sequencing depth for alpha diversity ---
 # Rarefaction subsamples each sample to the minimum library size without replacement.
 # replace=FALSE follows Gihring et al. 2012; rngseed ensures reproducibility.
 # Used only for alpha diversity (05_Alpha.R); Aitchison CLR used for beta diversity.
-ps_rarefied = rarefy_even_depth(ps.tax.filtered,rngseed = 123,replace=FALSE)#Add replace=FALSE AND recheck collectors curve
 
-
-#otu_table()   OTU Table:         [ 161 taxa and 61 samples ]
-#sample_data() Sample Data:       [ 61 samples by 14 sample variables ]
-#tax_table()   Taxonomy Table:    [ 161 taxa by 6 taxonomic ranks ]
+ps_rarefied = rarefy_even_depth(ps.tax.filtered,rngseed = 123,replace=FALSE)
+#otu_table()   OTU Table:         [ 179 taxa and 63 samples ]
+#sample_data() Sample Data:       [ 63 samples by 13 sample variables ]
+#tax_table()   Taxonomy Table:    [ 179 taxa by 7 taxonomic ranks ]
 
 
