@@ -1,12 +1,12 @@
 # =============================================================================
-# 01_remove_index_hopping.R
+# 01_decontamination.R
 # JOINT-RUN 16S QC PIPELINE -- CROSS-HOST VARIANT
-# Salmon + mouse + human amplicons sequenced together on one NextSeq run,
+# Salmon + two different mammal amplicons sequenced together on one NextSeq run,
 # starting from a phyloseq object straight off the dada2 pipeline.
 # =============================================================================
 # PIPELINE
 # Follows 00_dada2.R from Emma Little on 20260731.
-# Precedes 00C_phyloseq_quality_control.R
+# Precedes 02_phyloseq.R
 #
 # PURPOSE
 # -------
