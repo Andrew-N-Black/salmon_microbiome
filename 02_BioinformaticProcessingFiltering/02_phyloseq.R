@@ -184,4 +184,85 @@ ps_rarefied = rarefy_even_depth(ps.tax.filtered,rngseed = 123,replace=FALSE)
 #sample_data() Sample Data:       [ 63 samples by 15 sample variables ]
 #tax_table()   Taxonomy Table:    [ 179 taxa by 7 taxonomic ranks ]
 
+#--- Look for outlier samples in Alpha diversity---
+
+#Extract metadata
+meta = phyloseqCompanion::sample.data.frame(ps.tax.filtered)
+
+#Save row.names as column
+meta <- rownames_to_column(meta, var = "sample")
+
+otu_counts_qc <- as(otu_table(ps.tax.filtered), "matrix")
+if (taxa_are_rows(ps.tax.filtered)) otu_counts_qc <- t(otu_counts_qc)
+
+alpha_qc_df <- data.frame(
+    sample   = rownames(otu_counts_qc),
+    observed = rowSums(otu_counts_qc > 0),
+    shannon  = vegan::diversity(otu_counts_qc, index = "shannon")
+) %>%
+    mutate(
+        obs_zscore  = (observed - mean(observed)) / sd(observed),
+        shan_zscore = (shannon  - mean(shannon))  / sd(shannon),
+        alpha_flag  = obs_zscore < -2 | shan_zscore < -2
+    ) %>%
+    left_join(meta, by = "sample")
+alpha_qc_df
+
+cat("\nSamples flagged for low alpha diversity (> 2 SD below mean):\n")
+print(alpha_qc_df %>%
+          filter(alpha_flag) %>%
+          select(sample, observed, obs_zscore,
+                 shannon, shan_zscore, ASE))
+
+#Samples flagged for low alpha diversity (> 2 SD below mean):
+# 1% relative abundance
+#<0 rows> (or 0-length row.names)
+
+#0.01% relative abundance
+#<0 rows> (or 0-length row.names)
+#---Betadiversity outliers at various thresholds---
+
+#10 prevelance
+#<0 rows> (or 0-length row.names)
+
+#---Betadiversity outliers at various thresholds---
+
+mean_dist_df <- data.frame(
+    sample    = rownames(D.mat),
+    mean_dist = rowMeans(D.mat)
+) %>%
+    mutate(
+        dist_zscore = (mean_dist - mean(mean_dist)) / sd(mean_dist),
+        dist_flag   = dist_zscore > 2
+    ) %>%
+    left_join(meta, by = "sample") %>%
+    arrange(desc(mean_dist))
+
+cat("\nSamples flagged as multivariate outliers (mean BC distance > 2 SD):\n")
+print(mean_dist_df %>%
+          filter(dist_flag) %>%
+          select(sample, mean_dist, dist_zscore, ASE))
+
+#1% relative abundance
+
+#             sample mean_dist dist_zscore      ASE
+#1  ChS_WR_F23_9_S65 0.9523033    2.404682 negative
+#2         SSH_2_S14 0.9458412    2.288386 positive
+#3 ChS_SH_F23_15_S41 0.9371925    2.132738 positive
+
+#0.01% relative abundance
+
+#             sample mean_dist dist_zscore      ASE
+#1  ChS_WR_F23_9_S65 0.9523033    2.404682 negative
+#2         SSH_2_S14 0.9458412    2.288386 positive
+#3 ChS_SH_F23_15_S41 0.9371925    2.132738 positive
+
+#10 prevelance
+#             sample mean_dist dist_zscore      ASE
+#1  ChS_WR_F23_9_S65 0.9523033    2.404682 negative
+#2         SSH_2_S14 0.9458412    2.288386 positive
+#3 ChS_SH_F23_15_S41 0.9371925    2.132738 positive
+
+
+
 
