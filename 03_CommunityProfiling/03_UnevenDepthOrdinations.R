@@ -44,12 +44,12 @@ permutest(dispersionJ)
 
 #Response: Distances
 #          Df  Sum Sq  Mean Sq      F N.Perm Pr(>F)
-#Groups     5 0.18678 0.037356 0.9934    999  0.441
-#Residuals 54 2.03067 0.037605  
+#Groups     5 0.13908 0.027815 0.8181    999  0.566
+#Residuals 57 1.93794 0.033999 
 
 
 # Extract per-sample distance to hatchery centroid for plotting
-p <- cbind(distance = as.numeric(dispersionJ$distances),hatchery = metadata$hatchery,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance))
+p <- cbind(distance = as.numeric(dispersionJ$distances),hatchery = as.character(metadata$hatchery),samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance))
 desired_facet_order <- c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")
 p$hatchery <- factor(p$hatchery, levels = desired_facet_order)
 
@@ -63,9 +63,9 @@ ggsave("~/Figure_S2b.svg", width = 8, height = 5)
 dispersionJ<-betadisper(dist_matrixJ,group=ps_rarefied@sam_data$ASE)
 permutest(dispersionJ)
 
-#         Df  Sum Sq Mean Sq      F N.Perm Pr(>F)
-#Groups     1 0.34729 0.34729 12.422    999  0.002
-#Residuals 58 1.62158 0.02796  
+#          Df  Sum Sq  Mean Sq      F N.Perm Pr(>F)    
+#Groups     1 0.29687 0.296868 13.006    999  0.001 ***
+#Residuals 61 1.39235 0.022825 
 
 # --- Jaccard PERMANOVA ---
 # adonis2 tests whether community composition differs by group.
@@ -74,21 +74,19 @@ adonis2(dist_matrixJ ~ hatchery, data = metadata)
 
 #adonis2(formula = dist_matrixJ ~ hatchery, data = metadata)
 #         Df SumOfSqs      R2      F Pr(>F)    
-#Model     5   8.0386 0.33325 5.3979  0.001 ***
-#Residual 54  16.0834 0.66675                  
-#Total    59  24.1220 1.00000   
-#---
-#Signif. codes:  
-#0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#Model     5    8.850 0.34791 6.0821  0.001 ***
+#Residual 57   16.588 0.65209                  
+#Total    62   25.438 1.00000     
 
 
 #Permanova of Jaccard by ASE
 adonis2(dist_matrixJ ~ ASE, data = metadata)
 
 #         Df SumOfSqs      R2      F Pr(>F)    
-#Model     1   3.8478 0.15951 11.008  0.001 ***
-#Residual 58  20.2742 0.84049                  
-#Total    59  24.1220 1.00000  
+#         Df SumOfSqs      R2     F Pr(>F)    
+#Model     1   4.2657 0.16769 12.29  0.001 ***
+#Residual 61  21.1721 0.83231                 
+#Total    62  25.4378 1.00000 
 
 # --- Jaccard ANOSIM ---
 # ANOSIM R statistic: rank-based measure of between- vs within-group dissimilarity.
@@ -107,8 +105,8 @@ anosim(m_com, metadata$ASE, distance = "jaccard", permutations = 9999)
 
 #Anosim by hatchery
 anosim(x = m_com, grouping = metadata$hatchery, permutations = 9999, distance = "jaccard")
-#ANOSIM statistic R: 0.6641 
-#      Significance: 1e-04 
+#ANOSIM statistic R: 0.633 
+ #     Significance: 1e-04 
 
 
 
@@ -131,8 +129,8 @@ permutest(dispersionB)
 
 #Response: Distances
 #          Df  Sum Sq  Mean Sq      F N.Perm Pr(>F)
-#Groups     5 0.17348 0.034697 0.6995    999  0.631
-#Residuals 54 2.67852 0.049602  
+#Groups     5 0.11996 0.023992 0.5516    999  0.767
+#Residuals 57 2.47920 0.043495  
 
 
 # Extract per-sample distance to hatchery centroid for Bray-Curtis
@@ -152,26 +150,27 @@ ggsave("~/Figure_S2d.svg", width = 8, height = 5)
 dispersionB<-betadisper(dist_matrixB,group=ps_rarefied@sam_data$ASE)
 permutest(dispersionB)
 
- #         Df  Sum Sq Mean Sq      F N.Perm Pr(>F)
-#Groups     1 0.41767 0.41767 10.983    999  0.002
-#Residuals 58 2.20572 0.03803 
+ #         Df  Sum Sq Mean Sq      F N.Perm Pr(>F)   
+#Groups     1 0.38121 0.38121 11.219    999  0.003 **
+#Residuals 61 2.07273 0.03398 
 
 # --- Bray-Curtis PERMANOVA ---
 adonis2(dist_matrixB ~ hatchery, data = metadata)
 
- #        Df SumOfSqs     R2      F Pr(>F)
-#Model     5   9.2155 0.4294 8.1274  0.001 ***
-#Residual 54  12.2460 0.5706
-#Total    59  21.4615 1.0000
+#         Df SumOfSqs      R2     F Pr(>F)    
+#Model     5   10.387 0.45587 9.551  0.001 ***
+#Residual 57   12.398 0.54413                 
+#Total    62   22.785 1.00000                 
+#---
 
 
 #Bray, by ASE
 adonis2(dist_matrixB ~ ASE, data = metadata)
 
 #         Df SumOfSqs      R2      F Pr(>F)    
-#Model     1   4.4789 0.20869 15.297  0.001 ***
-#Residual 58  16.9826 0.79131                  
-#Total    59  21.4615 1.00000       
+#Model     1   5.1293 0.22512 17.722  0.001 ***
+#Residual 61  17.6556 0.77488                  
+#Total    62  22.7849 1.00000 
 
 # --- Bray-Curtis ANOSIM ---
 #Format before analysis of similarity
@@ -183,12 +182,12 @@ ano = anosim(m_com, metadata$ASE, distance = "bray", permutations = 9999)
 #Test by ASE
 anosim(x = m_com, grouping = metadata$ASE, permutations = 9999,      distance = "bray")
 #Dissimilarity: bray 
-#ANOSIM statistic R: 0.577 
-#      Significance: 1e-04 
+#ANOSIM statistic R: 0.633 
+ #     Significance: 1e-04 
 
 
 #Anosim by hatchery
 anosim(x = m_com, grouping = metadata$hatchery, permutations = 9999,      distance = "bray")
-#ANOSIM statistic R: 0.6641 
-#      Significance: 1e-04 
+#ANOSIM statistic R: 0.6888 
+ #     Significance: 1e-04 
 
