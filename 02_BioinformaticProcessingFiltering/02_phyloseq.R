@@ -26,11 +26,10 @@ library(Biostrings)
 
 # --- Read in phyloseq object from 01_decontamination.R---
 
-phyloseq_object <- readRDS("~/redo_SMB/5_ps_Salmon_prefilter.rds")
-#phyloseq-class experiment-level object
-#otu_table()   OTU Table:         [ 3589 taxa and 80 samples ]
-#sample_data() Sample Data:       [ 80 samples by 4 sample variables ]
-#tax_table()   Taxonomy Table:    [ 3589 taxa by 6 taxonomic ranks ]
+phyloseq_object <- readRDS("~/5_ps_Salmon_prefilter.rds")
+#otu_table()   OTU Table:         [ 4239 taxa and 79 samples ]
+#sample_data() Sample Data:       [ 79 samples by 4 sample variables ]
+#tax_table()   Taxonomy Table:    [ 4239 taxa by 7 taxonomic ranks ]
 
 #Read in full metadata for n=80 samples
 metadata <- read.delim("~/metadata_full_EL.txt", row.names = 1, header = TRUE, check.names = FALSE)
@@ -43,13 +42,13 @@ sample_data(phyloseq_object) <- sample_data(metadata)
 sample_to_remove <- "CHS_WH_F23_10_S73"
 ps <- prune_samples(!(sample_names(phyloseq_object) %in% sample_to_remove), phyloseq_object)
 #otu_table()   OTU Table:         [ 4239 taxa and 78 samples ]
-#sample_data() Sample Data:       [ 78 samples by 12 sample variables ]
+#sample_data() Sample Data:       [ 78 samples by 14 sample variables ]
 #tax_table()   Taxonomy Table:    [ 4239 taxa by 7 taxonomic ranks ]
 
 #Remove n=8 samples that were juveniles salmon for a different study:
 ps <- subset_samples(ps, status != "research")
 #otu_table()   OTU Table:         [ 4239 taxa and 70 samples ]
-#sample_data() Sample Data:       [ 78 samples by 12 sample variables ]
+#sample_data() Sample Data:       [ 78 samples by 14 sample variables ]
 #tax_table()   Taxonomy Table:    [ 4239 taxa by 7 taxonomic ranks ]
 
 # --- Parse phyloseq components for inspection ---
@@ -172,7 +171,7 @@ length(low_reads)
 #Remove samples that has less than 10,000
 ps.tax.filtered <- prune_samples(!(sample_names(ps.tax.filtered) %in% low_reads), ps.tax.filtered)
 #otu_table()   OTU Table:         [ 180 taxa and 63 samples ]
-#sample_data() Sample Data:       [ 63 samples by 13 sample variables ]
+#sample_data() Sample Data:       [ 63 samples by 15 sample variables ]
 #tax_table()   Taxonomy Table:    [ 180 taxa by 7 taxonomic ranks ]
 
 # --- Rarefy to even sequencing depth for alpha diversity ---
@@ -182,7 +181,7 @@ ps.tax.filtered <- prune_samples(!(sample_names(ps.tax.filtered) %in% low_reads)
 
 ps_rarefied = rarefy_even_depth(ps.tax.filtered,rngseed = 123,replace=FALSE)
 #otu_table()   OTU Table:         [ 179 taxa and 63 samples ]
-#sample_data() Sample Data:       [ 63 samples by 13 sample variables ]
+#sample_data() Sample Data:       [ 63 samples by 15 sample variables ]
 #tax_table()   Taxonomy Table:    [ 179 taxa by 7 taxonomic ranks ]
 
 
