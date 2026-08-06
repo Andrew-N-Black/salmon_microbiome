@@ -56,28 +56,22 @@ p1
 ggsave("~/Figure_2b.svg", width = 8, height = 5)
 
 
-##Look at the top three ASVs,according to prevelance:
-library(microbiome)
-library(phyloseq)
+##Look at the top five UNIQUE taxa,according to prevelance:
 
-ps.rel <- microbiome::transform(ps, "compositional")  # relative abundance
+ps_rel <- transform_sample_counts(ps.tax.filtered, function(x) x / sum(x))
 
-# rank all taxa by prevalence, fraction of samples that have ASV at a minimum detection threshold. 
-prev <- prevalence(ps.rel, detection = 0.005, sort = TRUE)
-head(prev)
-#   ASV146   ASV3706   ASV2013   ASV1244   ASV1417    ASV634 
-#0.8000000 0.5333333 0.5333333 0.5000000 0.4833333 0.3666667 
+# Merge all ASVs into their phylum-level groups
+ps_phylum <- tax_glom(ps_rel, taxrank = "Phylum")
 
+# Mean relative abundance per phylum across samples
+phylum_abund <- taxa_sums(ps_phylum) / nsamples(ps_phylum)
+names(phylum_abund) <- as.vector(tax_table(ps_phylum)[, "Phylum"])
 
+# Top 5 unique phyla
+top5_phyla <- sort(phylum_abund, decreasing = TRUE)[1:5]
+top5_phyla
 
-tax_table(ps.tax.filtered)[c("ASV146", "ASV3706","ASV1244"), ]
-
-#Taxonomy Table:     [3 taxa by 7 taxonomic ranks]:
-#        Domain     Phylum           Class                 Order            
-#ASV146  "Bacteria" "Pseudomonadota" "Gammaproteobacteria" "Burkholderiales"
-#ASV3706 "Bacteria" "Bacillota"      "Bacilli"             "Mycoplasmatales"
-#ASV1244 "Bacteria" "Bacillota"      "Bacilli"             "Lactobacillales"
-#        Family             Genus             Species     
-#ASV146  "Comamonadaceae"   "Paucibacter"     NA          
-#ASV3706 "Mycoplasmataceae" "Mesomycoplasma"  "moatsii"   
-#ASV1244 "Enterococcaceae"  "Tetragenococcus" "osmophilus"
+                                                Bacillota          Pseudomonadota          Actinomycetota 
+             0.45224172              0.41737790              0.04362841 
+           Bacteroidota Thermodesulfobacteriota 
+             0.03156802              0.02563561 
