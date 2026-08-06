@@ -1,7 +1,7 @@
 # =============================================================================
 # Purpose:  Identify the core gut microbiome of Chinook salmon across hatcheries
 #           using prevalence x detection threshold analysis. Produces Figures 2a–2b.
-# Inputs:   ps.tax.filtered — filtered phyloseq object (324 taxa x 60 samples)
+# Inputs:   ps.tax.filtered — filtered phyloseq object (180 taxa x 63 samples)
 # Outputs:  ~/Figure_2a.svg — core microbiome line plot (prevalence vs detection)
 #           ~/Figure_2b.svg — core microbiome heatmap (ASVs x detection thresholds)
 # Key parameters:
