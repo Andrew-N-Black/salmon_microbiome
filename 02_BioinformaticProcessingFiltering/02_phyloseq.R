@@ -1,10 +1,10 @@
 # =============================================================================
-# Purpose:  Import qiime2 artifacts, filter contaminant taxa and low-quality
-#           samples, rename ASVs to human-readable IDs, apply prevalence and
-#           abundance filters, and produce rarefied phyloseq for alpha diversity.
-# Inputs:   ~/redo_SMB/5_ps_Salmon_prefilter.rds      — ASV count table (phyloseq)
-#           ~/redo_SMB/metadata_full_EL.txt     — sample metadata (n=80)
-# Outputs:  ps.tax.filtered  — filtered phyloseq (324 taxa x 60 samples)
+# Purpose:  Import phyloseq object after removing putative index hopped reads
+            ,low-quality, samples, rename ASVs to human-readable IDs, apply prevalence and
+#           abundance filters, and produce filtered phyloseq for downstream analyses.
+# Inputs:   ~/5_ps_Salmon_prefilter.rds      — ASV count table (phyloseq)
+#           ~/metadata_full_EL.txt     — sample metadata (n=79)
+# Outputs:  ps.tax.filtered  — filtered phyloseq
 #           ps_rarefied      — rarefied to even depth (for alpha diversity)
 #           KEY              — data frame mapping ASV1…ASVN to hash addresses
 # Key parameters:
