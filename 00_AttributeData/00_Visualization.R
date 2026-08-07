@@ -19,7 +19,7 @@ library(dplyr)
 library(phyloseqCompanion)
 
 # --- Load metadata ---
-#Load in metadata from filtered phyloseq object (See 02_TaxonomicProfiling/01_phyloseq.R)
+#Load in metadata from filtered phyloseq object (See 02_BioinformaticProcessingFiltering/02_phyloseq.R)
 meta = phyloseqCompanion::sample.data.frame(ps.tax.filtered)
 
 # Order hatcheries geographically (north to south, then inland)
