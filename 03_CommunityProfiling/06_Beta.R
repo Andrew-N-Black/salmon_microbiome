@@ -91,34 +91,36 @@ permutest(dispersionA)
 
 # Extract per-sample distances to group centroid for visualization
 #Plot betadisp centroid distance among hatcheries
-p <- cbind(distance = as.numeric(dispersionA$distances),hatchery = metadata$hatchery,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance))
+p <- cbind(distance = as.numeric(dispersionA$distances),hatchery = as.character(metadata$hatchery),samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance))
 desired_facet_order <- c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")
 p$hatchery <- factor(p$hatchery, levels = desired_facet_order)
 
 ggplot(p,aes(hatchery, distance,fill=hatchery)) +
     geom_boxplot() +
     theme_classic(base_size = 12)+xlab("Hatchery")+ylab("Distance from centroid")+scale_fill_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())+geom_jitter(aes(x=hatchery, y=distance), width=0.1)
-
+ggsave("~/Figure_4b.svg", width = 8, height = 5)
 
 # --- Aitchison PERMANOVA by hatchery ---
 #Permanova of Achison
 #Achison, by hatchery
 adonis2(D_aitch ~ hatchery, data = metadata)
 
-#         Df SumOfSqs      R2      F Pr(>F)
-#Model     5    12647 0.22426 3.1222  0.001 ***
-#Residual 54    43747 0.77574
-#Total    59    56394 1.00000
+#         Df SumOfSqs      R2      F Pr(>F)    
+#Model     5    13802 0.23956 3.5912  0.001 ***
+#Residual 57    43814 0.76044                  
+#Total    62    57616 1.00000       
 
 
 # Reuse hatchery betadisper object to plot ASE centroid distances
-# (Note: dispersionA is still grouped by hatchery here; ASE plot uses same distances)
+
 #Plot betadisp centroid distance between ASE
+dispersionA<-betadisper(D_aitch,group=ps.tax.filtered@sam_data$ASE)
 p <- cbind(distance = as.numeric(dispersionA$distances),ASE = metadata$ASE,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance))
 
 ggplot(p,aes(ASE, distance,fill=ASE)) +
     geom_boxplot() +
     theme_classic(base_size = 12)+xlab("")+ylab("Distance from centroid")+scale_fill_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())+geom_jitter(aes(x=ASE, y=distance), width=0.1)
+ggsave("~/Figure_4e.svg", width = 8, height = 5)
 
 # --- Aitchison betadispersal and PERMANOVA by ASE ---
 dispersionA<-betadisper(D_aitch,group=ps.tax.filtered@sam_data$ASE)
@@ -126,10 +128,9 @@ permutest(dispersionA)
 
 adonis2(formula = D_aitch ~ ASE, data = metadata)
 
-#         Df SumOfSqs      R2      F Pr(>F)
-#Model     1     3234 0.05734 3.5283  0.001 ***
-#Residual 58    53160 0.94266
-#Total    59    56394 1.00000
+#          Df Sum Sq Mean Sq      F N.Perm Pr(>F)    
+#Groups     1 1060.5 1060.54 10.635    999  0.001 ***
+#Residuals 61 6083.0   99.72           
 
 # --- ANOSIM: alternative non-parametric test of community structure ---
 # Note: recomputes CLR using microbiome::transform; slight methodological difference
@@ -144,11 +145,12 @@ anosim(D_aitch, metadata$ASE)
 #Analysis of similarity-by hatchery
 anosim(D_aitch, metadata$hatchery)
 
-#ANOSIM statistic R: -0.007436
- #     Significance: 0.523
+#ANOSIM statistic R: -0.04797 
+  #    Significance: 0.768 
 
 #Analysis of similarity-by ASE
 anosim(D_aitch, metadata$ASE)
-#ANOSIM statistic R: -0.007436
-#     Significance: 0.514
+
+#ANOSIM statistic R: -0.04797 
+  #    Significance: 0.748 
 
