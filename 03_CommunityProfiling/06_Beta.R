@@ -6,8 +6,8 @@
 #           Produces Figures 4c and 4f.
 # Inputs:   ps.tax.filtered — filtered phyloseq (324 taxa x 60 samples)
 #           metadata        — sample metadata data frame
-# Outputs:  ~/Figure_4c.svg — Aitchison PCoA colored by hatchery, shaped by ASE
-#           ~/Figure_4f.svg — Aitchison PCoA colored by ASE, shaped by hatchery
+# Outputs:  ~/Figure_3c.svg — Aitchison PCoA colored by hatchery, shaped by ASE
+#           ~/Figure_3f.svg — Aitchison PCoA colored by ASE, shaped by hatchery
 #           Console: PERMANOVA, betadisper, ANOSIM statistics
 # Key parameters:
 #   CLR pseudocount: +1 before log to handle zeros (simple pseudocount approach)
@@ -64,7 +64,7 @@ ggplot(pcoa_df, aes(Axis.1, Axis.2, color = hatchery)) +geom_point(size = 4,aes(
         color = "hatchery",title="Aitchison"
     ) +
     theme_classic()+scale_fill_brewer(palette = "Dark2")+scale_color_brewer(palette = "Dark2")
-ggsave("~/Figure_4c.svg", width = 8, height = 5)
+ggsave("~/Figure_3c.svg", width = 8, height = 5)
 
 # --- Figure 4f: PCoA colored by ASE, shaped by hatchery ---
 # Distinct point shapes per hatchery (6 hatcheries require non-standard shape values)
@@ -76,7 +76,7 @@ ggplot(pcoa_df, aes(Axis.1, Axis.2, color = ASE)) +geom_point(size = 4,aes(fill=
         color = "ASE",title=""
     ) +
     theme_classic()+scale_fill_brewer(palette = "Dark2")+scale_color_brewer(palette = "Dark2")+scale_shape_manual(values = c(20,2,3,4,8,5))
-ggsave("~/Figure_4f.svg", width = 8, height = 5)
+ggsave("~/Figure_3f.svg", width = 8, height = 5)
 
 # --- Aitchison betadispersal by hatchery ---
 # Significant result (p=0.001) means within-hatchery spread is unequal;
