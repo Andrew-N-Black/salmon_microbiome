@@ -20,7 +20,7 @@ library(phyloseqCompanion)
 
 # --- Load metadata ---
 #Load in metadata from filtered phyloseq object (See 02_TaxonomicProfiling/01_phyloseq.R)
-meta = phyloseqCompanion::sample.data.frame(ps)
+meta = phyloseqCompanion::sample.data.frame(ps.tax.filtered)
 
 # Order hatcheries geographically (north to south, then inland)
 desired_order <- c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")
@@ -28,13 +28,12 @@ meta$hatchery <- factor(meta$hatchery, levels = desired_order)
 
 # --- Figure 1b: Epithelial integrity by hatchery and ASE status ---
 # Violin + boxplot + jitter shows distribution of epithelium_remaining
-# across hatcheries, split by ASE (NEG vs positive)
-ggplot(meta, aes(y =epithelium_remaining, x=hatchery, fill = ASE,color=ASE)) +
+ggplot(meta, aes(y =percent_epithelium, x=hatchery, fill = ASE,color=ASE)) +
     geom_violin(alpha=0.2) +
     labs(x = "",
          y = "Epithelial Integrity",
          fill = "ASE") +
-    theme_classic(base_size = 14)+scale_fill_brewer(palette = "Dark2",name = "ASE")+geom_boxplot(aes(x=hatchery, y=epithelium_remaining, fill=ASE), width=0.9,alpha=0.2)+geom_jitter(aes(x=hatchery, y=epithelium_remaining), width=0.1)+ theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))+scale_color_brewer(palette = "Dark2",name = "ASE")
+    theme_classic(base_size = 14)+scale_fill_brewer(palette = "Dark2",name = "ASE")+geom_boxplot(aes(x=hatchery, y=percent_epithelium, fill=ASE), width=0.9,alpha=0.2)+geom_jitter(aes(x=hatchery, y=percent_epithelium), width=0.1)+ theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))+scale_color_brewer(palette = "Dark2",name = "ASE")
 ggsave("~/Figure_1b.svg")
 
 # --- Figure 1c: Enteritis score distribution by hatchery ---
