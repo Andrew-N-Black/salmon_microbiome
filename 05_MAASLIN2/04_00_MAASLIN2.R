@@ -10,37 +10,10 @@
 #   visualised as coefficient plots, a cross-predictor overlap figure, and
 #   a heatmap of significant taxa ordered by hatchery.
 #
-# Pipeline order:
-#   1.  Load data and prepare inputs
-#       1.1 ASV-level CLR matrix
-#       1.2 Genus-level agglomeration and CLR matrix
-#   2.  MaAsLin2 — primary models (one per predictor)
-#       A: cshasta
-#       B: epithelium_remaining
-#       C: hatchery
-#       D: enteritis
-#       E: es (Enterocytozoon schreckii)
-#   3.  Visualisation
-#       3.1 Coefficient plots per predictor (genus level)
-#       3.2 Cross-predictor overlap (upset plot)
-#       3.3 Heatmap of significant taxa ordered by hatchery
-#   4.  Science summary and session info
 #
 # Inputs:
 #   salmon_microbiome/02_BioinformaticProcessingFiltering/01_phyloseq.R
-#   (provides ps.tax.filtered — 324 taxa x 60 samples, filtered phyloseq)
-#
-# Outputs:
-#   salmon_microbiome/04_00_MAASLIN2/figures/
-#   salmon_microbiome/04_00_MAASLIN2/tables/
-#   salmon_microbiome/04_00_MAASLIN2/maaslin2_output/
-#
-# Notes:
-#   - MaAsLin2 settings: normalization = "NONE", transform = "CLR"
-#   - Each model uses a single fixed effect (the predictor of interest only)
-#   - Significance threshold: q < 0.25 (primary), q < 0.05 (strict)
-#   - Genus-level results are primary; ASV-level in supplementary
-#   - Heatmap uses CLR-transformed abundance, consistent with MaAsLin2 space
+#   (provides ps.tax.filtered — 180 taxa x 63 samples, filtered phyloseq)
 #
 # =============================================================================
 
@@ -64,7 +37,7 @@ library(circlize)
 library(patchwork)
 
 # --- Significance thresholds ---
-Q_PRIMARY <- 0.25   # MaAsLin2 default, standard in literature
+Q_PRIMARY <- 0.25   # MaAsLin2 default
 Q_STRICT  <- 0.05   # stricter secondary threshold
 
 # --- Paths ---
@@ -221,12 +194,12 @@ meta <- data.frame(sample_data(ps), check.names = FALSE)
 meta$hatchery             <- as.character(meta$hatchery)   # categorical; MaAsLin2 will dummy-code
 meta$enteritis            <- as.character(meta$enteritis)  # ordinal treated as categorical
 meta$es                   <- as.numeric(meta$es)           # treated as continuous ordinal
-meta$epithelium_remaining <- as.numeric(meta$epithelium_remaining)  # continuous (0–100%)
+meta$percent_epithelium <- as.numeric(meta$percent_epithelium)  # continuous (0–100%)
 meta$cshasta              <- as.numeric(meta$cshasta)      # treated as continuous ordinal
 
 cat("\nMissingness in key predictors:\n")
 cat("cshasta missing:              ", sum(is.na(meta$cshasta)), "\n")
-cat("epithelium_remaining missing: ", sum(is.na(meta$epithelium_remaining)), "\n")
+cat("percent_epithelium missing: ", sum(is.na(meta$percent_epithelium)), "\n")
 cat("hatchery missing:             ", sum(is.na(meta$hatchery)), "\n")
 cat("enteritis missing:            ", sum(is.na(meta$enteritis)), "\n")
 cat("es missing:                   ", sum(is.na(meta$es)), "\n")
@@ -316,33 +289,33 @@ cat("Model A ASV   — significant ASVs  (q <", Q_PRIMARY, "):",
     sum(res_a_asv$metadata == "cshasta" & res_a_asv$qval <= Q_PRIMARY), "\n")
 
 
-# --- Model B: epithelium_remaining ---
-cat("\n-- Model B: epithelium_remaining --\n")
+# --- Model B: percent_epithelium ---
+cat("\n-- Model B: percent_epithelium --\n")
 
-meta_ep      <- meta %>% filter(!is.na(epithelium_remaining))
+meta_ep      <- meta %>% filter(!is.na(percent_epithelium))
 asv_mat_ep   <- asv_mat[rownames(meta_ep), ]
 genus_mat_ep <- genus_mat[rownames(meta_ep), ]
 
 res_b_genus <- run_maaslin(
   features      = genus_mat_ep,
   metadata      = meta_ep,
-  fixed_effects = "epithelium_remaining",
+  fixed_effects = "percent_epithelium",
   output_dir    = dir_maas,
-  model_name    = "B_genus_epithelium_remaining"
+  model_name    = "B_genus_percent_epithelium"
 )
 
 res_b_asv <- run_maaslin(
   features      = asv_mat_ep,
   metadata      = meta_ep,
-  fixed_effects = "epithelium_remaining",
+  fixed_effects = "percent_epithelium",
   output_dir    = dir_maas,
-  model_name    = "B_asv_epithelium_remaining"
+  model_name    = "B_asv_percent_epithelium"
 )
 
 cat("Model B genus — significant taxa (q <", Q_PRIMARY, "):",
-    sum(res_b_genus$metadata == "epithelium_remaining" & res_b_genus$qval <= Q_PRIMARY), "\n")
+    sum(res_b_genus$metadata == "percent_epithelium" & res_b_genus$qval <= Q_PRIMARY), "\n")
 cat("Model B ASV   — significant ASVs  (q <", Q_PRIMARY, "):",
-    sum(res_b_asv$metadata == "epithelium_remaining" & res_b_asv$qval <= Q_PRIMARY), "\n")
+    sum(res_b_asv$metadata == "percent_epithelium" & res_b_asv$qval <= Q_PRIMARY), "\n")
 
 
 # --- Model C: hatchery ---
@@ -466,12 +439,12 @@ if (!is.null(p_coef_a)) {
 }
 
 p_coef_b <- plot_coef(
-  res_b_genus, "epithelium_remaining",
-  "Taxa associated with epithelium remaining (epithelium_remaining)"
+  res_b_genus, "percent_epithelium",
+  "Taxa associated with epithelium remaining (percent_epithelium)"
 )
 if (!is.null(p_coef_b)) {
-  ggsave(file.path(dir_fig, "02_coef_epithelium_remaining.png"), p_coef_b, width = 8, height = 6, dpi = 300)
-  ggsave(file.path(dir_fig, "02_coef_epithelium_remaining.svg"), p_coef_b, width = 8, height = 6)
+  ggsave(file.path(dir_fig, "02_coef_percent_epithelium.png"), p_coef_b, width = 8, height = 6, dpi = 300)
+  ggsave(file.path(dir_fig, "02_coef_percent_epithelium.svg"), p_coef_b, width = 8, height = 6)
 }
 
 p_coef_c <- plot_coef(
@@ -512,7 +485,7 @@ cat("\n-- 3.2 Cross-predictor overlap --\n")
 sig_a <- res_a_genus %>%
   filter(metadata == "cshasta",              qval <= Q_PRIMARY) %>% pull(feature)
 sig_b <- res_b_genus %>%
-  filter(metadata == "epithelium_remaining", qval <= Q_PRIMARY) %>% pull(feature)
+  filter(metadata == "percent_epithelium", qval <= Q_PRIMARY) %>% pull(feature)
 sig_c <- res_c_genus %>%
   filter(metadata == "hatchery",             qval <= Q_PRIMARY) %>% pull(feature)
 sig_d <- res_d_genus %>%
@@ -526,7 +499,7 @@ if (length(all_sig) > 0) {
   upset_df <- data.frame(
     feature              = all_sig,
     cshasta              = as.integer(all_sig %in% sig_a),
-    epithelium_remaining = as.integer(all_sig %in% sig_b),
+    percent_epithelium = as.integer(all_sig %in% sig_b),
     hatchery             = as.integer(all_sig %in% sig_c),
     enteritis            = as.integer(all_sig %in% sig_d),
     E_schreckii          = as.integer(all_sig %in% sig_e)
@@ -534,7 +507,7 @@ if (length(all_sig) > 0) {
 
   write_csv(upset_df, file.path(dir_tbl, "04_significant_taxa_overlap.csv"))
 
-  all_sets    <- c("cshasta", "epithelium_remaining",
+  all_sets    <- c("cshasta", "percent_epithelium",
                    "hatchery", "enteritis", "E_schreckii")
   active_sets <- all_sets[colSums(upset_df[, all_sets]) > 0]
 
@@ -616,7 +589,7 @@ if (length(all_sig) > 0) {
 
   cat("Significant taxa (q <", Q_PRIMARY, "):\n")
   cat("  cshasta:              ", length(sig_a), "\n")
-  cat("  epithelium_remaining: ", length(sig_b), "\n")
+  cat("  percent_epithelium: ", length(sig_b), "\n")
   cat("  hatchery:             ", length(sig_c), "\n")
   cat("  enteritis:            ", length(sig_d), "\n")
   cat("  es (E. schreckii):    ", length(sig_e), "\n")
@@ -764,13 +737,13 @@ if (length(all_sig) > 0) {
 cat("\n--- 4. SCIENCE SUMMARY ---\n")
 
 n_sig_a_primary <- sum(res_a_genus$metadata == "cshasta"              & res_a_genus$qval <= Q_PRIMARY)
-n_sig_b_primary <- sum(res_b_genus$metadata == "epithelium_remaining" & res_b_genus$qval <= Q_PRIMARY)
+n_sig_b_primary <- sum(res_b_genus$metadata == "percent_epithelium" & res_b_genus$qval <= Q_PRIMARY)
 n_sig_c_primary <- sum(res_c_genus$metadata == "hatchery"             & res_c_genus$qval <= Q_PRIMARY)
 n_sig_d_primary <- sum(res_d_genus$metadata == "enteritis"            & res_d_genus$qval <= Q_PRIMARY)
 n_sig_e_primary <- sum(res_e_genus$metadata == "es"                   & res_e_genus$qval <= Q_PRIMARY)
 
 n_sig_a_strict  <- sum(res_a_genus$metadata == "cshasta"              & res_a_genus$qval <= Q_STRICT)
-n_sig_b_strict  <- sum(res_b_genus$metadata == "epithelium_remaining" & res_b_genus$qval <= Q_STRICT)
+n_sig_b_strict  <- sum(res_b_genus$metadata == "percent_epithelium" & res_b_genus$qval <= Q_STRICT)
 n_sig_c_strict  <- sum(res_c_genus$metadata == "hatchery"             & res_c_genus$qval <= Q_STRICT)
 n_sig_d_strict  <- sum(res_d_genus$metadata == "enteritis"            & res_d_genus$qval <= Q_STRICT)
 n_sig_e_strict  <- sum(res_e_genus$metadata == "es"                   & res_e_genus$qval <= Q_STRICT)
@@ -780,7 +753,7 @@ top_a <- res_a_genus %>%
   arrange(qval) %>% select(feature, coef, stderr, pval, qval) %>% head(5)
 
 top_b <- res_b_genus %>%
-  filter(metadata == "epithelium_remaining", qval <= Q_PRIMARY) %>%
+  filter(metadata == "percent_epithelium", qval <= Q_PRIMARY) %>%
   arrange(qval) %>% select(feature, coef, stderr, pval, qval) %>% head(5)
 
 top_c <- res_c_genus %>%
@@ -811,7 +784,7 @@ science_summary <- paste0(
 - Input: ps.tax.filtered from 01_phyloseq.R, ASEnum == 'positive'
 - Samples:                             ", nsamples(ps), "
 - Samples with cshasta:                ", nrow(meta_cs), "
-- Samples with epithelium_remaining:   ", nrow(meta_ep), "
+- Samples with percent_epithelium:   ", nrow(meta_ep), "
 - Samples with hatchery:               ", nrow(meta_ha), "
 - Samples with enteritis:              ", nrow(meta_en), "
 - Samples with es (E. schreckii):      ", nrow(meta_es), "
@@ -826,7 +799,7 @@ science_summary <- paste0(
 - Top 5 by q-value:
 ", paste(capture.output(print(top_a)), collapse = "\n"), "
 
-### Model B: epithelium_remaining
+### Model B: percent_epithelium
 - Significant genera (q < ", Q_PRIMARY, "): ", n_sig_b_primary, "
 - Significant genera (q < ", Q_STRICT,  "): ", n_sig_b_strict, "
 - Top 5 by q-value:
@@ -852,7 +825,7 @@ science_summary <- paste0(
 
 ## Cross-predictor overlap (q < ", Q_PRIMARY, ")
 - cshasta only:              ", sum( all_sig %in% sig_a & !all_sig %in% sig_b & !all_sig %in% sig_c & !all_sig %in% sig_d & !all_sig %in% sig_e), "
-- epithelium_remaining only: ", sum(!all_sig %in% sig_a &  all_sig %in% sig_b & !all_sig %in% sig_c & !all_sig %in% sig_d & !all_sig %in% sig_e), "
+- percent_epithelium only: ", sum(!all_sig %in% sig_a &  all_sig %in% sig_b & !all_sig %in% sig_c & !all_sig %in% sig_d & !all_sig %in% sig_e), "
 - hatchery only:             ", sum(!all_sig %in% sig_a & !all_sig %in% sig_b &  all_sig %in% sig_c & !all_sig %in% sig_d & !all_sig %in% sig_e), "
 - enteritis only:            ", sum(!all_sig %in% sig_a & !all_sig %in% sig_b & !all_sig %in% sig_c &  all_sig %in% sig_d & !all_sig %in% sig_e), "
 - E. schreckii only:         ", sum(!all_sig %in% sig_a & !all_sig %in% sig_b & !all_sig %in% sig_c & !all_sig %in% sig_d &  all_sig %in% sig_e), "
