@@ -84,9 +84,10 @@ ggsave("~/Figure_4f.svg", width = 8, height = 5)
 dispersionA<-betadisper(D_aitch,group=ps.tax.filtered@sam_data$hatchery)
 permutest(dispersionA)
 
-#          Df Sum Sq Mean Sq     F N.Perm Pr(>F)
-#Groups     5 2935.2  587.04 25.49    999  0.001 ***
-#Residuals 54 1243.6   23.03
+#          Df Sum Sq Mean Sq      F N.Perm Pr(>F)    
+#Groups     5 3285.6  657.12 23.008    999  0.001 ***
+#Residuals 57 1627.9   28.56                         
+
 
 # Extract per-sample distances to group centroid for visualization
 #Plot betadisp centroid distance among hatcheries
