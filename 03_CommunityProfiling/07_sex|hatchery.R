@@ -31,10 +31,10 @@ library(vegan)
 #Achison, by hatchery
 adonis2(D_aitch ~ sex, data = metadata, strata = metadata$hatchery)
 
-#         Df SumOfSqs     R2      F Pr(>F)
-#Model     1     4525 0.0222 1.3171  0.572
-#Residual 58   199272 0.9778              
-#Total    59   203797 1.0000   
+#         Df SumOfSqs      R2      F Pr(>F)
+#Model     1     1326 0.02301 1.4367  0.804
+#Residual 61    56291 0.97699              
+#Total    62    57616 1.00000          
 
 
 # --- ANOSIM: sex effect stratified by hatchery ---
@@ -44,12 +44,8 @@ metadata <- metadata[match(rownames(X_clr), rownames(metadata)),]  # align row o
 
 anosim(D_aitch, metadata$sex,strata = metadata$hatchery)
 
-#Call:
-#anosim(x = D_aitch, grouping = metadata$sex, strata = metadata$hatchery)
-#Dissimilarity: euclidean
-
-#ANOSIM statistic R: 0.09464 
- #     Significance: 0.573 
+#ANOSIM statistic R: 0.05082 
+#      Significance: 0.862 
 
 #Blocks:  strata
 #Permutation: free
@@ -59,7 +55,7 @@ anosim(D_aitch, metadata$sex,strata = metadata$hatchery)
 # Tests whether sex explains microbiome variation in the diseased subgroup.
 
 # 1. Subset phyloseq to ASE-positive samples
-ps_ase <- subset_samples(ps.tax.filtered, ASEnum == "positive")
+ps_ase <- subset_samples(ps.tax.filtered, ASE == "positive")
 
 # 2. Recompute Aitchison distance on the subset
 #    (never subset a distance matrix directly — recompute from the filtered object)
@@ -81,12 +77,10 @@ adonis2(D_aitch_ase ~ sex, strata = metadata_ase$hatchery, data = metadata_ase)
 
 # 6. Rerun ANOSIM
 anosim(x = D_aitch_ase, grouping = metadata_ase$sex, strata = metadata_ase$hatchery)
-#ANOSIM statistic R: 0.0068 
-#      Significance: 0.3 
 
-#Blocks:  strata 
-#Permutation: free
-#Number of permutations: 999
+
+#ANOSIM statistic R: 0.01028 
+#      Significance: 0.517 
 
 
 # =============================================================================
