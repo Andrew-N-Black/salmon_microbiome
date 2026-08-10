@@ -12,16 +12,13 @@
 #
 #
 # Inputs:
-#   salmon_microbiome/02_BioinformaticProcessingFiltering/01_phyloseq.R
-#   (provides ps.tax.filtered — 180 taxa x 63 samples, filtered phyloseq)
+#   /Users/andrew/claude/SMB/data/5_ps_Salmon_prefilter.rds
+#   (pre-filtered phyloseq object, loaded directly as ps.tax.filtered)
 #
 # =============================================================================
-
-
 # =============================================================================
 # 0. SETUP
 # =============================================================================
-
 library(phyloseq)
 library(Maaslin2)
 library(ggplot2)
@@ -35,39 +32,32 @@ library(purrr)
 library(ComplexHeatmap)
 library(circlize)
 library(patchwork)
-
 # --- Significance thresholds ---
 Q_PRIMARY <- 0.25   # MaAsLin2 default
 Q_STRICT  <- 0.05   # stricter secondary threshold
-
 # --- Paths ---
+input_rds <- "/Users/andrew/claude/SMB/data/5_ps_Salmon_prefilter.rds"
 dir_out  <- here("salmon_microbiome/04_00_MAASLIN2")
 dir_fig  <- file.path(dir_out, "figures")
 dir_tbl  <- file.path(dir_out, "tables")
 dir_maas <- file.path(dir_out, "maaslin2_output")
-
 dir.create(dir_fig,  recursive = TRUE, showWarnings = FALSE)
 dir.create(dir_tbl,  recursive = TRUE, showWarnings = FALSE)
 dir.create(dir_maas, recursive = TRUE, showWarnings = FALSE)
-
-
 # =============================================================================
 # HELPER FUNCTIONS
 # =============================================================================
-
 # Extract OTU matrix, guaranteed samples x taxa orientation
 get_otu_samples_x_taxa <- function(ps) {
   m <- as(otu_table(ps), "matrix")
   if (taxa_are_rows(ps)) m <- t(m)
   m
 }
-
 # CLR transformation with pseudocount
 clr_transform <- function(mat) {
   mat <- mat + 1
   t(apply(mat, 1, function(x) log(x) - mean(log(x))))
 }
-
 # Best available taxonomic label for a taxon (for readable plot labels)
 best_tax_label <- function(tax_df) {
   dplyr::coalesce(
@@ -79,7 +69,6 @@ best_tax_label <- function(tax_df) {
     "unclassified"
   )
 }
-
 # CLR transformation with pseudocount for MaAsLin2 input.
 # Pre-transform and pass normalization = "NONE", transform = "NONE"
 # so MaAsLin2 uses the CLR values as-is.
@@ -87,15 +76,12 @@ clr_transform_maaslin <- function(mat) {
   mat <- mat + 1
   t(apply(mat, 1, function(x) log(x) - mean(log(x))))
 }
-
 # Run a MaAsLin2 model and return the results table with model label
 run_maaslin <- function(features, metadata, fixed_effects, output_dir,
                         model_name, min_prevalence = 0.1, reference = "") {
   out_path <- file.path(output_dir, model_name)
   dir.create(out_path, recursive = TRUE, showWarnings = FALSE)
-
   features_clr <- clr_transform_maaslin(features)
-
   fit <- tryCatch(
     Maaslin2(
       input_data     = features_clr,
@@ -115,14 +101,11 @@ run_maaslin <- function(features, metadata, fixed_effects, output_dir,
       return(NULL)
     }
   )
-
   if (is.null(fit)) return(NULL)
-
   fit$results %>%
     mutate(model = model_name) %>%
     as_tibble()
 }
-
 # Coefficient plot for a single predictor from MaAsLin2 results
 plot_coef <- function(results_df, predictor, title_str,
                       q_threshold = Q_PRIMARY, top_n = 20) {
@@ -133,7 +116,6 @@ plot_coef <- function(results_df, predictor, title_str,
   df_sorted <- results_df %>%
     filter(metadata == predictor, qval <= q_threshold) %>%
     arrange(coef)
-
   # Use head/tail to avoid dplyr::slice conflict with Biostrings::slice
   n_each <- floor(top_n / 2)
   df <- bind_rows(head(df_sorted, n_each), tail(df_sorted, n_each)) %>%
@@ -143,12 +125,10 @@ plot_coef <- function(results_df, predictor, title_str,
       feature   = factor(feature, levels = unique(feature)),
       direction = ifelse(coef > 0, "positive", "negative")
     )
-
   if (nrow(df) == 0) {
     message("No significant taxa for ", predictor, " at q < ", q_threshold)
     return(NULL)
   }
-
   ggplot(df, aes(x = coef, y = feature, color = direction)) +
     geom_vline(xintercept = 0, linetype = "dashed", color = "grey60") +
     geom_errorbar(aes(xmin = coef - stderr, xmax = coef + stderr),
@@ -167,88 +147,70 @@ plot_coef <- function(results_df, predictor, title_str,
     theme(plot.title    = element_text(face = "bold", hjust = 0.5),
           plot.subtitle = element_text(hjust = 0.5, color = "grey50"))
 }
-
-
 # =============================================================================
 # 1. LOAD DATA AND PREPARE INPUTS
 # =============================================================================
-
 cat("\n--- 1. LOAD DATA AND PREPARE INPUTS ---\n")
-
-# Source 01_phyloseq.R to obtain ps.tax.filtered (324 taxa x 60 samples).
-# This script reads raw qiime2 artifacts, removes contaminants, renames ASVs
-# to human-readable IDs (ASV1…ASVN), and applies prevalence/abundance filters.
-source(here("salmon_microbiome/02_BioinformaticProcessingFiltering/01_phyloseq.R"))
-
+# Load the pre-filtered phyloseq object directly from disk.
+ps.tax.filtered <- readRDS(input_rds)
+cat("Loaded ps.tax.filtered from", input_rds, "\n")
+# Read in full metadata for n=80 samples
+metadata <- read.delim("~/metadata_full_EL.txt", row.names = 1, header = TRUE, check.names = FALSE)
+# replace the sample_data slot
+sample_data(ps.tax.filtered) <- sample_data(metadata)
+cat("Attached metadata from ~/metadata_full_EL.txt -", ncol(metadata), "variables x", nrow(metadata), "samples\n")
 # Restrict to ASE-positive (diseased) fish — parasite and pathology variation
 # is most interpretable within this subset where ASE has been confirmed
-ps <- subset_samples(ps.tax.filtered, ASEnum == "positive")
-cat("Using ps.tax.filtered from 01_phyloseq.R, subsetted to ASEnum == 'positive'\n")
+ps <- subset_samples(ps.tax.filtered, ASE == "positive")
 cat("Samples:", nsamples(ps), "\n")
 cat("Taxa:   ", ntaxa(ps),    "\n")
-
 # Metadata
 meta <- data.frame(sample_data(ps), check.names = FALSE)
-
 # Coerce predictor types for MaAsLin2 (numeric for continuous, character for categorical)
 meta$hatchery             <- as.character(meta$hatchery)   # categorical; MaAsLin2 will dummy-code
 meta$enteritis            <- as.character(meta$enteritis)  # ordinal treated as categorical
 meta$es                   <- as.numeric(meta$es)           # treated as continuous ordinal
 meta$percent_epithelium <- as.numeric(meta$percent_epithelium)  # continuous (0–100%)
 meta$cshasta              <- as.numeric(meta$cshasta)      # treated as continuous ordinal
-
 cat("\nMissingness in key predictors:\n")
 cat("cshasta missing:              ", sum(is.na(meta$cshasta)), "\n")
 cat("percent_epithelium missing: ", sum(is.na(meta$percent_epithelium)), "\n")
 cat("hatchery missing:             ", sum(is.na(meta$hatchery)), "\n")
 cat("enteritis missing:            ", sum(is.na(meta$enteritis)), "\n")
 cat("es missing:                   ", sum(is.na(meta$es)), "\n")
-
-
 # -----------------------------------------------------------------------------
 # 1.1 ASV-level feature table
 # MaAsLin2 expects samples x features, row names = sample IDs
 # -----------------------------------------------------------------------------
-
 asv_mat <- get_otu_samples_x_taxa(ps)   # samples x ASVs
 colnames(asv_mat) <- make.names(colnames(asv_mat))  # sanitize names for R/MaAsLin2 compatibility
 cat("\nASV feature table:", nrow(asv_mat), "samples x", ncol(asv_mat), "ASVs\n")
-
-
 # -----------------------------------------------------------------------------
 # 1.2 Genus-level agglomeration
 # Taxa without genus assignment are retained at finest resolved level
 # using best_tax_label. This avoids discarding unclassified taxa.
 # -----------------------------------------------------------------------------
-
 cat("\n--- 1.2 Genus-level agglomeration ---\n")
-
 # tax_glom merges all ASVs sharing the same genus; NArm=FALSE retains unclassified genera
 ps_genus <- tax_glom(ps, taxrank = "Genus", NArm = FALSE)
-
 tax_genus_df <- as.data.frame(tax_table(ps_genus))
 genus_labels <- best_tax_label(tax_genus_df)   # use finest resolved taxonomy as label
 genus_labels <- make.unique(genus_labels, sep = "_")  # append _1, _2 if duplicate genus names
 taxa_names(ps_genus) <- genus_labels
-
 genus_mat <- get_otu_samples_x_taxa(ps_genus)   # samples x genera
 colnames(genus_mat) <- make.names(colnames(genus_mat))  # sanitize names
-
 cat("Genus feature table:", nrow(genus_mat), "samples x", ncol(genus_mat), "genera\n")
-
 # Export genus label key
+# Built from whatever rank columns actually exist in tax_genus_df (rather than
+# hardcoding "Domain", which errors out if the tax_table's top rank is named
+# "Kingdom" instead -- a common alternative convention).
 genus_key <- data.frame(
   genus_label = genus_labels,
-  Domain      = tax_genus_df$Domain,
-  Phylum      = tax_genus_df$Phylum,
-  Class       = tax_genus_df$Class,
-  Order       = tax_genus_df$Order,
-  Family      = tax_genus_df$Family,
-  Genus       = tax_genus_df$Genus
+  tax_genus_df,
+  row.names    = NULL,
+  check.names  = FALSE
 )
 write_csv(genus_key, file.path(dir_tbl, "00_genus_label_key.csv"))
-
-
 # =============================================================================
 # 2. MAASLIN2 — PRIMARY MODELS
 # =============================================================================
@@ -256,17 +218,12 @@ write_csv(genus_key, file.path(dir_tbl, "00_genus_label_key.csv"))
 # Run at both ASV and genus level.
 # normalization = "NONE", transform = "NONE" (CLR applied above)
 # =============================================================================
-
 cat("\n--- 2. MAASLIN2 PRIMARY MODELS ---\n")
-
-
 # --- Model A: cshasta ---
 cat("\n-- Model A: cshasta (C. shasta load) --\n")
-
 meta_cs      <- meta %>% filter(!is.na(cshasta))
 asv_mat_cs   <- asv_mat[rownames(meta_cs), ]
 genus_mat_cs <- genus_mat[rownames(meta_cs), ]
-
 res_a_genus <- run_maaslin(
   features      = genus_mat_cs,
   metadata      = meta_cs,
@@ -274,7 +231,6 @@ res_a_genus <- run_maaslin(
   output_dir    = dir_maas,
   model_name    = "A_genus_cshasta"
 )
-
 res_a_asv <- run_maaslin(
   features      = asv_mat_cs,
   metadata      = meta_cs,
@@ -282,20 +238,15 @@ res_a_asv <- run_maaslin(
   output_dir    = dir_maas,
   model_name    = "A_asv_cshasta"
 )
-
 cat("Model A genus — significant taxa (q <", Q_PRIMARY, "):",
     sum(res_a_genus$metadata == "cshasta" & res_a_genus$qval <= Q_PRIMARY), "\n")
 cat("Model A ASV   — significant ASVs  (q <", Q_PRIMARY, "):",
     sum(res_a_asv$metadata == "cshasta" & res_a_asv$qval <= Q_PRIMARY), "\n")
-
-
 # --- Model B: percent_epithelium ---
 cat("\n-- Model B: percent_epithelium --\n")
-
 meta_ep      <- meta %>% filter(!is.na(percent_epithelium))
 asv_mat_ep   <- asv_mat[rownames(meta_ep), ]
 genus_mat_ep <- genus_mat[rownames(meta_ep), ]
-
 res_b_genus <- run_maaslin(
   features      = genus_mat_ep,
   metadata      = meta_ep,
@@ -303,7 +254,6 @@ res_b_genus <- run_maaslin(
   output_dir    = dir_maas,
   model_name    = "B_genus_percent_epithelium"
 )
-
 res_b_asv <- run_maaslin(
   features      = asv_mat_ep,
   metadata      = meta_ep,
@@ -311,20 +261,15 @@ res_b_asv <- run_maaslin(
   output_dir    = dir_maas,
   model_name    = "B_asv_percent_epithelium"
 )
-
 cat("Model B genus — significant taxa (q <", Q_PRIMARY, "):",
     sum(res_b_genus$metadata == "percent_epithelium" & res_b_genus$qval <= Q_PRIMARY), "\n")
 cat("Model B ASV   — significant ASVs  (q <", Q_PRIMARY, "):",
     sum(res_b_asv$metadata == "percent_epithelium" & res_b_asv$qval <= Q_PRIMARY), "\n")
-
-
 # --- Model C: hatchery ---
 cat("\n-- Model C: hatchery --\n")
-
 meta_ha      <- meta %>% filter(!is.na(hatchery))
 asv_mat_ha   <- asv_mat[rownames(meta_ha), ]
 genus_mat_ha <- genus_mat[rownames(meta_ha), ]
-
 res_c_genus <- run_maaslin(
   features      = genus_mat_ha,
   metadata      = meta_ha,
@@ -333,7 +278,6 @@ res_c_genus <- run_maaslin(
   model_name    = "C_genus_hatchery",
   reference     = "hatchery,round_butte"  # round_butte chosen as reference; all other hatcheries compared to it
 )
-
 res_c_asv <- run_maaslin(
   features      = asv_mat_ha,
   metadata      = meta_ha,
@@ -342,20 +286,15 @@ res_c_asv <- run_maaslin(
   model_name    = "C_asv_hatchery",
   reference     = "hatchery,round_butte"  # same reference as genus model for consistency
 )
-
 cat("Model C genus — significant taxa (q <", Q_PRIMARY, "):",
     sum(res_c_genus$metadata == "hatchery" & res_c_genus$qval <= Q_PRIMARY), "\n")
 cat("Model C ASV   — significant ASVs  (q <", Q_PRIMARY, "):",
     sum(res_c_asv$metadata == "hatchery" & res_c_asv$qval <= Q_PRIMARY), "\n")
-
-
 # --- Model D: enteritis ---
 cat("\n-- Model D: enteritis --\n")
-
 meta_en      <- meta %>% filter(!is.na(enteritis))
 asv_mat_en   <- asv_mat[rownames(meta_en), ]
 genus_mat_en <- genus_mat[rownames(meta_en), ]
-
 res_d_genus <- run_maaslin(
   features      = genus_mat_en,
   metadata      = meta_en,
@@ -363,7 +302,6 @@ res_d_genus <- run_maaslin(
   output_dir    = dir_maas,
   model_name    = "D_genus_enteritis"
 )
-
 res_d_asv <- run_maaslin(
   features      = asv_mat_en,
   metadata      = meta_en,
@@ -371,20 +309,15 @@ res_d_asv <- run_maaslin(
   output_dir    = dir_maas,
   model_name    = "D_asv_enteritis"
 )
-
 cat("Model D genus — significant taxa (q <", Q_PRIMARY, "):",
     sum(res_d_genus$metadata == "enteritis" & res_d_genus$qval <= Q_PRIMARY), "\n")
 cat("Model D ASV   — significant ASVs  (q <", Q_PRIMARY, "):",
     sum(res_d_asv$metadata == "enteritis" & res_d_asv$qval <= Q_PRIMARY), "\n")
-
-
 # --- Model E: es ---
 cat("\n-- Model E: es (Enterocytozoon schreckii) --\n")
-
 meta_es      <- meta %>% filter(!is.na(es))
 asv_mat_es   <- asv_mat[rownames(meta_es), ]
 genus_mat_es <- genus_mat[rownames(meta_es), ]
-
 res_e_genus <- run_maaslin(
   features      = genus_mat_es,
   metadata      = meta_es,
@@ -392,7 +325,6 @@ res_e_genus <- run_maaslin(
   output_dir    = dir_maas,
   model_name    = "E_genus_es"
 )
-
 res_e_asv <- run_maaslin(
   features      = asv_mat_es,
   metadata      = meta_es,
@@ -400,35 +332,25 @@ res_e_asv <- run_maaslin(
   output_dir    = dir_maas,
   model_name    = "E_asv_es"
 )
-
 cat("Model E genus — significant taxa (q <", Q_PRIMARY, "):",
     sum(res_e_genus$metadata == "es" & res_e_genus$qval <= Q_PRIMARY), "\n")
 cat("Model E ASV   — significant ASVs  (q <", Q_PRIMARY, "):",
     sum(res_e_asv$metadata == "es" & res_e_asv$qval <= Q_PRIMARY), "\n")
-
 # Export primary results
 primary_genus <- bind_rows(res_a_genus, res_b_genus, res_c_genus,
                            res_d_genus, res_e_genus)
 primary_asv   <- bind_rows(res_a_asv,   res_b_asv,   res_c_asv,
                            res_d_asv,   res_e_asv)
-
 write_csv(primary_genus, file.path(dir_tbl, "01_maaslin2_primary_genus.csv"))
 write_csv(primary_asv,   file.path(dir_tbl, "01_maaslin2_primary_asv.csv"))
-
-
 # =============================================================================
 # 3. VISUALISATION
 # =============================================================================
-
 cat("\n--- 3. VISUALISATION ---\n")
-
-
 # -----------------------------------------------------------------------------
 # 3.1 Coefficient plots — genus level, primary models
 # -----------------------------------------------------------------------------
-
 cat("\n-- 3.1 Coefficient plots --\n")
-
 p_coef_a <- plot_coef(
   res_a_genus, "cshasta",
   "Taxa associated with C. shasta load (cshasta)"
@@ -437,7 +359,6 @@ if (!is.null(p_coef_a)) {
   ggsave(file.path(dir_fig, "01_coef_cshasta.png"), p_coef_a, width = 8, height = 6, dpi = 300)
   ggsave(file.path(dir_fig, "01_coef_cshasta.svg"), p_coef_a, width = 8, height = 6)
 }
-
 p_coef_b <- plot_coef(
   res_b_genus, "percent_epithelium",
   "Taxa associated with epithelium remaining (percent_epithelium)"
@@ -446,7 +367,6 @@ if (!is.null(p_coef_b)) {
   ggsave(file.path(dir_fig, "02_coef_percent_epithelium.png"), p_coef_b, width = 8, height = 6, dpi = 300)
   ggsave(file.path(dir_fig, "02_coef_percent_epithelium.svg"), p_coef_b, width = 8, height = 6)
 }
-
 p_coef_c <- plot_coef(
   res_c_genus, "hatchery",
   "Taxa associated with hatchery origin (hatchery)"
@@ -455,7 +375,6 @@ if (!is.null(p_coef_c)) {
   ggsave(file.path(dir_fig, "03_coef_hatchery.png"), p_coef_c, width = 8, height = 6, dpi = 300)
   ggsave(file.path(dir_fig, "03_coef_hatchery.svg"), p_coef_c, width = 8, height = 6)
 }
-
 p_coef_d <- plot_coef(
   res_d_genus, "enteritis",
   "Taxa associated with enteritis grade (enteritis)"
@@ -464,7 +383,6 @@ if (!is.null(p_coef_d)) {
   ggsave(file.path(dir_fig, "04_coef_enteritis.png"), p_coef_d, width = 8, height = 6, dpi = 300)
   ggsave(file.path(dir_fig, "04_coef_enteritis.svg"), p_coef_d, width = 8, height = 6)
 }
-
 p_coef_e <- plot_coef(
   res_e_genus, "es",
   "Taxa associated with Enterocytozoon schreckii (es)"
@@ -473,15 +391,11 @@ if (!is.null(p_coef_e)) {
   ggsave(file.path(dir_fig, "05_coef_es.png"), p_coef_e, width = 8, height = 6, dpi = 300)
   ggsave(file.path(dir_fig, "05_coef_es.svg"), p_coef_e, width = 8, height = 6)
 }
-
-
 # -----------------------------------------------------------------------------
 # 3.2 Cross-predictor overlap — UpSet plot
 # Which taxa are significant across multiple predictors?
 # -----------------------------------------------------------------------------
-
 cat("\n-- 3.2 Cross-predictor overlap --\n")
-
 sig_a <- res_a_genus %>%
   filter(metadata == "cshasta",              qval <= Q_PRIMARY) %>% pull(feature)
 sig_b <- res_b_genus %>%
@@ -492,9 +406,7 @@ sig_d <- res_d_genus %>%
   filter(metadata == "enteritis",            qval <= Q_PRIMARY) %>% pull(feature)
 sig_e <- res_e_genus %>%
   filter(metadata == "es",                   qval <= Q_PRIMARY) %>% pull(feature)
-
 all_sig <- unique(c(sig_a, sig_b, sig_c, sig_d, sig_e))
-
 if (length(all_sig) > 0) {
   upset_df <- data.frame(
     feature              = all_sig,
@@ -504,27 +416,20 @@ if (length(all_sig) > 0) {
     enteritis            = as.integer(all_sig %in% sig_d),
     E_schreckii          = as.integer(all_sig %in% sig_e)
   )
-
   write_csv(upset_df, file.path(dir_tbl, "04_significant_taxa_overlap.csv"))
-
   all_sets    <- c("cshasta", "percent_epithelium",
                    "hatchery", "enteritis", "E_schreckii")
   active_sets <- all_sets[colSums(upset_df[, all_sets]) > 0]
-
   if (length(active_sets) >= 2) {
-
     mat      <- as.matrix(upset_df[, active_sets])
     patterns <- apply(mat, 1, paste, collapse = "-")
-
     inter_df <- data.frame(pattern = patterns, stringsAsFactors = FALSE) %>%
       count(pattern, name = "count") %>%
       arrange(desc(count)) %>%
       mutate(x = row_number())
-
     mem_mat <- do.call(rbind, strsplit(inter_df$pattern, "-"))
     mode(mem_mat) <- "integer"
     colnames(mem_mat) <- active_sets
-
     dot_df <- as.data.frame(mem_mat) %>%
       mutate(x = seq_len(nrow(inter_df))) %>%
       pivot_longer(cols      = all_of(active_sets),
@@ -532,13 +437,11 @@ if (length(all_sig) > 0) {
                    values_to = "filled") %>%
       mutate(y      = match(set, active_sets),
              filled = as.logical(filled))
-
     line_df <- dot_df %>%
       filter(filled) %>%
       group_by(x) %>%
       summarise(ymin = min(y), ymax = max(y), .groups = "drop") %>%
       filter(ymax > ymin)
-
     p_bar <- ggplot(inter_df, aes(x = x, y = count)) +
       geom_col(fill = "steelblue", width = 0.6) +
       geom_text(aes(label = count), vjust = -0.4, size = 3.5) +
@@ -550,7 +453,6 @@ if (length(all_sig) > 0) {
             axis.title.x = element_blank(),
             plot.margin  = margin(5, 5, 0, 5)) +
       labs(y = "Intersection size")
-
     p_dot <- ggplot() +
       geom_point(data = dot_df %>% filter(!filled),
                  aes(x = x, y = y),
@@ -570,7 +472,6 @@ if (length(all_sig) > 0) {
             axis.title.x = element_blank(),
             axis.title.y = element_blank(),
             plot.margin  = margin(0, 5, 5, 5))
-
     p_upset <- p_bar / p_dot +
       plot_layout(heights = c(3, 2)) +
       plot_annotation(
@@ -579,14 +480,11 @@ if (length(all_sig) > 0) {
                                                 hjust  = 0.5,
                                                 size   = 14))
       )
-
     ggsave(file.path(dir_fig, "06_upset_overlap.png"), p_upset, width = 10, height = 6, dpi = 300)
     ggsave(file.path(dir_fig, "06_upset_overlap.svg"), p_upset, width = 10, height = 6)
-
   } else {
     cat("UpSet plot skipped: fewer than 2 predictors have significant taxa.\n")
   }
-
   cat("Significant taxa (q <", Q_PRIMARY, "):\n")
   cat("  cshasta:              ", length(sig_a), "\n")
   cat("  percent_epithelium: ", length(sig_b), "\n")
@@ -600,32 +498,23 @@ if (length(all_sig) > 0) {
 } else {
   cat("No significant taxa at q <", Q_PRIMARY, "across any predictor.\n")
 }
-
-
 # -----------------------------------------------------------------------------
 # 3.3 Heatmap of significant taxa ordered by hatchery
 # Rows: significant taxa (union across all five predictors, genus level)
 # Columns: samples ordered by hatchery
 # Color: CLR-transformed abundance
 # -----------------------------------------------------------------------------
-
 cat("\n-- 3.3 Heatmap --\n")
-
 if (length(all_sig) > 0) {
-
   # Order samples by enteritis grade (E0 -> E3) to reveal gradient-related patterns
   meta_ordered <- meta %>%
     filter(!is.na(enteritis)) %>%
     arrange(enteritis)
-
   sample_order <- rownames(meta_ordered)
-
   # CLR-transform the genus matrix for consistent display with MaAsLin2 model space
   genus_clr <- clr_transform(genus_mat)
-
   heat_mat <- genus_clr[sample_order, all_sig, drop = FALSE]
   heat_mat <- t(heat_mat)   # transpose to taxa x samples for ComplexHeatmap
-
   enteritis_levels <- sort(unique(meta_ordered$enteritis[!is.na(meta_ordered$enteritis)]))
   col_anno <- HeatmapAnnotation(
     enteritis = meta_ordered$enteritis,
@@ -641,14 +530,12 @@ if (length(all_sig) > 0) {
     annotation_name_rot  = 0,
     na_col = "grey90"
   )
-
   row_sig <- data.frame(
     hatchery    = ifelse(all_sig %in% sig_c, "sig", "ns"),
     enteritis   = ifelse(all_sig %in% sig_d, "sig", "ns"),
     E_schreckii = ifelse(all_sig %in% sig_e, "sig", "ns"),
     row.names   = all_sig
   )
-
   row_anno <- rowAnnotation(
     hatchery    = row_sig$hatchery,
     enteritis   = row_sig$enteritis,
@@ -664,13 +551,11 @@ if (length(all_sig) > 0) {
     annotation_name_rot   = 45,
     show_annotation_name  = c(TRUE, TRUE, FALSE)
   )
-
   clr_range <- max(abs(heat_mat), na.rm = TRUE)
   col_fun   <- colorRamp2(
     c(-clr_range, 0, clr_range),
     c("#2166AC", "white", "#B2182B")
   )
-
   ht <- Heatmap(
     heat_mat,
     name              = "CLR\nabundance",
@@ -681,7 +566,7 @@ if (length(all_sig) > 0) {
     row_names_gp      = gpar(fontsize = 10),
     top_annotation    = col_anno,
     right_annotation  = row_anno,
-    column_title      = "Samples ordered by enteritis score \u2192",
+    column_title      = "Samples ordered by enteritis score →",
     row_title         = sprintf("Significant taxa (q < %.2f, any predictor)",
                                 Q_PRIMARY),
     column_title_gp   = gpar(fontsize = 12, fontface = "bold"),
@@ -691,10 +576,8 @@ if (length(all_sig) > 0) {
       labels_gp = gpar(fontsize = 10)
     )
   )
-
   fig_w <- 12
   fig_h <- max(6, length(all_sig) * 0.25 + 3)
-
   add_es_label <- function() {
     decorate_annotation("E_schreckii", {
       pushViewport(viewport(clip = "off"))
@@ -709,79 +592,62 @@ if (length(all_sig) > 0) {
       popViewport()
     })
   }
-
   png(file.path(dir_fig, "07_heatmap_significant_taxa.png"),
       width = fig_w, height = fig_h, units = "in", res = 300)
   draw(ht)
   add_es_label()
   dev.off()
-
   svg(file.path(dir_fig, "07_heatmap_significant_taxa.svg"),
       width = fig_w, height = fig_h)
   draw(ht)
   add_es_label()
   dev.off()
-
   cat("Heatmap saved:", length(all_sig), "taxa x",
       length(sample_order), "samples\n")
-
 } else {
   cat("No significant taxa to plot in heatmap.\n")
 }
-
-
 # =============================================================================
 # 4. SCIENCE SUMMARY
 # =============================================================================
-
 cat("\n--- 4. SCIENCE SUMMARY ---\n")
-
 n_sig_a_primary <- sum(res_a_genus$metadata == "cshasta"              & res_a_genus$qval <= Q_PRIMARY)
 n_sig_b_primary <- sum(res_b_genus$metadata == "percent_epithelium" & res_b_genus$qval <= Q_PRIMARY)
 n_sig_c_primary <- sum(res_c_genus$metadata == "hatchery"             & res_c_genus$qval <= Q_PRIMARY)
 n_sig_d_primary <- sum(res_d_genus$metadata == "enteritis"            & res_d_genus$qval <= Q_PRIMARY)
 n_sig_e_primary <- sum(res_e_genus$metadata == "es"                   & res_e_genus$qval <= Q_PRIMARY)
-
 n_sig_a_strict  <- sum(res_a_genus$metadata == "cshasta"              & res_a_genus$qval <= Q_STRICT)
 n_sig_b_strict  <- sum(res_b_genus$metadata == "percent_epithelium" & res_b_genus$qval <= Q_STRICT)
 n_sig_c_strict  <- sum(res_c_genus$metadata == "hatchery"             & res_c_genus$qval <= Q_STRICT)
 n_sig_d_strict  <- sum(res_d_genus$metadata == "enteritis"            & res_d_genus$qval <= Q_STRICT)
 n_sig_e_strict  <- sum(res_e_genus$metadata == "es"                   & res_e_genus$qval <= Q_STRICT)
-
 top_a <- res_a_genus %>%
   filter(metadata == "cshasta",              qval <= Q_PRIMARY) %>%
   arrange(qval) %>% select(feature, coef, stderr, pval, qval) %>% head(5)
-
 top_b <- res_b_genus %>%
   filter(metadata == "percent_epithelium", qval <= Q_PRIMARY) %>%
   arrange(qval) %>% select(feature, coef, stderr, pval, qval) %>% head(5)
-
 top_c <- res_c_genus %>%
   filter(metadata == "hatchery",             qval <= Q_PRIMARY) %>%
   arrange(qval) %>% select(feature, coef, stderr, pval, qval) %>% head(5)
-
 top_d <- res_d_genus %>%
   filter(metadata == "enteritis",            qval <= Q_PRIMARY) %>%
   arrange(qval) %>% select(feature, coef, stderr, pval, qval) %>% head(5)
-
 top_e <- res_e_genus %>%
   filter(metadata == "es",                   qval <= Q_PRIMARY) %>%
   arrange(qval) %>% select(feature, coef, stderr, pval, qval) %>% head(5)
-
 science_summary <- paste0(
   "# 04_00 Taxon Associations — Run Results
 # Paste this file into Claude to continue downstream analysis.
 # Generated: ", Sys.time(), "
-
 ## Settings
 - Normalisation: NONE
 - Transform: CLR (pre-applied)
 - Significance threshold (primary): q < ", Q_PRIMARY, "
 - Significance threshold (strict):  q < ", Q_STRICT, "
 - Level: genus (primary), ASV (supplementary)
-
 ## Dataset
-- Input: ps.tax.filtered from 01_phyloseq.R, ASEnum == 'positive'
+- Input: ", input_rds, ", ASE == 'positive'
 - Samples:                             ", nsamples(ps), "
 - Samples with cshasta:                ", nrow(meta_cs), "
 - Samples with percent_epithelium:   ", nrow(meta_ep), "
@@ -790,39 +656,32 @@ science_summary <- paste0(
 - Samples with es (E. schreckii):      ", nrow(meta_es), "
 - Genera tested:                       ", ncol(genus_mat), "
 - ASVs tested:                         ", ncol(asv_mat), "
-
 ## Primary model results (genus level)
-
 ### Model A: cshasta
 - Significant genera (q < ", Q_PRIMARY, "): ", n_sig_a_primary, "
 - Significant genera (q < ", Q_STRICT,  "): ", n_sig_a_strict, "
 - Top 5 by q-value:
 ", paste(capture.output(print(top_a)), collapse = "\n"), "
-
 ### Model B: percent_epithelium
 - Significant genera (q < ", Q_PRIMARY, "): ", n_sig_b_primary, "
 - Significant genera (q < ", Q_STRICT,  "): ", n_sig_b_strict, "
 - Top 5 by q-value:
 ", paste(capture.output(print(top_b)), collapse = "\n"), "
-
 ### Model C: hatchery
 - Significant genera (q < ", Q_PRIMARY, "): ", n_sig_c_primary, "
 - Significant genera (q < ", Q_STRICT,  "): ", n_sig_c_strict, "
 - Top 5 by q-value:
 ", paste(capture.output(print(top_c)), collapse = "\n"), "
-
 ### Model D: enteritis
 - Significant genera (q < ", Q_PRIMARY, "): ", n_sig_d_primary, "
 - Significant genera (q < ", Q_STRICT,  "): ", n_sig_d_strict, "
 - Top 5 by q-value:
 ", paste(capture.output(print(top_d)), collapse = "\n"), "
-
 ### Model E: es (Enterocytozoon schreckii)
 - Significant genera (q < ", Q_PRIMARY, "): ", n_sig_e_primary, "
 - Significant genera (q < ", Q_STRICT,  "): ", n_sig_e_strict, "
 - Top 5 by q-value:
 ", paste(capture.output(print(top_e)), collapse = "\n"), "
-
 ## Cross-predictor overlap (q < ", Q_PRIMARY, ")
 - cshasta only:              ", sum( all_sig %in% sig_a & !all_sig %in% sig_b & !all_sig %in% sig_c & !all_sig %in% sig_d & !all_sig %in% sig_e), "
 - percent_epithelium only: ", sum(!all_sig %in% sig_a &  all_sig %in% sig_b & !all_sig %in% sig_c & !all_sig %in% sig_d & !all_sig %in% sig_e), "
@@ -830,7 +689,6 @@ science_summary <- paste0(
 - enteritis only:            ", sum(!all_sig %in% sig_a & !all_sig %in% sig_b & !all_sig %in% sig_c &  all_sig %in% sig_d & !all_sig %in% sig_e), "
 - E. schreckii only:         ", sum(!all_sig %in% sig_a & !all_sig %in% sig_b & !all_sig %in% sig_c & !all_sig %in% sig_d &  all_sig %in% sig_e), "
 - All five predictors:       ", sum( all_sig %in% sig_a &  all_sig %in% sig_b &  all_sig %in% sig_c &  all_sig %in% sig_d &  all_sig %in% sig_e), "
-
 ## Key files
 - 00_genus_label_key.csv                : genus labels to full taxonomy
 - 01_maaslin2_primary_genus.csv         : primary model results (genus)
@@ -839,15 +697,11 @@ science_summary <- paste0(
 - maaslin2_output/                      : full MaAsLin2 output per model
 "
 )
-
 writeLines(science_summary, file.path(dir_tbl, "05_science_summary.txt"))
 cat("Science summary saved.\n")
-
-
 # =============================================================================
 # SESSION INFO
 # =============================================================================
-
 cat("\n--- SESSION INFO ---\n")
 session_info <- sessionInfo()
 print(session_info)
