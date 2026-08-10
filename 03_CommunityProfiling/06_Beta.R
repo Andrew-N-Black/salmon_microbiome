@@ -145,12 +145,12 @@ anosim(D_aitch, metadata$ASE)
 #Analysis of similarity-by hatchery
 anosim(D_aitch, metadata$hatchery)
 
-#ANOSIM statistic R: -0.04797 
-  #    Significance: 0.768 
+#ANOSIM statistic R: 0.05997 
+#      Significance: 0.105 
 
 #Analysis of similarity-by ASE
 anosim(D_aitch, metadata$ASE)
 
 #ANOSIM statistic R: -0.04797 
-  #    Significance: 0.748 
+ #     Significance: 0.769 
 
