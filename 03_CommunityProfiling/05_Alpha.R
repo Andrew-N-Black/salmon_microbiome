@@ -32,17 +32,16 @@ ggsave("~/Figure_4a.svg", width = 8, height = 5)
 
 # --- Kruskal-Wallis: richness and diversity differ by hatchery? ---
 # plot_richness returns a long data frame; first 60 rows = Observed, next 60 = Shannon
-observed<-p$data[1:60,]
+observed<-p$data[1:63,]
 kruskal.test(value ~ hatchery, data = observed)
 
-#Kruskal-Wallis chi-squared = 27.497, df = 5,
-#p-value = 4.564e-05
+#Kruskal-Wallis chi-squared = 28.605, df = 5, p-value = 2.771e-05
 
-shannon<-p$data[61:121,]
+
+shannon<-p$data[64:126,]
 kruskal.test(value ~ hatchery, data = shannon)
 
-#Kruskal-Wallis chi-squared = 36.94, df = 5,
-#p-value = 6.159e-07
+#Kruskal-Wallis chi-squared = 31.838, df = 5, p-value = 6.396e-06
 
 
 
@@ -52,16 +51,14 @@ p + geom_boxplot(size=.5)+scale_color_brewer(palette = "Dark2")+theme(axis.title
 ggsave("~/Figure_4d.svg", width = 8, height = 5)
 
 # --- Kruskal-Wallis: richness and diversity differ by ASE? ---
-observed<-p$data[1:60,]
+observed<-p$data[1:63,]
 kruskal.test(value ~ ASE, data = observed)
 
-#Kruskal-Wallis chi-squared = 13.998, df = 1,
-#p-value = 0.000183
+#Kruskal-Wallis chi-squared = 13.25, df = 1, p-value = 0.0002726
 
-shannon<-p$data[61:121,]
+shannon<-p$data[64:126,]
 kruskal.test(value ~ ASE, data = shannon)
 
-#Kruskal-Wallis chi-squared = 26.133, df = 1,
-#p-value = 3.186e-07
+#Kruskal-Wallis chi-squared = 22.179, df = 1, p-value = 2.484e-06
 
 
