@@ -10,8 +10,9 @@
 #   genus level, with a coefficient plot summarising significant taxa.
 #
 # Inputs:
-#   /Users/andrew/claude/SMB/data/5_ps_Salmon_prefilter.rds
-#   (pre-filtered phyloseq object, loaded as ps.tax.phyloseq)
+#   ps.tax.filtered -- pre-existing phyloseq object, assumed already present
+#   in the R environment (e.g. from sourcing 01_phyloseq.R earlier in the
+#   session). This script does NOT load it from disk.
 #   ~/metadata_full_EL.txt (full metadata for n=63 samples, incl. ASE status)
 #
 # =============================================================================
@@ -32,7 +33,6 @@ library(purrr)
 Q_PRIMARY <- 0.25   # MaAsLin2 default
 Q_STRICT  <- 0.05   # stricter secondary threshold
 # --- Paths ---
-input_rds <- "/Users/andrew/claude/SMB/data/5_ps_Salmon_prefilter.rds"
 dir_out  <- here("salmon_microbiome/04_01_MAASLIN2_ASE")
 dir_fig  <- file.path(dir_out, "figures")
 dir_tbl  <- file.path(dir_out, "tables")
@@ -142,15 +142,21 @@ plot_coef <- function(results_df, predictor, title_str,
 # 1. LOAD DATA AND PREPARE INPUTS
 # =============================================================================
 cat("\n--- 1. LOAD DATA AND PREPARE INPUTS ---\n")
-# Load the pre-filtered phyloseq object directly from disk.
-ps.tax.phyloseq <- readRDS(input_rds)
-cat("Loaded ps.tax.phyloseq from", input_rds, "\n")
+# Use the pre-existing ps.tax.filtered object already in the environment
+# (e.g. produced by sourcing 01_phyloseq.R earlier in this R session) rather
+# than loading a phyloseq object from disk.
+stopifnot("ps.tax.filtered not found -- run/source the step that creates it before this script" =
+            exists("ps.tax.filtered"))
+ps.tax.phyloseq <- ps.tax.filtered
+cat("Using pre-existing ps.tax.filtered object as ps.tax.phyloseq\n")
 # Read in full metadata for n=63 samples
 metadata <- read.delim("~/metadata_full_EL.txt", row.names = 1, header = TRUE, check.names = FALSE)
 # replace the sample_data slot
 sample_data(ps.tax.phyloseq) <- sample_data(metadata)
 cat("Attached metadata from ~/metadata_full_EL.txt -", ncol(metadata), "variables x", nrow(metadata), "samples\n")
-
+# NOTE: unlike 04_00, we do NOT subset to ASE == "positive" here -- this
+# analysis uses the full cohort so that ASE positive vs. negative can be
+# compared directly.
 ps <- ps.tax.phyloseq
 cat("Samples:", nsamples(ps), "\n")
 cat("Taxa:   ", ntaxa(ps),    "\n")
@@ -266,7 +272,7 @@ science_summary <- paste0(
 - Level: genus (primary), ASV (supplementary)
 - Reference level: ASE = negative
 ## Dataset
-- Input: ", input_rds, " (full cohort, ASE positive + negative)
+- Input: pre-existing ps.tax.filtered object (full cohort, ASE positive + negative)
 - Samples:          ", nsamples(ps), "
 - Genera tested:    ", ncol(genus_mat), "
 - ASVs tested:      ", ncol(asv_mat), "
