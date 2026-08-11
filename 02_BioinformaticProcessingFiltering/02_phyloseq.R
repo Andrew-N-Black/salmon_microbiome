@@ -1,6 +1,6 @@
 # =============================================================================
 # Purpose:  Import phyloseq object after removing putative index hopped reads
-            ,low-quality, samples, rename ASVs to human-readable IDs, apply prevalence and
+#           ,low-quality, samples, rename ASVs to human-readable IDs, apply prevalence and
 #           abundance filters, and produce filtered phyloseq for downstream analyses.
 # Inputs:   ~/5_ps_Salmon_prefilter.rds      — ASV count table (phyloseq)
 #           ~/metadata_full_EL.txt     — sample metadata (n=79)
