@@ -18,6 +18,7 @@
 #   cshasta — Ceratonova shasta load (ordinal 0–3), treated as factor
 #   PERMANOVA model: es + cshasta + hatchery (type II margins, by = "margin")
 #   Distance: Aitchison (CLR + Euclidean), no rarefaction
+#anosim tests due to significant betadisp
 # =============================================================================
 
 library(phyloseq)
