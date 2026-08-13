@@ -116,6 +116,10 @@ dispersion_es <- betadisper(D_aitch, group = metadata[rownames(metadata), "es"])
 cat("\nBetadisper permutation test — E. schreckii:\n")
 print(permutest(dispersion_es))
 
+#          Df Sum Sq Mean Sq      F N.Perm Pr(>F)   
+#Groups     2 1436.5  718.27 9.6491    999  0.002 **
+#Residuals 60 4466.3   74.44    
+
 df_es <- data.frame(
     distance = as.numeric(dispersion_es$distances),
     es       = metadata[names(dispersion_es$distances), "es"]
@@ -140,6 +144,10 @@ save_plot("Parasite_betadisp_es", plot = p_betadisp_es)
 dispersion_cshasta <- betadisper(D_aitch, group = metadata[rownames(metadata), "cshasta"])
 cat("\nBetadisper permutation test — C. shasta:\n")
 print(permutest(dispersion_cshasta))
+
+#          Df Sum Sq Mean Sq      F N.Perm Pr(>F)   
+#Groups     3 1172.8  390.95 4.6956    999  0.002 **
+#Residuals 59 4912.2   83.26    
 
 df_cshasta <- data.frame(
     distance = as.numeric(dispersion_cshasta$distances),
@@ -198,6 +206,28 @@ print(adonis2(D_aitch ~ es + cshasta + hatchery, data = meta_ordered,
 #Residual 52    37876 0.65739                  
 #Total    62    57616 1.00000     
 
+
+# --- ANOSIM: rank-based test of parasite load vs community composition ---
+# Used alongside PERMANOVA because significant betadisper results indicate
+# heterogeneous within-group dispersions, which can inflate adonis2 p-values.
+# ANOSIM is less sensitive to dispersion differences and provides a complementary
+# test of whether between-group dissimilarity exceeds within-group dissimilarity.
+
+cat("\nANOSIM — E. schreckii:\n")
+anosim_es <- anosim(D_aitch, metadata[rownames(as.matrix(D_aitch)), "es"],
+                    permutations = 999)
+print(anosim_es)
+
+#ANOSIM statistic R: 0.4186 
+#      Significance: 0.001 
+
+cat("\nANOSIM — C. shasta:\n")
+anosim_cshasta <- anosim(D_aitch, metadata[rownames(as.matrix(D_aitch)), "cshasta"],
+                         permutations = 999)
+print(anosim_cshasta)
+
+#ANOSIM statistic R: 0.2289 
+#     Significance: 0.001 
 
 # --- Combined 2x2 figure: PCoA and betadisper for both parasites ---
 # Layout: row 1 = E. schreckii (PCoA | betadisp), row 2 = C. shasta (PCoA | betadisp)
