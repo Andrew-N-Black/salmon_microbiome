@@ -5,15 +5,13 @@
 #
 # Purpose:
 #   Identify taxa that differ in abundance between ASE-positive and
-#   ASE-negative fish, using the full sample set (n=63; unlike 04_00, which
-#   restricts to ASE-positive fish only). Analyses are run at both ASV and
+#   ASE-negative fish, using the full sample set (n=63). Analyses are run at both ASV and
 #   genus level, with a coefficient plot summarising significant taxa.
 #
 # Inputs:
 #   ps.tax.filtered -- pre-existing phyloseq object, assumed already present
 #   in the R environment (e.g. from sourcing 01_phyloseq.R earlier in the
-#   session). This script does NOT load it from disk.
-#   ~/metadata_full_EL.txt (full metadata for n=63 samples, incl. ASE status)
+#   session). 
 #
 # =============================================================================
 # =============================================================================
