@@ -6,8 +6,7 @@
 # Inputs:   ps.tax.filtered — filtered phyloseq (324 taxa x 60 samples)
 #           D_aitch — Aitchison distance matrix (computed in 06_Beta.R)
 #           metadata — sample metadata (sex: F/M/U)
-# Outputs:  figures/PCoA_Aitchison_sex.svg / .png
-#           figures/PCoA_Aitchison_hatchery.svg / .png
+# Outputs:  Figure_S4.svg / .png
 #           Console: PERMANOVA and ANOSIM results stratified by hatchery
 # Key parameters:
 #   strata = hatchery in adonis2 and anosim: tests sex effect within hatcheries
@@ -26,7 +25,7 @@ library(vegan)
 
 # --- PERMANOVA: does sex predict community composition, stratified by hatchery? ---
 # strata = hatchery constrains permutations within hatcheries, controlling for
-# the strong hatchery effect seen in 06_Beta.R.
+# the strong hatchery effect
 #Permanova of Achison
 #Achison, by hatchery
 adonis2(D_aitch ~ sex, data = metadata, strata = metadata$hatchery)
