@@ -31,10 +31,9 @@ library(vegan)
 adonis2(D_aitch ~ sex, data = metadata, strata = metadata$hatchery)
 
 #         Df SumOfSqs      R2      F Pr(>F)
-#Model     1     1326 0.02301 1.4367  0.804
-#Residual 61    56291 0.97699              
-#Total    62    57616 1.00000          
-
+#Model     1     2200 0.02167 1.3509  0.782
+#Residual 61    99350 0.97833              
+#Total    62   101550 1.00000           
 
 # --- ANOSIM: sex effect stratified by hatchery ---
 X_clr <- microbiome::transform(X, "clr")
@@ -43,10 +42,10 @@ metadata <- metadata[match(rownames(X_clr), rownames(metadata)),]  # align row o
 
 anosim(D_aitch, metadata$sex,strata = metadata$hatchery)
 
-#ANOSIM statistic R: 0.05082 
-#      Significance: 0.862 
+#ANOSIM statistic R: 0.02702 
+#      Significance: 0.843 
 
-#Blocks:  strata
+#Blocks:  strata 
 #Permutation: free
 #Number of permutations: 999
 
@@ -69,17 +68,18 @@ stopifnot(all(rownames(as.matrix(D_aitch_ase)) == rownames(metadata_ase)))
 
 # 5. Rerun adonis2
 adonis2(D_aitch_ase ~ sex, strata = metadata_ase$hatchery, data = metadata_ase)
-#         Df SumOfSqs      R2     F Pr(>F)
-#Model     1     2588 0.02967 1.162  0.372
-#Residual 38    84648 0.97033             
-#Total    39    87236 1.00000  
+
+#         Df SumOfSqs      R2      F Pr(>F)
+#Model     1     1397 0.02523 1.0352  0.786
+#Residual 40    53967 0.97477              
+#Total    41    55364 1.00000           
 
 # 6. Rerun ANOSIM
 anosim(x = D_aitch_ase, grouping = metadata_ase$sex, strata = metadata_ase$hatchery)
 
 
 #ANOSIM statistic R: 0.01028 
-#      Significance: 0.517 
+ #     Significance: 0.505 
 
 
 # =============================================================================
@@ -161,5 +161,5 @@ p_hatchery <- ggplot(pcoa_df, aes(Axis.1, Axis.2, color = hatchery)) +
          x = x_lab, y = y_lab) +
     theme_classic()
 
-ggsave(file.path(dir_fig, "PCoA_Aitchison_hatchery.png"), p_hatchery, width = 7, height = 5, dpi = 300)
-ggsave(file.path(dir_fig, "PCoA_Aitchison_hatchery.svg"), p_hatchery, width = 7, height = 5)
+ggsave(file.path(dir_fig, "Figure_S4.png"), p_hatchery, width = 7, height = 5, dpi = 300)
+ggsave(file.path(dir_fig, "Figure_S4.svg"), p_hatchery, width = 7, height = 5)
