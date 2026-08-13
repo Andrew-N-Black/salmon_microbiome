@@ -23,7 +23,8 @@ library(ape)
 
 
 # --- JACCARD DISTANCE ---
-
+#extract metadata
+metadata = phyloseqCompanion::sample.data.frame(ps_rarefied)
 # --- Jaccard PCoA ordination ---
 p<-plot_ordination(ps_rarefied, ordinate(ps_rarefied, "PCoA",distance="jaccard"))
 p$data$hatchery <- factor(p$data$hatchery, levels = desired_facet_order)
@@ -94,7 +95,6 @@ adonis2(dist_matrixJ ~ ASE, data = metadata)
 #Test by ASE
 #Format before analysis of similarity
 pc = ps_rarefied@otu_table
-metadata = phyloseqCompanion::sample.data.frame(ps_rarefied)
 m_com = as.matrix(pc)
 
 #Anosim by ASE
