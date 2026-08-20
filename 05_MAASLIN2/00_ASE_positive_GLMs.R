@@ -12,8 +12,9 @@
 #
 #
 # Inputs:
-#   /Users/andrew/claude/SMB/data/5_ps_Salmon_prefilter.rds
-#   (pre-filtered phyloseq object, loaded directly as ps.tax.filtered)
+#   ps.tax.filtered (phyloseq object, must already exist in the R environment
+#   -- the same filtered/annotated object used for the 04_01 ASE positive vs.
+#   negative comparison)
 #
 # =============================================================================
 # =============================================================================
@@ -36,7 +37,6 @@ library(patchwork)
 Q_PRIMARY <- 0.25   # MaAsLin2 default
 Q_STRICT  <- 0.05   # stricter secondary threshold
 # --- Paths ---
-input_rds <- "/Users/andrew/claude/SMB/data/5_ps_Salmon_prefilter.rds"
 dir_out  <- here("salmon_microbiome/04_00_MAASLIN2")
 dir_fig  <- file.path(dir_out, "figures")
 dir_tbl  <- file.path(dir_out, "tables")
@@ -151,14 +151,16 @@ plot_coef <- function(results_df, predictor, title_str,
 # 1. LOAD DATA AND PREPARE INPUTS
 # =============================================================================
 cat("\n--- 1. LOAD DATA AND PREPARE INPUTS ---\n")
-# Load the pre-filtered phyloseq object directly from disk.
-ps.tax.filtered <- readRDS(input_rds)
-cat("Loaded ps.tax.filtered from", input_rds, "\n")
-# Read in full metadata for n=80 samples
-metadata <- read.delim("~/metadata_full_EL.txt", row.names = 1, header = TRUE, check.names = FALSE)
-# replace the sample_data slot
-sample_data(ps.tax.filtered) <- sample_data(metadata)
-cat("Attached metadata from ~/metadata_full_EL.txt -", ncol(metadata), "variables x", nrow(metadata), "samples\n")
+# ps.tax.filtered must already be loaded in the R environment -- this is the
+# same filtered/annotated phyloseq object used for the 04_01 ASE positive vs.
+# negative comparison, so hatchery/enteritis/es/percent_epithelium/cshasta and
+# ASE are all expected to already be present in its sample_data.
+if (!exists("ps.tax.filtered")) {
+  stop("ps.tax.filtered not found in the environment. Run the upstream setup ",
+       "(same object used for 04_01_MAASLIN2_ASE) before sourcing this script.")
+}
+cat("Using ps.tax.filtered already present in environment\n")
+cat("Samples (full object):", nsamples(ps.tax.filtered), "\n")
 # Restrict to ASE-positive (diseased) fish — parasite and pathology variation
 # is most interpretable within this subset where ASE has been confirmed
 ps <- subset_samples(ps.tax.filtered, ASE == "positive")
@@ -647,7 +649,7 @@ science_summary <- paste0(
 - Significance threshold (strict):  q < ", Q_STRICT, "
 - Level: genus (primary), ASV (supplementary)
 ## Dataset
-- Input: ", input_rds, ", ASE == 'positive'
+- Input: pre-existing ps.tax.filtered object (same filtered object used for the 04_01 ASE +/- comparison), ASE == 'positive'
 - Samples:                             ", nsamples(ps), "
 - Samples with cshasta:                ", nrow(meta_cs), "
 - Samples with percent_epithelium:   ", nrow(meta_ep), "
