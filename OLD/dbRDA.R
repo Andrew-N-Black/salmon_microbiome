@@ -12,6 +12,11 @@ ps_subset_filtered <- subset_samples(ps_filtered, hatchery != "minter_creek" & h
 ordcap = ordinate(ps_subset_filtered, "CAP", "bray", ~percent_epithelium+hatchery)
 plot_ordination(ps_subset_filtered, ordcap, "samples", color="percent_epithelium",shape="hatchery")+theme_bw()+geom_point(size=6)+labs(color = "% Epithelium",shape="hatchery")+scale_color_distiller(palette = "BrBG", direction = 1)
 
+
+
+
+#ADD THIS BELOW TO ABOVE
+dbRDA(Atchison ~ epithelium + enteritis_score +Condition(Cshasta + Esherekii + hatchery)
  
 #Significance of model
 anova.cca(ordcap, permutations = 999)
