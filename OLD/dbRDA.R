@@ -7,7 +7,7 @@ library(betareg)
 library(dplyr)
 library(reshape2)
 
-ps_subset_filtered <- subset_samples(ps_filtered, hatchery != "minter_creek" & hatchery != "white_river")
+ps_subset_filtered <- subset_samples(ps.tax.filtered, hatchery != "minter_creek" & hatchery != "white_river")
 
 ordcap = ordinate(ps_subset_filtered, "CAP", "bray", ~percent_epithelium+hatchery)
 plot_ordination(ps_subset_filtered, ordcap, "samples", color="percent_epithelium",shape="hatchery")+theme_bw()+geom_point(size=6)+labs(color = "% Epithelium",shape="hatchery")+scale_color_distiller(palette = "BrBG", direction = 1)
