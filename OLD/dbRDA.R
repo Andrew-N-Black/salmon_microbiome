@@ -21,6 +21,10 @@ metadata_ase$enteritis <- factor(metadata_ase$enteritis, levels = c(2, 3))
 
 ordcap =dbrda(formula = D_aitch ~ percent_epithelium + enteritis +Condition(cshasta + es + hatchery), data = metadata_ase)
 
+#Switch order? 
+# ordcap =dbrda(formula = D_aitch ~ enteritis + percent_epithelium +Condition(cshasta + es + hatchery), data = metadata_ase)
+
+
 sample_data(ps_subset_filtered)$enteritis <- factor(sample_data(ps_subset_filtered)$enteritis)
 
 plot_ordination(ps_subset_filtered, ordcap, "samples", color = "percent_epithelium", shape = "enteritis") +
@@ -42,10 +46,8 @@ anova.cca(ordcap, permutations = 999)
 
 #Model: dbrda(formula = D_aitch ~ percent_epithelium + enteritis + Condition(cshasta + es + hatchery), data = metadata_ase)
 #         Df Variance     F Pr(>F)   
-#Model     2    71.34 1.751  0.005 **
-#Residual 34   692.59                
-#---
-#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#Model     2    71.34 1.751  0.007 **
+#Residual 34   692.59               
 
 anova.cca(ordcap, permutations = 999,by="terms")
 
