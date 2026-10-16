@@ -11,7 +11,7 @@ fit <- maaslin3(
   min_abundance   = 0.0,
   correction      = “BH”,
   standardize     = TRUE
-)[2:10 PM]So for Maaslin section:
+
 
 Model 1 — Severity within ASE-positive fish: Among ASE-affected fish, this model identifies taxa whose abundance or prevalence tracks disease severity (Es, epithelial erosion, enteritis score, C. shasta burden), with a hatchery random effect so facility differences aren’t mistaken for severity effects.
 meta_ase <- metadata[metadata$ASE == "positive", ]
