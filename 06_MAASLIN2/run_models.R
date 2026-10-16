@@ -1,6 +1,6 @@
 # =============================================================================
 # SALMON MICROBIOME PIPELINE
-# 06 (v2): MaAsLin3 — ASE severity (ASE-positive fish), ASE status (all fish),
+# MaAsLin3 — ASE severity (ASE-positive fish), ASE status (all fish),
 #          and the overlap between the two
 # =============================================================================
 #
