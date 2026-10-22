@@ -24,12 +24,14 @@ HATCHERY_LEVELS <- c("minter_creek", "white_river", "south_santiam",
                      "sandy", "willamette", "round_butte")
 HATCHERY_LABELS <- c("Minter Creek", "White River", "South Santiam",
                      "Sandy", "Willamette", "Round Butte")
-HATCHERY_COLS   <- setNames(c("#1B9E77", "#D95F02", "#7570B3",
+# Minter Creek / White River use a blue/teal pair so they do not reuse the
+# ASE-negative green / ASE-positive orange of the Figure 1a map.
+HATCHERY_COLS   <- setNames(c("#1F78B4", "#17BECF", "#7570B3",
                               "#E7298A", "#66A61E", "#E6AB02"), HATCHERY_LABELS)
 
-# --- ASE status: distinct from hatchery colours; matches Figures 5-6 ---------
+# --- ASE status: matches Figure 1a map and Figure 5 ---------------------------
 ASE_LABELS <- c(negative = "ASE-negative", positive = "ASE-positive")
-ASE_COLS   <- c("ASE-negative" = "#2F6DB5", "ASE-positive" = "#C4562B")
+ASE_COLS   <- c("ASE-negative" = "#1B9E77", "ASE-positive" = "#D95F02")  # matches Figure 1a map
 
 # --- Ordinal parasite load (0-3): sequential, light -> dark ------------------
 LOAD_COLS <- c("0" = "#BDBDBD", "1" = "#FDB863", "2" = "#E66101", "3" = "#7F2704",
