@@ -227,9 +227,12 @@ print(alpha_qc_df %>%
 
 #---Betadiversity outliers at various thresholds---
 
+# Bray-Curtis dissimilarity among the filtered (unrarefied) samples
+D.mat <- as.matrix(phyloseq::distance(ps.tax.filtered, method = "bray"))
+
 mean_dist_df <- data.frame(
     sample    = rownames(D.mat),
-    mean_dist = rowMeans(D.mat)
+    mean_dist = rowSums(D.mat) / (nrow(D.mat) - 1)   # mean distance to all OTHER samples
 ) %>%
     mutate(
         dist_zscore = (mean_dist - mean(mean_dist)) / sd(mean_dist),
