@@ -3,14 +3,14 @@
 #           Euclidean) on the unrarefied filtered dataset. Tests whether
 #           community composition differs by hatchery or ASE status using
 #           PCoA ordination, PERMANOVA (adonis2), betadispersal, and ANOSIM.
-#           Produces Figures 4c and 4f.
+#           Produces Figure 3 panels b, c, e, f (assembled by 08_Figure3.R).
 # Inputs:   ps.tax.filtered — filtered phyloseq (324 taxa x 60 samples)
 #           metadata        — sample metadata data frame
-# Outputs:  ~/Figure_3c.svg — Aitchison PCoA colored by hatchery, shaped by ASE
-#           ~/Figure_3f.svg — Aitchison PCoA colored by ASE, shaped by hatchery
+# Outputs:  figures/panels/Fig3b_betadisper_hatchery, Fig3c_pcoa_hatchery,
+#           Fig3e_betadisper_ASE, Fig3f_pcoa_ASE (.png/.svg/.rds)
 #           Console: PERMANOVA, betadisper, ANOSIM statistics
 # Key parameters:
-#   CLR pseudocount: +1 before log to handle zeros (simple pseudocount approach)
+#   CLR: vegan::decostand(method = "clr", pseudocount = 1), row-wise per sample
 #   Aitchison distance: Euclidean distance on CLR-transformed counts
 #   PERMANOVA: adonis2 with 999 permutations
 #   95% normal-theory ellipses drawn per group
@@ -25,6 +25,7 @@ library(dplyr)
 library(reshape2)
 library(ape)
 library(vegan)
+source(file.path(Sys.getenv("SALMON_REPO", "~/salmon_microbiome"), "plot_helpers.R"))
 
 # --- Compute Aitchison distance (CLR + Euclidean) ---
 # Aitchison distance is appropriate for compositional data; avoids the
@@ -34,123 +35,120 @@ library(vegan)
 X <- as(otu_table(ps.tax.filtered), "matrix")
 if (taxa_are_rows(ps.tax.filtered)) X <- t(X)  # samples x taxa
 
-X_clr <- scale(log(X + 1), center = TRUE, scale = FALSE)  # CLR: center log-ratio with pseudocount
+# CLR = log(x + 1) centred on each SAMPLE's mean (row-wise). The previous
+# scale(log(X + 1), center = TRUE) centred each TAXON (column-wise), which leaves
+# Euclidean distances on log(x + 1) unchanged, i.e. not Aitchison distance.
+X_clr <- vegan::decostand(X, method = "clr", pseudocount = 1)
 D_aitch <- dist(X_clr, method = "euclidean")  # Euclidean distance on CLR = Aitchison distance
+
+# Align metadata to the distance matrix (all tests below use this order)
+metadata <- data.frame(sample_data(ps.tax.filtered))[labels(D_aitch), , drop = FALSE]
+set.seed(123)
 
 
 # --- Aitchison PCoA ordination ---
 pcoa <- ape::pcoa(D_aitch)
-
 var_expl <- 100 * pcoa$values$Relative_eig[1:2]
-print(round(100 * pcoa$values$Relative_eig[1:6], 2))  # inspect variance explained by first 6 axes
+print(round(100 * pcoa$values$Relative_eig[1:6], 2))  # variance explained by first 6 axes
+# [1] 14.48  6.66  5.05  4.66  4.08  3.90
 
-# Join PCoA scores with sample metadata for plotting
-pcoa_df <- as_tibble(pcoa$vectors[, 1:2], rownames = "sample") %>%
-  left_join(
-    sample_data(ps.tax.filtered) %>% data.frame() %>% rownames_to_column("sample"),
-    by = "sample"
-  )
+stopifnot(identical(rownames(pcoa$vectors), rownames(metadata)))
+pcoa_df <- label_meta(metadata) %>%
+  mutate(Axis.1 = pcoa$vectors[, 1], Axis.2 = pcoa$vectors[, 2])
 
-#Set hatchery order
-desired_order <- c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")
-pcoa_df$hatchery <- factor(pcoa_df$hatchery, levels = desired_order)
+# --- Figure 3c: PCoA coloured by hatchery ---
+p3c <- ggplot(pcoa_df, aes(Axis.1, Axis.2)) +
+  stat_ellipse(aes(colour = hatchery), type = "norm", level = 0.95,
+               linewidth = 0.6, show.legend = FALSE) +
+  geom_point(aes(fill = hatchery), shape = 21, colour = "black", size = 2, stroke = 0.3) +
+  scale_colour_manual(values = HATCHERY_COLS, guide = "none") +
+  scale_fill_manual(values = HATCHERY_COLS, name = "Hatchery") +
+  pcoa_labs(var_expl) + fill_guide() + theme_ms()
+save_fig(p3c, "Fig3c_pcoa_hatchery", 3.6, 3, panel = TRUE)
 
-# --- Figure 4c: PCoA colored by hatchery, shaped by ASE ---
-ggplot(pcoa_df, aes(Axis.1, Axis.2, color = hatchery)) +geom_point(size = 4,aes(fill=hatchery,shape=ASE)) +
-    stat_ellipse(aes(group = hatchery,color=hatchery), type = "norm", level = 0.95, linewidth = 0.8) +
-    labs(
-        x = paste0("PCoA-1 (", round(var_expl[1], 1), "%)"),
-        y = paste0("PCoA-2 (", round(var_expl[2], 1), "%)"),
-        color = "hatchery",title="Aitchison"
-    ) +
-    theme_classic()+scale_fill_brewer(palette = "Dark2")+scale_color_brewer(palette = "Dark2")
-ggsave("~/Figure_3c.svg", width = 8, height = 5)
-
-# --- Figure 4f: PCoA colored by ASE, shaped by hatchery ---
-# Distinct point shapes per hatchery (6 hatcheries require non-standard shape values)
-ggplot(pcoa_df, aes(Axis.1, Axis.2, color = ASE)) +geom_point(size = 4,aes(fill=ASE,shape=hatchery)) +
-    stat_ellipse(aes(group = ASE,color=ASE), type = "norm", level = 0.95, linewidth = 0.8) +
-    labs(
-        x = paste0("PCoA-1 (", round(var_expl[1], 1), "%)"),
-        y = paste0("PCoA-2 (", round(var_expl[2], 1), "%)"),
-        color = "ASE",title=""
-    ) +
-    theme_classic()+scale_fill_brewer(palette = "Dark2")+scale_color_brewer(palette = "Dark2")+scale_shape_manual(values = c(20,2,3,4,8,5))
-ggsave("~/Figure_3f.svg", width = 8, height = 5)
+# --- Figure 3f: PCoA coloured by ASE status ---
+p3f <- ggplot(pcoa_df, aes(Axis.1, Axis.2)) +
+  stat_ellipse(aes(colour = ASE), type = "norm", level = 0.95,
+               linewidth = 0.6, show.legend = FALSE) +
+  geom_point(aes(fill = ASE), shape = 21, colour = "black", size = 2, stroke = 0.3) +
+  scale_colour_manual(values = ASE_COLS, guide = "none") +
+  scale_fill_manual(values = ASE_COLS, name = "ASE status") +
+  pcoa_labs(var_expl) + fill_guide() + theme_ms()
+save_fig(p3f, "Fig3f_pcoa_ASE", 3.6, 3, panel = TRUE)
 
 # --- Aitchison betadispersal by hatchery ---
-# Significant result (p=0.001) means within-hatchery spread is unequal;
+# Significant result (F = 18.1, p = 0.001) means within-hatchery spread is unequal;
 # this should be considered when interpreting the PERMANOVA result.
-dispersionA<-betadisper(D_aitch,group=ps.tax.filtered@sam_data$hatchery)
+dispersionA<-betadisper(D_aitch,group=metadata$hatchery)
 permutest(dispersionA)
 
+# Results (row-wise CLR, rerun 2026-10-16):
 #          Df Sum Sq Mean Sq      F N.Perm Pr(>F)    
-#Groups     5 3285.6  657.12 23.008    999  0.001 ***
-#Residuals 57 1627.9   28.56                         
+#Groups     5 2345.9  469.19 18.115    999  0.001 ***
+#Residuals 57 1476.3   25.90                         
 
 
-# Extract per-sample distances to group centroid for visualization
-#Plot betadisp centroid distance among hatcheries
-p <- cbind(distance = as.numeric(dispersionA$distances),hatchery = as.character(metadata$hatchery),samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance))
-desired_facet_order <- c("minter_creek","white_river", "south_santiam", "sandy", "willamette","round_butte")
-p$hatchery <- factor(p$hatchery, levels = desired_facet_order)
-
-ggplot(p,aes(hatchery, distance,fill=hatchery)) +
-    geom_boxplot() +
-    theme_classic(base_size = 12)+xlab("Hatchery")+ylab("Distance from centroid")+scale_fill_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())+geom_jitter(aes(x=hatchery, y=distance), width=0.1)
-ggsave("~/Figure_4b.svg", width = 8, height = 5)
+# --- Figure 3b: distance to hatchery centroid ---
+p3b <- box_points(data.frame(distance = as.numeric(dispersionA$distances),
+                             hatchery = label_meta(metadata)$hatchery),
+                  "hatchery", "distance", HATCHERY_COLS, "Hatchery", "Distance to centroid")
+save_fig(p3b, "Fig3b_betadisper_hatchery", 2.8, 3, panel = TRUE)
 
 # --- Aitchison PERMANOVA by hatchery ---
 #Permanova of Achison
 #Achison, by hatchery
 adonis2(D_aitch ~ hatchery, data = metadata)
 
+# Results (row-wise CLR, rerun 2026-10-16):
 #         Df SumOfSqs      R2      F Pr(>F)    
-#Model     5    13802 0.23956 3.5912  0.001 ***
-#Residual 57    43814 0.76044                  
-#Total    62    57616 1.00000       
+#Model     5    10913 0.22056 3.2258  0.001 ***
+#Residual 57    38565 0.77944
+#Total    62    49478 1.00000       
 
 
-# Reuse hatchery betadisper object to plot ASE centroid distances
-
-#Plot betadisp centroid distance between ASE
-dispersionA<-betadisper(D_aitch,group=ps.tax.filtered@sam_data$ASE)
-p <- cbind(distance = as.numeric(dispersionA$distances),ASE = metadata$ASE,samples=rownames(metadata)) %>% as_tibble() %>% mutate(distance = as.numeric(distance))
-
-ggplot(p,aes(ASE, distance,fill=ASE)) +
-    geom_boxplot() +
-    theme_classic(base_size = 12)+xlab("")+ylab("Distance from centroid")+scale_fill_brewer(palette = "Dark2")+theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank())+geom_jitter(aes(x=ASE, y=distance), width=0.1)
-ggsave("~/Figure_4e.svg", width = 8, height = 5)
+# --- Figure 3e: distance to ASE-status centroid ---
+dispersionASE <- betadisper(D_aitch, group = metadata$ASE)
+p3e <- box_points(data.frame(distance = as.numeric(dispersionASE$distances),
+                             ASE = label_meta(metadata)$ASE),
+                  "ASE", "distance", ASE_COLS, "ASE status", "Distance to centroid")
+save_fig(p3e, "Fig3e_betadisper_ASE", 2.8, 3, panel = TRUE)
 
 # --- Aitchison betadispersal and PERMANOVA by ASE ---
-dispersionA<-betadisper(D_aitch,group=ps.tax.filtered@sam_data$ASE)
+dispersionA<-betadisper(D_aitch,group=metadata$ASE)
 permutest(dispersionA)
 
 adonis2(formula = D_aitch ~ ASE, data = metadata)
 
+# Results (row-wise CLR, rerun 2026-10-16):
 #          Df Sum Sq Mean Sq      F N.Perm Pr(>F)    
-#Groups     1 1060.5 1060.54 10.635    999  0.001 ***
-#Residuals 61 6083.0   99.72           
+#Groups     1  784.6  784.60 12.106    999  0.001 ***
+#Residuals 61 3953.4   64.81
+# adonis2 D_aitch ~ ASE:
+#Model     1     2897 0.05855 3.7935  0.001 ***
+#Residual 61    46581 0.94145
+#Total    62    49478 1.00000           
 
 # --- ANOSIM: alternative non-parametric test of community structure ---
-# Note: recomputes CLR using microbiome::transform; slight methodological difference
-# from the scale(log(X+1)) approach above — results may differ slightly.
-X_clr <- microbiome::transform(X, "clr")
-D_aitch <- dist(X_clr, method = "euclidean")
-metadata <- metadata[match(rownames(X_clr), rownames(metadata)),]  # align row order
+# Uses the same Aitchison distance as the PERMANOVA above. (Previously this
+# recomputed CLR with microbiome::transform(X, "clr") on a samples x taxa matrix;
+# microbiome::transform assumes taxa x samples, so the CLR was applied in the
+# wrong orientation.)
 anosim(D_aitch, metadata$ASE)
-#ANOSIM statistic R: -0.04119
-#      Significance: 0.716
+# Results (row-wise CLR, rerun 2026-10-16):
+#ANOSIM statistic R: -0.04874
+#      Significance: 0.767
 
 #Analysis of similarity-by hatchery
 anosim(D_aitch, metadata$hatchery)
 
-#ANOSIM statistic R: 0.05997 
-#      Significance: 0.105 
+# Results (row-wise CLR, rerun 2026-10-16):
+#ANOSIM statistic R: 0.0526
+#      Significance: 0.124 
 
 #Analysis of similarity-by ASE
 anosim(D_aitch, metadata$ASE)
 
-#ANOSIM statistic R: -0.04797 
- #     Significance: 0.769 
+# Results (row-wise CLR, rerun 2026-10-16):
+#ANOSIM statistic R: -0.04874
+#      Significance: 0.766 
 

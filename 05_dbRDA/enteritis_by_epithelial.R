@@ -22,7 +22,9 @@ metadata_ase <- metadata_ase[labels(D_aitch), , drop = FALSE]
 metadata_ase$enteritis <- factor(metadata_ase$enteritis, levels = c(2, 3))
 
 metadata_ase$cshasta  <- factor(metadata_ase$cshasta,  levels = c(0, 1, 2, 3))
-metadata_ase$es       <- factor(metadata_ase$es,       levels = c(0, 1, 2))
+# E. schreckii collapsed to absent (0) / present (1+): only one fish scored 2
+metadata_ase$es       <- factor(ifelse(as.numeric(as.character(metadata_ase$es)) >= 1, "1+", "0"),
+                                 levels = c("0", "1+"))
 metadata_ase$hatchery <- factor(metadata_ase$hatchery)
 
 table(metadata_ase$cshasta, useNA = "ifany")  # check for empty levels or NAs
@@ -46,6 +48,7 @@ perm <- how(blocks = metadata_ase$hatchery, nperm = 999)
 set.seed(123)
 
 anova.cca(ordcap, permutations = perm)                 # overall model
+# NOTE (2026-10-16): results below used E. schreckii 0/1/2; rerun with 0/1+ and replace.
 #         Df Variance      F Pr(>F)  
 #Model     2    48.40 1.3648   0.02 *
 #Residual 31   549.74         
@@ -65,3 +68,24 @@ anova.cca(ordcap, permutations = perm, by = "axis")    # constrained axes
 #Residual 31   549.74        
 
 
+
+# =============================================================================
+# Figure 4 — publication version of the partial dbRDA
+# =============================================================================
+source(file.path(Sys.getenv("SALMON_REPO", "~/salmon_microbiome"), "plot_helpers.R"))
+
+sc   <- vegan::scores(ordcap, display = "sites", choices = 1:2)
+prop <- 100 * ordcap$CCA$eig[1:2] / (ordcap$CCA$tot.chi + ordcap$CA$tot.chi)  # % of conditional variation
+fig4_df <- cbind(metadata_ase[rownames(sc), c("percent_epithelium", "enteritis")], sc)
+
+p4 <- ggplot(fig4_df, aes(dbRDA1, dbRDA2)) +
+  geom_hline(yintercept = 0, colour = "grey85", linewidth = 0.3) +
+  geom_vline(xintercept = 0, colour = "grey85", linewidth = 0.3) +
+  geom_point(aes(fill = percent_epithelium, shape = enteritis), colour = "black",
+             size = 2.6, stroke = 0.3) +
+  scale_fill_distiller(palette = "BrBG", direction = 1, limits = c(0, 100),
+                       name = "Epithelium\nremaining (%)") +
+  scale_shape_manual(values = c("2" = 21, "3" = 24), name = "Enteritis score") +
+  labs(x = sprintf("dbRDA1 (%.1f%%)", prop[1]), y = sprintf("dbRDA2 (%.1f%%)", prop[2])) +
+  theme_ms()
+save_fig(p4, "Figure_4", 5, 3.8)

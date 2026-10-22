@@ -2,8 +2,8 @@
 # Purpose:  Identify the core gut microbiome of Chinook salmon across hatcheries
 #           using prevalence x detection threshold analysis. Produces Figures 2a–2b.
 # Inputs:   ps.tax.filtered — filtered phyloseq object (180 taxa x 63 samples)
-# Outputs:  ~/Figure_S1a.svg — core microbiome line plot (prevalence vs detection)
-#           ~/Figure_S1b.svg — core microbiome heatmap (ASVs x detection thresholds)
+# Outputs:  figures/Figure_S1a.(png|svg) — core microbiome line plot (prevalence vs detection)
+#           figures/Figure_S1b.(png|svg) — core microbiome heatmap (ASVs x detection thresholds)
 # Key parameters:
 #   Relative abundance detection thresholds: 0.01 to 0.2 (log10 spaced)
 #   Prevalence thresholds: 1% to 100% of samples
@@ -11,6 +11,8 @@
 # =============================================================================
 
 library(microbiome)
+library(ggplot2)
+source(file.path(Sys.getenv("SALMON_REPO", "~/salmon_microbiome"), "plot_helpers.R"))
 
 # --- Transform to relative abundance ---
 # Make a relative abundance phyloseq
@@ -31,7 +33,7 @@ taxa_names(ps_rel.f)[1:10]
 # With compositional (relative) abundances
 plot_core(ps_rel.f,prevalences=seq(0.1, 1, .1), detections=seq(0.01, 1, length = 10))+xlab("Relative Abundance") +
     theme_bw()+geom_point(size=3,color="black")
-ggsave("~/Figure_S1a.svg", width = 8, height = 5)
+save_fig(last_plot(), "Figure_S1a", 8, 5)
 
 
 # --- Figure 2b: Core microbiome heatmap ---
@@ -53,7 +55,7 @@ p1 <- plot_core(ps_rel.f,
 p1 <- p1 + theme_bw() + ylab("ASVs")
 p1
 
-ggsave("~/Figure_S1b.svg", width = 8, height = 5)
+save_fig(p1, "Figure_S1b", 8, 5)
 
 
 ##Look at the top five UNIQUE taxa,according to prevelance:
@@ -71,7 +73,7 @@ names(phylum_abund) <- as.vector(tax_table(ps_phylum)[, "Phylum"])
 top5_phyla <- sort(phylum_abund, decreasing = TRUE)[1:5]
 top5_phyla
 
-                                                Bacillota          Pseudomonadota          Actinomycetota 
-             0.45224172              0.41737790              0.04362841 
-           Bacteroidota Thermodesulfobacteriota 
-             0.03156802              0.02563561 
+#                                                 Bacillota          Pseudomonadota          Actinomycetota 
+#              0.45224172              0.41737790              0.04362841 
+#            Bacteroidota Thermodesulfobacteriota 
+#              0.03156802              0.02563561 
