@@ -227,8 +227,11 @@ print(alpha_qc_df %>%
 
 #---Betadiversity outliers at various thresholds---
 
-# Bray-Curtis dissimilarity among the filtered (unrarefied) samples
-D.mat <- as.matrix(phyloseq::distance(ps.tax.filtered, method = "bray"))
+# Bray-Curtis dissimilarity on relative abundances of the filtered samples.
+# (Reproduces the recorded results below; Bray-Curtis on raw counts flags no
+# sample because uneven depth inflates every sample's distances.)
+ps_prop_qc <- transform_sample_counts(ps.tax.filtered, function(x) x / sum(x))
+D.mat <- as.matrix(phyloseq::distance(ps_prop_qc, method = "bray"))
 
 mean_dist_df <- data.frame(
     sample    = rownames(D.mat),
