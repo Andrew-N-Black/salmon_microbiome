@@ -83,10 +83,10 @@ dispersion_es <- betadisper(D_aitch, group = metadata[rownames(metadata), "es"])
 cat("\nBetadisper permutation test — E. schreckii:\n")
 print(permutest(dispersion_es))
 
-# Results (row-wise CLR, rerun 2026-10-16; E. schreckii 0-2 -- rerun with 0/1+ and replace):
+# Results (row-wise CLR; E. schreckii 0/1+; rerun 2026-10-16):
 #          Df Sum Sq Mean Sq      F N.Perm Pr(>F)   
-#Groups     2 1065.4   532.7 9.6162    999  0.001 ***
-#Residuals 60 3323.8    55.4    
+#Groups     1  517.4  517.37 9.5593    999  0.004 **
+#Residuals 61 3301.5   54.12    
 
 p_betadisp_es <- box_points(
   data.frame(distance = as.numeric(dispersion_es$distances), es = metadata$es),
@@ -99,7 +99,7 @@ dispersion_cshasta <- betadisper(D_aitch, group = metadata[rownames(metadata), "
 cat("\nBetadisper permutation test — C. shasta:\n")
 print(permutest(dispersion_cshasta))
 
-# Results (row-wise CLR, rerun 2026-10-16; E. schreckii 0-2 -- rerun with 0/1+ and replace):
+# Results (row-wise CLR; E. schreckii 0/1+; rerun 2026-10-16):
 #          Df Sum Sq Mean Sq      F N.Perm Pr(>F)   
 #Groups     3  808.0 269.332 4.6706    999  0.005 **
 #Residuals 59 3402.3  57.666    
@@ -118,7 +118,7 @@ cat("\nPERMANOVA: C. shasta controlling for hatchery (marginal):\n")
 print(adonis2(D_aitch ~ cshasta + hatchery, data = meta_ordered,
               permutations = 999, by = "margin"))
 
-# Results (row-wise CLR, rerun 2026-10-16; E. schreckii 0-2 -- rerun with 0/1+ and replace):
+# Results (row-wise CLR; E. schreckii 0/1+; rerun 2026-10-16):
 #adonis2(formula = D_aitch ~ cshasta + hatchery, data = meta_ordered, permutations = 999, by = "margin")
 #         Df SumOfSqs      R2      F Pr(>F)    
 #cshasta   3     2395 0.04840 1.1917  0.098 .
@@ -130,24 +130,24 @@ cat("\nPERMANOVA: E. schreckii controlling for hatchery (marginal):\n")
 print(adonis2(D_aitch ~ es + hatchery, data = meta_ordered,
               permutations = 999, by = "margin"))
 
-# Results (row-wise CLR, rerun 2026-10-16; E. schreckii 0-2 -- rerun with 0/1+ and replace):
+# Results (row-wise CLR; E. schreckii 0/1+; rerun 2026-10-16):
 #         Df SumOfSqs      R2      F Pr(>F)    
-#es        2     2340 0.04730 1.7766  0.022 *
-#hatchery  5     9155 0.18503 2.7800  0.001 ***
-#Residual 55    36225 0.73214
+#es        1      904 0.01827 1.3443  0.084 .
+#hatchery  5     9235 0.18664 2.7463  0.001 ***
+#Residual 56    37661 0.76117
 #Total    62    49478 1.00000               
 
 cat("\nPERMANOVA: es + cshasta + hatchery (marginal):\n")
 print(adonis2(D_aitch ~ es + cshasta + hatchery, data = meta_ordered,
               permutations = 999, by = "margin"))
 
-# Results (row-wise CLR, rerun 2026-10-16; E. schreckii 0-2 -- rerun with 0/1+ and replace):
+# Results (row-wise CLR; E. schreckii 0/1+; rerun 2026-10-16):
 #adonis2(formula = D_aitch ~ es + cshasta + hatchery, data = meta_ordered, permutations = 999, by = "margin")
  #        Df SumOfSqs      R2      F Pr(>F)    
-#es        2     2311 0.04670 1.7743  0.019 *
-#cshasta   3     2365 0.04780 1.2108  0.108
-#hatchery  5     7361 0.14878 2.2610  0.001 ***
-#Residual 52    33860 0.68434
+#es        1      847 0.01711 1.2704  0.122
+#cshasta   3     2337 0.04724 1.1690  0.144
+#hatchery  5     7524 0.15207 2.2579  0.001 ***
+#Residual 53    35324 0.71393
 #Total    62    49478 1.00000     
 
 
@@ -162,8 +162,8 @@ anosim_es <- anosim(D_aitch, metadata[rownames(as.matrix(D_aitch)), "es"],
                     permutations = 999)
 print(anosim_es)
 
-# Results (row-wise CLR, rerun 2026-10-16; E. schreckii 0-2 -- rerun with 0/1+ and replace):
-#ANOSIM statistic R: 0.414
+# Results (row-wise CLR; E. schreckii 0/1+; rerun 2026-10-16):
+#ANOSIM statistic R: 0.3958
 #      Significance: 0.001 
 
 cat("\nANOSIM — C. shasta:\n")
@@ -171,7 +171,7 @@ anosim_cshasta <- anosim(D_aitch, metadata[rownames(as.matrix(D_aitch)), "cshast
                          permutations = 999)
 print(anosim_cshasta)
 
-# Results (row-wise CLR, rerun 2026-10-16; E. schreckii 0-2 -- rerun with 0/1+ and replace):
+# Results (row-wise CLR; E. schreckii 0/1+; rerun 2026-10-16):
 #ANOSIM statistic R: 0.2386
 #      Significance: 0.001 
 

@@ -19,7 +19,7 @@ metadata <- label_meta(metadata)
 # --- Figure 2a: sequencing depth by hatchery (log10 axis) ---
 p2a <- box_points(metadata, "hatchery", "TotalReads", HATCHERY_COLS, "Hatchery",
                   "Reads per sample") +
-  scale_y_log10()
+  scale_y_log10(labels = scales::label_comma())
 save_fig(p2a, "Fig2a_read_depth", 4, 3, panel = TRUE)
 
 # --- Kruskal-Wallis test: do read depths differ across hatcheries? ---

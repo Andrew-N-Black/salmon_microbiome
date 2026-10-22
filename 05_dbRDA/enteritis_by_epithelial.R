@@ -48,24 +48,24 @@ perm <- how(blocks = metadata_ase$hatchery, nperm = 999)
 set.seed(123)
 
 anova.cca(ordcap, permutations = perm)                 # overall model
-# NOTE (2026-10-16): results below used E. schreckii 0/1/2; rerun with 0/1+ and replace.
+# Results (E. schreckii 0/1+; rerun 2026-10-16):
 #         Df Variance      F Pr(>F)  
-#Model     2    48.40 1.3648   0.02 *
-#Residual 31   549.74         
+#Model     2    50.16 1.3751  0.039 *
+#Residual 32   583.69         
 
 set.seed(123)
 anova.cca(ordcap, permutations = perm, by = "margin")  # each term after the other
  #                  Df Variance      F Pr(>F)   
-#percent_epithelium  1    17.70 0.9978  0.555   
-#enteritis           1    31.20 1.7596  0.006 **
-#Residual           31   549.74    
+#percent_epithelium  1    16.81 0.9216  0.692
+#enteritis           1    34.07 1.8676  0.006 **
+#Residual           32   583.69    
 
 set.seed(123)
 anova.cca(ordcap, permutations = perm, by = "axis")    # constrained axes
 #         Df Variance      F Pr(>F)  
-#dbRDA1    1    31.53 1.7780  0.021 *
-#dbRDA2    1    16.87 0.9822  0.351  
-#Residual 31   549.74        
+#dbRDA1    1    34.26 1.8783  0.016 *
+#dbRDA2    1    15.90 0.8991  0.578
+#Residual 32   583.69        
 
 
 

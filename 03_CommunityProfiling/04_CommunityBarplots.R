@@ -47,5 +47,5 @@ p2a <- readRDS(file.path(PANEL_DIR, "Fig2a_read_depth.rds"))
 fig2 <- ((p2a + labs(tag = "(a)")) + plot_spacer() + plot_layout(widths = c(1, 1.2))) /
   (p2b + labs(tag = "(b)")) / (p2c + labs(tag = "(c)")) +
   plot_layout(heights = c(0.8, 1, 1))
-save_fig(fig2, "Figure_2", 9, 11)
+save_fig(fig2, "Figure_2", 9, 12)
 

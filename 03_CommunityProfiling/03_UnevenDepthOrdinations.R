@@ -41,22 +41,24 @@ ordination_panels <- function(d, title) {
 }
 
 # --- JACCARD ---
-dist_matrixJ <- phyloseq::distance(ps_rarefied, method = "jaccard")
+# binary = TRUE: presence/absence Jaccard. The default is quantitative Jaccard,
+# a monotone transform of Bray-Curtis (identical ANOSIM R values in the previous run).
+dist_matrixJ <- phyloseq::distance(ps_rarefied, method = "jaccard", binary = TRUE)
 dist_matrixJ <- as.dist(as.matrix(dist_matrixJ)[rownames(metadata), rownames(metadata)])
 jac <- ordination_panels(dist_matrixJ, "Jaccard")
 
 permutest(betadisper(dist_matrixJ, group = metadata$hatchery))
-#Groups     5 0.13908 0.027815 0.8181    999  0.566
+#Groups     5 0.098995 0.0197991 14.707    999  0.001 ***
 permutest(betadisper(dist_matrixJ, group = metadata$ASE))
-#Groups     1 0.29687 0.296868 13.006    999  0.001 ***
+#Groups     1 0.000182 0.00018167 0.0842    999  0.773
 adonis2(dist_matrixJ ~ hatchery, data = metadata)
-#Model     5    8.850 0.34791 6.0821  0.001 ***
+#Model     5   3.0778 0.20626 2.9623  0.001 ***
 adonis2(dist_matrixJ ~ ASE, data = metadata)
-#Model     1   4.2657 0.16769 12.29  0.001 ***
+#Model     1   0.8553 0.05732 3.7088  0.001 ***
 anosim(dist_matrixJ, metadata$ASE, permutations = 9999)
-#ANOSIM statistic R: 0.577, Significance: 1e-04
+#ANOSIM statistic R: 0.249, Significance: 1e-04
 anosim(dist_matrixJ, metadata$hatchery, permutations = 9999)
-#ANOSIM statistic R: 0.633, Significance: 1e-04
+#ANOSIM statistic R: 0.343, Significance: 1e-04
 
 # --- BRAY-CURTIS ---
 dist_matrixB <- phyloseq::distance(ps_rarefied, method = "bray")
@@ -75,8 +77,7 @@ anosim(dist_matrixB, metadata$ASE, permutations = 9999)
 #ANOSIM statistic R: 0.633, Significance: 1e-04
 anosim(dist_matrixB, metadata$hatchery, permutations = 9999)
 #ANOSIM statistic R: 0.6888, Significance: 1e-04
-# NOTE: recorded results above came from the previous version of this script
-# (ANOSIM on the raw count matrix with the same distance); rerun to confirm.
+# Results above: presence/absence Jaccard and Bray-Curtis, rerun 2026-10-16.
 
 # --- Figure S5 ---
 fig_s5 <- ((jac$ord | jac$disp) / (bray$ord | bray$disp)) +
