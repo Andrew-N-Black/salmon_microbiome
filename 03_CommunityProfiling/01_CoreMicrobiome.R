@@ -2,7 +2,8 @@
 # Purpose:  Identify the core gut microbiome of Chinook salmon across hatcheries
 #           using prevalence x detection threshold analysis. Produces Figures S1a–S1b.
 # Inputs:   ps.tax.filtered — filtered phyloseq object (180 taxa x 63 samples)
-# Outputs:  figures/Figure_S1a.(png|svg) — core microbiome line plot (prevalence vs detection)
+# Outputs:  figures/Figure_S1.(png|svg)  — panels (a) and (b) combined
+#           figures/Figure_S1a.(png|svg) — core microbiome line plot (prevalence vs detection)
 #           figures/Figure_S1b.(png|svg) — core microbiome heatmap (ASVs x detection thresholds)
 # Key parameters:
 #   S1a: detection 0.1%-50% (log spaced, 20 steps) x prevalence 10%-100%
@@ -12,6 +13,7 @@
 
 library(microbiome)
 library(ggplot2)
+library(patchwork)
 source(file.path(Sys.getenv("SALMON_REPO", "~/salmon_microbiome"), "plot_helpers.R"))
 
 # --- Transform to relative abundance ---
@@ -75,6 +77,11 @@ p1 <- p1 + theme_bw() + ylab("ASVs")
 p1
 
 save_fig(p1, "Figure_S1b", 8, 5)
+
+# --- Figure S1: panels (a) and (b) stacked, tagged like the other figures ---
+fig_s1 <- (p_s1a / p1) +
+  plot_annotation(tag_levels = "a", tag_prefix = "(", tag_suffix = ")")
+save_fig(fig_s1, "Figure_S1", 7, 9)
 
 
 ##Look at the top five UNIQUE taxa,according to prevelance:
