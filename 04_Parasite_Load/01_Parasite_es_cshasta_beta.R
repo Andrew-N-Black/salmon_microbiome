@@ -9,7 +9,9 @@
 #           (324 taxa x 60 samples; produced by 01_phyloseq.R)
 # Outputs:  figures/Figure_S3.(png|svg); panels in figures/panels/FigS3*
 #           Console: betadisper tests, combined PERMANOVA, and within-hatchery
-#           dispersion models (distance to own hatchery centroid ~ hatchery + es + cshasta)
+#           dispersion models (distance to own hatchery centroid ~ hatchery + es + cshasta);
+#           04_Parasite_Load/within_hatchery_dispersion.csv (marginal F, parametric and
+#           within-hatchery permutation p for es and cshasta)
 # Key parameters:
 #   es      — Enterocytozoon schreckii load, collapsed to absent (0) / present (1+)
 #             because only one fish scored 2; treated as factor
@@ -185,6 +187,10 @@ within_hatchery_test <- function(meta, n_perm = 999) {
   cat("\nPermutation p (labels shuffled within hatchery):\n")
   print(data.frame(term = c("es", "cshasta"), F = round(obs, 3), p_perm = round(p_perm, 3)))
   cat("\nModel coefficients:\n"); print(summary(fit)$coefficients)
+  attr(fit, "results") <- data.frame(
+    term = c("es", "cshasta"), n = nrow(meta),
+    df = marg[c("es", "cshasta"), "Df"], df_resid = fit$df.residual,
+    F = obs, p_F = marg[c("es", "cshasta"), "Pr(>F)"], p_perm = p_perm)
   invisible(fit)
 }
 set.seed(123)
@@ -192,6 +198,11 @@ cat("\n== Within-hatchery dispersion, all fish (n = 63) ==\n")
 fit_disp_all <- within_hatchery_test(metadata)
 cat("\n== Within-hatchery dispersion, ASE-positive hatcheries only (n = 42) ==\n")
 fit_disp_pos <- within_hatchery_test(subset(metadata, ASE == "positive"))
+disp_tab <- rbind(cbind(subset = "all fish", attr(fit_disp_all, "results")),
+                  cbind(subset = "ASE-positive", attr(fit_disp_pos, "results")))
+print(disp_tab)
+write.csv(disp_tab, file.path(Sys.getenv("SALMON_REPO", "~/salmon_microbiome"),
+                              "04_Parasite_Load", "within_hatchery_dispersion.csv"), row.names = FALSE)
 cat("\nMean distance to hatchery centroid by parasite status:\n")
 print(metadata %>% group_by(es) %>% summarise(n = n(), mean = mean(dist_to_hatchery_centroid), .groups = "drop"))
 print(metadata %>% group_by(cshasta) %>% summarise(n = n(), mean = mean(dist_to_hatchery_centroid), .groups = "drop"))

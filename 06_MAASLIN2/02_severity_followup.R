@@ -133,7 +133,9 @@ if (mean(s1[m$enteritis == "3"]) < mean(s1[m$enteritis == "2"])) s1 <- -s1
 ax <- tibble(feature = colnames(X_clr),
              rho_dbRDA1 = apply(X_clr, 2, function(x) suppressWarnings(cor(x, s1, method = "spearman"))),
              prevalence = colMeans(X[rownames(X_clr), ] > 0)) %>%
-  filter(!is.na(rho_dbRDA1))
+  # ASVs absent from every ASE-positive fish have a constant zero count, so their
+  # CLR values only track each sample's geometric mean; drop them
+  filter(!is.na(rho_dbRDA1), prevalence > 0)
 ent_asv <- read.delim(file.path(dir_fu, "asv_enteritis_score_only", "all_results.tsv")) %>%
   filter(metadata == "enteritis_score", model == "abundance", is.na(error)) %>%
   select(feature, maaslin_coef = coef, maaslin_p = pval_individual, maaslin_q = qval_individual)
@@ -144,9 +146,12 @@ link <- ax %>% left_join(ent_asv, by = "feature") %>%
   arrange(desc(abs(rho_dbRDA1)))
 write_csv(link, file.path(dir_tb, "dbRDA1_taxa_vs_maaslin.csv"))
 
-top_ax <- head(link$feature, 20)
+# rank on ASVs present in at least a quarter of ASE-positive fish, so that a few
+# fish carrying a rare ASV cannot dominate the list
+top_ax <- link %>% filter(prevalence >= 0.25) %>% head(20) %>% pull(feature)
 top_ms <- link %>% filter(!is.na(maaslin_p)) %>% arrange(maaslin_p) %>% head(20) %>% pull(feature)
-cat("\n== Top 20 ASVs by |correlation with dbRDA1| ==\n"); print(as.data.frame(head(link, 20)))
+cat("\n== Top 20 ASVs by |correlation with dbRDA1| (prevalence >= 25%) ==\n")
+print(as.data.frame(filter(link, feature %in% top_ax)))
 cat("\nOverlap of top-20 dbRDA1 ASVs and top-20 MaAsLin3 enteritis ASVs:",
     length(intersect(top_ax, top_ms)), "\n")
 both <- link %>% filter(!is.na(maaslin_coef))
