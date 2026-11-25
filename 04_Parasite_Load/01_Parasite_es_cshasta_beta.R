@@ -8,14 +8,14 @@
 # Inputs:   ps.tax.filtered — filtered phyloseq already loaded in R environment
 #           (324 taxa x 60 samples; produced by 01_phyloseq.R)
 # Outputs:  figures/Figure_S3.(png|svg); panels in figures/panels/FigS3*
-#           Console: betadisper permutation tests and combined PERMANOVA
+#           Console: betadisper tests, combined PERMANOVA, and within-hatchery
+#           dispersion models (distance to own hatchery centroid ~ hatchery + es + cshasta)
 # Key parameters:
 #   es      — Enterocytozoon schreckii load, collapsed to absent (0) / present (1+)
 #             because only one fish scored 2; treated as factor
 #   cshasta — Ceratonova shasta load (ordinal 0–3), treated as factor
 #   PERMANOVA model: es + cshasta + hatchery (type II margins, by = "margin")
 #   Distance: Aitchison (CLR + Euclidean), no rarefaction
-#anosim tests due to significant betadisp
 # =============================================================================
 
 library(phyloseq)
@@ -151,29 +151,60 @@ print(adonis2(D_aitch ~ es + cshasta + hatchery, data = meta_ordered,
 #Total    62    49478 1.00000     
 
 
-# --- ANOSIM: rank-based test of parasite load vs community composition ---
-# Used alongside PERMANOVA because significant betadisper results indicate
-# heterogeneous within-group dispersions, which can inflate adonis2 p-values.
-# ANOSIM is less sensitive to dispersion differences and provides a complementary
-# test of whether between-group dissimilarity exceeds within-group dissimilarity.
+# --- Within-hatchery dispersion: are infected fish farther from their hatchery-mates? ---
+# The betadisper tests above compare each parasite group with its own centroid, so
+# they mix hatchery differences with parasite differences. Here each fish's distance
+# is measured to the centroid of its own hatchery, and that distance is modelled on
+# parasite status after accounting for hatchery (co-author suggestion, 2026-11-25).
+# Neither parasite occurs at the two ASE-negative hatcheries, so the parasite terms
+# are informed by the four ASE-positive hatcheries; the model is also refit on those
+# 42 fish alone.
+bd_hatch <- betadisper(D_aitch, group = metadata$hatchery)
+metadata$dist_to_hatchery_centroid <- as.numeric(bd_hatch$distances)
 
-cat("\nANOSIM — E. schreckii:\n")
-anosim_es <- anosim(D_aitch, metadata[rownames(as.matrix(D_aitch)), "es"],
-                    permutations = 999)
-print(anosim_es)
+within_hatchery_test <- function(meta, n_perm = 999) {
+  meta$hatchery <- factor(meta$hatchery)
+  meta <- droplevels(meta)
+  fit  <- lm(dist_to_hatchery_centroid ~ hatchery + es + cshasta, data = meta)
+  cat("\nSequential ANOVA (hatchery, then es, then cshasta):\n"); print(anova(fit))
+  marg <- drop1(fit, test = "F")            # each term after all others
+  cat("\nMarginal F tests (each term after the others):\n"); print(marg)
+  # Permutation check: shuffle parasite labels only within hatchery
+  obs <- marg[c("es", "cshasta"), "F value"]
+  perm <- replicate(n_perm, {
+    m2 <- meta
+    for (h in levels(m2$hatchery)) {
+      k <- which(m2$hatchery == h)
+      idx <- if (length(k) > 1) sample(k) else k
+      m2$es[k] <- meta$es[idx]; m2$cshasta[k] <- meta$cshasta[idx]
+    }
+    drop1(lm(dist_to_hatchery_centroid ~ hatchery + es + cshasta, data = m2),
+          test = "F")[c("es", "cshasta"), "F value"]
+  })
+  p_perm <- (rowSums(perm >= obs) + 1) / (n_perm + 1)
+  cat("\nPermutation p (labels shuffled within hatchery):\n")
+  print(data.frame(term = c("es", "cshasta"), F = round(obs, 3), p_perm = round(p_perm, 3)))
+  cat("\nModel coefficients:\n"); print(summary(fit)$coefficients)
+  invisible(fit)
+}
+set.seed(123)
+cat("\n== Within-hatchery dispersion, all fish (n = 63) ==\n")
+fit_disp_all <- within_hatchery_test(metadata)
+cat("\n== Within-hatchery dispersion, ASE-positive hatcheries only (n = 42) ==\n")
+fit_disp_pos <- within_hatchery_test(subset(metadata, ASE == "positive"))
+cat("\nMean distance to hatchery centroid by parasite status:\n")
+print(metadata %>% group_by(es) %>% summarise(n = n(), mean = mean(dist_to_hatchery_centroid), .groups = "drop"))
+print(metadata %>% group_by(cshasta) %>% summarise(n = n(), mean = mean(dist_to_hatchery_centroid), .groups = "drop"))
 
-# Results (row-wise CLR; E. schreckii 0/1+; rerun 2026-10-16):
-#ANOSIM statistic R: 0.3958
-#      Significance: 0.001 
-
-cat("\nANOSIM — C. shasta:\n")
-anosim_cshasta <- anosim(D_aitch, metadata[rownames(as.matrix(D_aitch)), "cshasta"],
-                         permutations = 999)
-print(anosim_cshasta)
-
-# Results (row-wise CLR; E. schreckii 0/1+; rerun 2026-10-16):
-#ANOSIM statistic R: 0.2386
-#      Significance: 0.001 
+# Figure S3 (b, d): distance to own hatchery's centroid by parasite status
+p_betadisp_es <- box_points(
+  data.frame(distance = metadata$dist_to_hatchery_centroid, es = metadata$es),
+  "es", "distance", LOAD_COLS, "E. schreckii", "Distance to hatchery centroid", show_n = TRUE) +
+  theme(legend.title = element_text(face = "italic"))
+p_betadisp_cshasta <- box_points(
+  data.frame(distance = metadata$dist_to_hatchery_centroid, cshasta = metadata$cshasta),
+  "cshasta", "distance", LOAD_COLS, "C. shasta", "Distance to hatchery centroid", show_n = TRUE) +
+  theme(legend.title = element_text(face = "italic"))
 
 # --- Figure S3: PCoA and distance to centroid for both parasites ---
 # Layout: row 1 = E. schreckii (PCoA | betadisper), row 2 = C. shasta

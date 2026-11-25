@@ -203,12 +203,12 @@ alpha_qc_df <- data.frame(
     mutate(
         obs_zscore  = (observed - mean(observed)) / sd(observed),
         shan_zscore = (shannon  - mean(shannon))  / sd(shannon),
-        alpha_flag  = obs_zscore < -2 | shan_zscore < -2
+        alpha_flag  = obs_zscore < -3 | shan_zscore < -3   # 3 SD (co-author review, 2026-11-25)
     ) %>%
     left_join(meta, by = "sample")
 alpha_qc_df
 
-cat("\nSamples flagged for low alpha diversity (> 2 SD below mean):\n")
+cat("\nSamples flagged for low alpha diversity (> 3 SD below mean):\n")
 print(alpha_qc_df %>%
           filter(alpha_flag) %>%
           select(sample, observed, obs_zscore,
@@ -239,12 +239,12 @@ mean_dist_df <- data.frame(
 ) %>%
     mutate(
         dist_zscore = (mean_dist - mean(mean_dist)) / sd(mean_dist),
-        dist_flag   = dist_zscore > 2
+        dist_flag   = dist_zscore > 3   # 3 SD (co-author review, 2026-11-25)
     ) %>%
     left_join(meta, by = "sample") %>%
     arrange(desc(mean_dist))
 
-cat("\nSamples flagged as multivariate outliers (mean BC distance > 2 SD):\n")
+cat("\nSamples flagged as multivariate outliers (mean BC distance > 3 SD):\n")
 print(mean_dist_df %>%
           filter(dist_flag) %>%
           select(sample, mean_dist, dist_zscore, ASE))

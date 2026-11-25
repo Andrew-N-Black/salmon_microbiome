@@ -2,7 +2,8 @@
 # Purpose:  Identify the core gut microbiome of Chinook salmon across hatcheries
 #           using prevalence x detection threshold analysis. Produces Figures S1a–S1b.
 # Inputs:   ps.tax.filtered — filtered phyloseq object (180 taxa x 63 samples)
-# Outputs:  figures/Figure_S1.(png|svg)  — panels (a) and (b) combined
+# Outputs:  figures/panels/Fig2a_core_size, Fig2b_core_heatmap (.png/.svg/.rds);
+#           assembled into Figure 2 by 09_Figure2.R
 #           figures/Figure_S1a.(png|svg) — core microbiome line plot (prevalence vs detection)
 #           figures/Figure_S1b.(png|svg) — core microbiome heatmap (ASVs x detection thresholds)
 # Key parameters:
@@ -54,7 +55,7 @@ p_s1a <- ggplot(core_df, aes(detection, core_size, colour = prevalence, group = 
                          labels = scales::label_percent(), name = "Minimum\nprevalence") +
   labs(x = "Detection threshold (relative abundance)", y = "Core size (number of ASVs)") +
   theme_ms()
-save_fig(p_s1a, "Figure_S1a", 6, 4)
+save_fig(p_s1a, "Fig2a_core_size", 6, 4, panel = TRUE)   # now Figure 2a
 
 
 # --- Figure S1b: Core microbiome heatmap ---
@@ -76,12 +77,10 @@ p1 <- plot_core(ps_rel.f,
 p1 <- p1 + theme_bw() + ylab("ASVs")
 p1
 
-save_fig(p1, "Figure_S1b", 8, 5)
+save_fig(p1, "Fig2b_core_heatmap", 8, 5, panel = TRUE)   # now Figure 2b
 
-# --- Figure S1: panels (a) and (b) stacked, tagged like the other figures ---
-fig_s1 <- (p_s1a / p1) +
-  plot_annotation(tag_levels = "a", tag_prefix = "(", tag_suffix = ")")
-save_fig(fig_s1, "Figure_S1", 7, 9)
+# Core panels are assembled with the per-hatchery composition panel into the
+# new Figure 2 by 09_Figure2.R (moved from the SI after co-author review, 2026-11-25).
 
 
 ##Look at the top five UNIQUE taxa,according to prevelance:

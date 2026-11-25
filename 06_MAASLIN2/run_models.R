@@ -83,14 +83,14 @@ library(ggVennDiagram)
 set.seed(123)
 
 # --- Parameters ---
-FEATURE_LEVEL <- "genus" # "ASV" or "genus"
+if (!exists("FEATURE_LEVEL")) FEATURE_LEVEL <- "genus" # "ASV" or "genus"; set before sourcing to override
 Q_SIG         <- 0.1     # MaAsLin3 default max_significance
 MIN_PREV      <- 0.1
 
 SEVERITY_VARS <- c("es", "epithelial_erosion", "enteritis_score", "cshasta")
 
 # --- Paths ---
-dir_out  <- file.path("salmon_microbiome", "06_MAASLIN3", FEATURE_LEVEL)
+dir_out  <- file.path(Sys.getenv("SALMON_REPO", "~/salmon_microbiome"), "06_MAASLIN3", FEATURE_LEVEL)
 dir_fig  <- file.path(dir_out, "figures")
 dir_tbl  <- file.path(dir_out, "tables")
 dir_m1   <- file.path(dir_out, "maaslin3_severity")

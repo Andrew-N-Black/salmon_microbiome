@@ -2,13 +2,13 @@
 # Purpose:  Primary beta diversity analysis using Aitchison distance (CLR +
 #           Euclidean) on the unrarefied filtered dataset. Tests whether
 #           community composition differs by hatchery or ASE status using
-#           PCoA ordination, PERMANOVA (adonis2), betadispersal, and ANOSIM.
+#           PCoA ordination, PERMANOVA (adonis2) and betadispersal.
 #           Produces Figure 3 panels b, c, e, f (assembled by 08_Figure3.R).
 # Inputs:   ps.tax.filtered — filtered phyloseq (324 taxa x 60 samples)
 #           metadata        — sample metadata data frame
 # Outputs:  figures/panels/Fig3b_betadisper_hatchery, Fig3c_pcoa_hatchery,
 #           Fig3e_betadisper_ASE, Fig3f_pcoa_ASE (.png/.svg/.rds)
-#           Console: PERMANOVA, betadisper, ANOSIM statistics
+#           Console: PERMANOVA and betadisper statistics
 # Key parameters:
 #   CLR: vegan::decostand(method = "clr", pseudocount = 1), row-wise per sample
 #   Aitchison distance: Euclidean distance on CLR-transformed counts
@@ -128,27 +128,4 @@ adonis2(formula = D_aitch ~ ASE, data = metadata)
 #Residual 61    46581 0.94145
 #Total    62    49478 1.00000           
 
-# --- ANOSIM: alternative non-parametric test of community structure ---
-# Uses the same Aitchison distance as the PERMANOVA above. (Previously this
-# recomputed CLR with microbiome::transform(X, "clr") on a samples x taxa matrix;
-# microbiome::transform assumes taxa x samples, so the CLR was applied in the
-# wrong orientation.)
-anosim(D_aitch, metadata$ASE)
-# Results (row-wise CLR, rerun 2026-10-16):
-#ANOSIM statistic R: -0.04874
-#      Significance: 0.767
-
-#Analysis of similarity-by hatchery
-anosim(D_aitch, metadata$hatchery)
-
-# Results (row-wise CLR, rerun 2026-10-16):
-#ANOSIM statistic R: 0.0526
-#      Significance: 0.124 
-
-#Analysis of similarity-by ASE
-anosim(D_aitch, metadata$ASE)
-
-# Results (row-wise CLR, rerun 2026-10-16):
-#ANOSIM statistic R: -0.04874
-#      Significance: 0.766 
 

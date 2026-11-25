@@ -6,7 +6,7 @@
 # Outputs:  figures/Figure_S5.(png|svg)
 #   (a) Jaccard PCoA  (b) Jaccard distance to hatchery centroid
 #   (c) Bray-Curtis PCoA  (d) Bray-Curtis distance to hatchery centroid
-#           Console: betadisper, PERMANOVA and ANOSIM for each distance
+#           Console: betadisper and PERMANOVA for each distance
 # =============================================================================
 
 library(phyloseq)
@@ -42,7 +42,7 @@ ordination_panels <- function(d, title) {
 
 # --- JACCARD ---
 # binary = TRUE: presence/absence Jaccard. The default is quantitative Jaccard,
-# a monotone transform of Bray-Curtis (identical ANOSIM R values in the previous run).
+# a monotone transform of Bray-Curtis (identical rank-based results in the previous run).
 dist_matrixJ <- phyloseq::distance(ps_rarefied, method = "jaccard", binary = TRUE)
 dist_matrixJ <- as.dist(as.matrix(dist_matrixJ)[rownames(metadata), rownames(metadata)])
 jac <- ordination_panels(dist_matrixJ, "Jaccard")
@@ -55,10 +55,6 @@ adonis2(dist_matrixJ ~ hatchery, data = metadata)
 #Model     5   3.0778 0.20626 2.9623  0.001 ***
 adonis2(dist_matrixJ ~ ASE, data = metadata)
 #Model     1   0.8553 0.05732 3.7088  0.001 ***
-anosim(dist_matrixJ, metadata$ASE, permutations = 9999)
-#ANOSIM statistic R: 0.249, Significance: 1e-04
-anosim(dist_matrixJ, metadata$hatchery, permutations = 9999)
-#ANOSIM statistic R: 0.343, Significance: 1e-04
 
 # --- BRAY-CURTIS ---
 dist_matrixB <- phyloseq::distance(ps_rarefied, method = "bray")
@@ -73,10 +69,6 @@ adonis2(dist_matrixB ~ hatchery, data = metadata)
 #Model     5   10.387 0.45587 9.551  0.001 ***
 adonis2(dist_matrixB ~ ASE, data = metadata)
 #Model     1   5.1293 0.22512 17.722  0.001 ***
-anosim(dist_matrixB, metadata$ASE, permutations = 9999)
-#ANOSIM statistic R: 0.633, Significance: 1e-04
-anosim(dist_matrixB, metadata$hatchery, permutations = 9999)
-#ANOSIM statistic R: 0.6888, Significance: 1e-04
 # Results above: presence/absence Jaccard and Bray-Curtis, rerun 2026-10-16.
 
 # --- Figure S5 ---

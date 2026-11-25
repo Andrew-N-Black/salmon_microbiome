@@ -1,9 +1,9 @@
 # =============================================================================
 # Purpose:  Visualize and test differences in sequencing depth across
-#           hatcheries after taxonomic filtering (Figure 2a). Unequal read depth
+#           hatcheries after taxonomic filtering (supplementary figure, panel a). Unequal read depth
 #           motivates Aitchison distance (CLR-based) rather than rarefaction.
 # Inputs:   ps.tax.filtered — filtered phyloseq
-# Outputs:  figures/panels/Fig2a_read_depth (.png/.svg/.rds)
+# Outputs:  figures/panels/FigS_read_depth (.png/.svg/.rds)
 #           Console: Kruskal-Wallis test result
 # =============================================================================
 
@@ -20,7 +20,7 @@ metadata <- label_meta(metadata)
 p2a <- box_points(metadata, "hatchery", "TotalReads", HATCHERY_COLS, "Hatchery",
                   "Reads per sample") +
   scale_y_log10(labels = scales::label_comma())
-save_fig(p2a, "Fig2a_read_depth", 4, 3, panel = TRUE)
+save_fig(p2a, "FigS_read_depth", 4, 3, panel = TRUE)   # supplementary composition figure, panel (a)
 
 # --- Kruskal-Wallis test: do read depths differ across hatcheries? ---
 kruskal.test(TotalReads ~ hatchery, data = metadata)

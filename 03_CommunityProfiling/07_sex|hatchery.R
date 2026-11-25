@@ -7,9 +7,9 @@
 #           (Aitchison distance is computed below with the same CLR as 06_Beta.R)
 #           metadata — sample metadata (sex: F/M/U)
 # Outputs:  figures/Figure_S2.(png|svg)
-#           Console: PERMANOVA and ANOSIM results stratified by hatchery
+#           Console: PERMANOVA results stratified by hatchery
 # Key parameters:
-#   strata = hatchery in adonis2 and anosim: tests sex effect within hatcheries
+#   strata = hatchery in adonis2: tests sex effect within hatcheries
 #   ASEnum == "positive" subset: re-tests in ASE-positive fish only
 # =============================================================================
 
@@ -45,16 +45,6 @@ adonis2(D_aitch ~ sex, data = metadata, strata = metadata$hatchery)
 #Residual 61    48153 0.97321
 #Total    62    49478 1.00000           
 
-# --- ANOSIM: sex effect stratified by hatchery ---
-anosim(D_aitch, metadata$sex,strata = metadata$hatchery)
-
-# Results (row-wise CLR, rerun 2026-10-16):
-#ANOSIM statistic R: 0.06383
-#      Significance: 0.817 
-
-#Blocks:  strata 
-#Permutation: free
-#Number of permutations: 999
 
 # --- Sensitivity analysis: restrict to ASE-positive samples only ---
 # Tests whether sex explains microbiome variation in the diseased subgroup.
@@ -83,13 +73,6 @@ adonis2(D_aitch_ase ~ sex, strata = metadata_ase$hatchery, data = metadata_ase)
 #Residual 40    35719 0.97547
 #Total    41    36617 1.00000           
 
-# 6. Rerun ANOSIM
-anosim(x = D_aitch_ase, grouping = metadata_ase$sex, strata = metadata_ase$hatchery)
-
-
-# Results (row-wise CLR, rerun 2026-10-16):
-#ANOSIM statistic R: 0.005453
-#      Significance: 0.613 
 
 
 # =============================================================================
